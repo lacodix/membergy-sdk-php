@@ -1,0 +1,74 @@
+{
+    "name": "lacodix/membergy-sdk-php",
+    "description": "PHP SDK for the Membergy API. Framework-agnostic with optional Laravel integration.",
+    "type": "library",
+    "keywords": [
+        "lacodix",
+        "membergy",
+        "sdk",
+        "api",
+        "cms",
+        "saloon"
+    ],
+    "homepage": "https://gitlab.pwhost.de/lacodix/membergy-sdk-php",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Dominik Müller",
+            "email": "dominik@lacodix.de",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "ext-json": "*",
+        "saloonphp/saloon": "^4.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.13",
+        "larastan/larastan": "^3.1",
+        "laravel/pint": "^1.0",
+        "orchestra/testbench": "^10.0|^11.0",
+        "pestphp/pest": "^4.0",
+        "phpstan/phpstan": "^2.0",
+        "saloonphp/laravel-plugin": "^4.0"
+    },
+    "suggest": {
+        "illuminate/support": "Required for the optional Laravel integration (ServiceProvider, Facade, config publishing)."
+    },
+    "autoload": {
+        "psr-4": {
+            "Lacodix\\MembergySdk\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Lacodix\\MembergySdk\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "analyse": "vendor/bin/phpstan analyse",
+        "test": "vendor/bin/pest",
+        "test:unit": "vendor/bin/pest --testsuite=Unit",
+        "test:integration": "vendor/bin/pest --testsuite=Integration",
+        "format": "vendor/bin/pint"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Lacodix\\MembergySdk\\Laravel\\MembergyServiceProvider"
+            ],
+            "aliases": {
+                "Membergy": "Lacodix\\MembergySdk\\Laravel\\Facades\\Membergy"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
