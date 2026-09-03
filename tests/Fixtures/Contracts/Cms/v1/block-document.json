@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "blocks": [
+    {
+      "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1",
+      "type": "title",
+      "version": 1,
+      "data": {
+        "text": "Unser Verein",
+        "level": 2
+      },
+      "settings": {
+        "anchor": "unser-verein"
+      }
+    },
+    {
+      "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2",
+      "type": "text",
+      "version": 1,
+      "data": {
+        "title": "Über uns",
+        "body": {
+          "format": "html",
+          "value": "<p>Seit 1926 machen wir gemeinsam Musik.</p>"
+        }
+      },
+      "settings": {}
+    },
+    {
+      "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa3",
+      "type": "image",
+      "version": 1,
+      "data": {
+        "title": "Jahreskonzert",
+        "image": {
+          "uuid": "11111111-1111-4111-8111-111111111111",
+          "alt": "Das Orchester beim Jahreskonzert"
+        },
+        "caption": "Jahreskonzert 2026",
+        "link": null
+      },
+      "settings": {
+        "color": "brand"
+      }
+    },
+    {
+      "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa4",
+      "type": "text_image",
+      "version": 1,
+      "data": {
+        "title": "Jugendarbeit",
+        "body": {
+          "format": "html",
+          "value": "<p>Unsere Jugend probt jeden Freitag.</p>"
+        },
+        "image": {
+          "uuid": "22222222-2222-4222-8222-222222222222",
+          "alt": "Jugendorchester in der Probe"
+        },
+        "position": "right",
+        "width": "one_third"
+      },
+      "settings": {
+        "background": {
+          "type": "color",
+          "color": "muted",
+          "image": null
+        },
+        "spacing": "large"
+      }
+    },
+    {
+      "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa5",
+      "type": "gallery",
+      "version": 1,
+      "data": {
+        "title": "Impressionen",
+        "items": [
+          {
+            "image": {
+              "uuid": "11111111-1111-4111-8111-111111111111",
+              "alt": "Konzert auf der Freilichtbühne"
+            },
+            "caption": "Sommerkonzert",
+            "overlay_text": null,
+            "link": null
+          },
+          {
+            "image": {
+              "uuid": "22222222-2222-4222-8222-222222222222",
+              "alt": "Jugendorchester beim Wertungsspiel"
+            },
+            "caption": "Wertungsspiel",
+            "overlay_text": "Jugend musiziert",
+            "link": {
+              "url": "/aktuelles/wertungsspiel-2026",
+              "label": "Zum Bericht",
+              "open_in_new_tab": false,
+              "rel": []
+            }
+          }
+        ],
+        "per_page": 2,
+        "pagination": true,
+        "autoplay": false,
+        "lightbox": true
+      },
+      "settings": {
+        "container": "full_width"
+      }
+    },
+    {
+      "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa6",
+      "type": "columns",
+      "version": 1,
+      "data": {
+        "title": "Proben",
+        "columns": [
+          {
+            "width": "one_third",
+            "blocks": [
+              {
+                "id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1",
+                "type": "title",
+                "version": 1,
+                "data": {
+                  "text": "Probe",
+                  "level": 3
+                },
+                "settings": {}
+              }
+            ]
+          },
+          {
+            "width": "two_thirds",
+            "blocks": [
+              {
+                "id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb2",
+                "type": "text",
+                "version": 1,
+                "data": {
+                  "body": {
+                    "format": "html",
+                    "value": "<p>Freitag, 20 Uhr im Proberaum.</p>"
+                  }
+                },
+                "settings": {}
+              }
+            ]
+          }
+        ]
+      },
+      "settings": {
+        "margin": "both"
+      }
+    }
+  ]
+}

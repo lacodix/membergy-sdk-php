@@ -1,0 +1,4 @@
+{
+  "message": "The requested self-service resource was not found.",
+  "code": "self_service_not_found"
+}

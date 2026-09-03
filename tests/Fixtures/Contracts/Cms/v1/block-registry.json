@@ -1,0 +1,163 @@
+{
+  "contract_version": 1,
+  "document_schema_version": 1,
+  "limits": {
+    "max_depth": 4,
+    "max_blocks": 250,
+    "max_blocks_per_list": 100,
+    "max_repeater_items": 100,
+    "max_gallery_items": 100
+  },
+  "common_settings": [
+    "anchor",
+    "color",
+    "background",
+    "container",
+    "spacing",
+    "overlap",
+    "margin",
+    "title_position",
+    "animation"
+  ],
+  "blocks": [
+    {
+      "type": "title",
+      "version": 1,
+      "phase": "vertical_slice",
+      "dynamic": false,
+      "children": false,
+      "schema": "schemas/block-document.schema.json#/definitions/titleBlock"
+    },
+    {
+      "type": "text",
+      "version": 1,
+      "phase": "vertical_slice",
+      "dynamic": false,
+      "children": false,
+      "schema": "schemas/block-document.schema.json#/definitions/textBlock"
+    },
+    {
+      "type": "image",
+      "version": 1,
+      "phase": "vertical_slice",
+      "dynamic": false,
+      "children": false,
+      "schema": "schemas/block-document.schema.json#/definitions/imageBlock"
+    },
+    {
+      "type": "text_image",
+      "version": 1,
+      "phase": "vertical_slice",
+      "dynamic": false,
+      "children": false,
+      "schema": "schemas/block-document.schema.json#/definitions/textImageBlock"
+    },
+    {
+      "type": "gallery",
+      "version": 1,
+      "phase": "vertical_slice",
+      "dynamic": false,
+      "children": false,
+      "schema": "schemas/block-document.schema.json#/definitions/galleryBlock"
+    },
+    {
+      "type": "columns",
+      "version": 1,
+      "phase": "vertical_slice",
+      "dynamic": false,
+      "children": true,
+      "allowed_children": [
+        "title",
+        "text",
+        "image",
+        "text_image",
+        "gallery",
+        "columns",
+        "raw_html",
+        "downloads",
+        "agenda",
+        "logo_cloud",
+        "video",
+        "testimonials",
+        "post_category",
+        "contact_form",
+        "anchor_navigation"
+      ],
+      "schema": "schemas/block-document.schema.json#/definitions/columnsBlock"
+    },
+    {
+      "type": "raw_html",
+      "version": 1,
+      "phase": "mvm",
+      "dynamic": false,
+      "children": false,
+      "permission": "content-management.raw-html",
+      "sanitize": true,
+      "schema": "schemas/block-document.schema.json#/definitions/rawHtmlBlock"
+    },
+    {
+      "type": "downloads",
+      "version": 1,
+      "phase": "mvm",
+      "dynamic": false,
+      "children": false,
+      "schema": "schemas/block-document.schema.json#/definitions/downloadsBlock"
+    },
+    {
+      "type": "agenda",
+      "version": 1,
+      "phase": "mvm",
+      "dynamic": false,
+      "children": false,
+      "schema": "schemas/block-document.schema.json#/definitions/agendaBlock"
+    },
+    {
+      "type": "logo_cloud",
+      "version": 1,
+      "phase": "mvm",
+      "dynamic": false,
+      "children": false,
+      "schema": "schemas/block-document.schema.json#/definitions/logoCloudBlock"
+    },
+    {
+      "type": "video",
+      "version": 1,
+      "phase": "hhv",
+      "dynamic": false,
+      "children": false,
+      "schema": "schemas/block-document.schema.json#/definitions/videoBlock"
+    },
+    {
+      "type": "testimonials",
+      "version": 1,
+      "phase": "hhv",
+      "dynamic": false,
+      "children": false,
+      "schema": "schemas/block-document.schema.json#/definitions/testimonialsBlock"
+    },
+    {
+      "type": "post_category",
+      "version": 1,
+      "phase": "hhv",
+      "dynamic": true,
+      "children": false,
+      "schema": "schemas/block-document.schema.json#/definitions/postCategoryBlock"
+    },
+    {
+      "type": "contact_form",
+      "version": 1,
+      "phase": "hhv",
+      "dynamic": true,
+      "children": false,
+      "schema": "schemas/block-document.schema.json#/definitions/contactFormBlock"
+    },
+    {
+      "type": "anchor_navigation",
+      "version": 1,
+      "phase": "hhv",
+      "dynamic": true,
+      "children": false,
+      "schema": "schemas/block-document.schema.json#/definitions/anchorNavigationBlock"
+    }
+  ]
+}

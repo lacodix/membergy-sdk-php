@@ -5,23 +5,25 @@ declare(strict_types=1);
 namespace Lacodix\MembergySdk\Requests\Content;
 
 use Saloon\Enums\Method;
-use Saloon\Http\Request;
 
-/**
- * GET /api/tenant/{tenant}/content/posts/{slug}
- */
-class ShowPostRequest extends Request
+final class ShowPostRequest extends AbstractContentRequest
 {
     protected Method $method = Method::GET;
 
-    public function __construct(
-        protected string $tenant,
-        protected string $slug,
-    ) {
+    /** @param array<string, string> $queryParameters */
+    public function __construct(string $tenant, private string $slug, private array $queryParameters = [])
+    {
+        parent::__construct($tenant);
     }
 
     public function resolveEndpoint(): string
     {
-        return '/tenant/' . $this->tenant . '/content/posts/' . rawurlencode($this->slug);
+        return $this->contentEndpoint('posts/'.rawurlencode($this->slug));
+    }
+
+    /** @return array<string, string> */
+    public function defaultQuery(): array
+    {
+        return $this->queryParameters;
     }
 }

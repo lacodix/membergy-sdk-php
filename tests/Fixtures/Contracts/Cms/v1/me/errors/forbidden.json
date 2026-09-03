@@ -1,0 +1,4 @@
+{
+  "message": "This self-service operation is not allowed.",
+  "code": "self_service_forbidden"
+}

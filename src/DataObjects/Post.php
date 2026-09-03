@@ -5,86 +5,51 @@ declare(strict_types=1);
 namespace Lacodix\MembergySdk\DataObjects;
 
 use DateTimeImmutable;
+use Lacodix\MembergySdk\Support\Data;
 
-/**
- * Data transfer object for a Membergy CMS post.
- *
- * Fields are modeled after the Post resource shipped with Membergy
- * as of writing. Unknown keys from the API are kept in $extra so
- * the SDK doesn't break on non-breaking API additions.
- */
-final class Post
+final readonly class Post
 {
-    /**
-     * @param  array<string, mixed>  $extra
-     */
+    /** @param array<string, mixed> $extra */
     public function __construct(
-        public readonly string $uuid,
-        public readonly string $title,
-        public readonly string $slug,
-        public readonly ?string $category,
-        public readonly ?string $categoryUuid,
-        public readonly ?string $visibility,
-        public readonly bool $published,
-        public readonly ?DateTimeImmutable $publishedAt,
-        /** The content body. Membergy stores it as a JSON structure. */
-        public readonly mixed $content,
-        public readonly ?MediaReference $media,
-        public readonly array $extra = [],
-    ) {
-    }
+        public string $uuid,
+        public string $title,
+        public string $slug,
+        public ?string $teaser,
+        public ?PostCategoryReference $category,
+        public ?MediaReference $featuredMedia,
+        public string $visibility,
+        public ?DateTimeImmutable $publishedAt,
+        public DateTimeImmutable $updatedAt,
+        public BlockDocument $content,
+        public ?DynamicIncludes $included = null,
+        public array $extra = [],
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data
+     * @param  array<string, mixed>|null  $included
      */
-    public static function fromArray(array $data): self
+    public static function fromArray(array $data, ?array $included = null): self
     {
-        $known = [
-            'uuid', 'title', 'slug', 'category', 'category_uuid',
-            'visibility', 'published', 'published_at', 'content',
-            'media', 'media_id',
-        ];
-
-        $extra = array_diff_key($data, array_flip($known));
+        $category = Data::nullableObject($data, 'category');
+        $featuredMedia = Data::nullableObject($data, 'featured_media');
 
         return new self(
-            uuid: (string) ($data['uuid'] ?? ''),
-            title: (string) ($data['title'] ?? ''),
-            slug: (string) ($data['slug'] ?? ''),
-            category: self::nullableString($data, 'category'),
-            categoryUuid: self::nullableString($data, 'category_uuid'),
-            visibility: self::nullableString($data, 'visibility'),
-            published: (bool) ($data['published'] ?? false),
-            publishedAt: self::nullableDate($data, 'published_at'),
-            content: $data['content'] ?? null,
-            media: isset($data['media']) && is_array($data['media'])
-                ? MediaReference::fromArray($data['media'])
-                : null,
-            extra: $extra,
+            uuid: Data::string($data, 'uuid'),
+            title: Data::string($data, 'title'),
+            slug: Data::string($data, 'slug'),
+            teaser: Data::nullableString($data, 'teaser'),
+            category: $category === null ? null : PostCategoryReference::fromArray($category),
+            featuredMedia: $featuredMedia === null ? null : MediaReference::fromArray($featuredMedia),
+            visibility: Data::string($data, 'visibility'),
+            publishedAt: Data::nullableDate($data, 'published_at'),
+            updatedAt: Data::date($data, 'updated_at'),
+            content: BlockDocument::fromArray(Data::object($data, 'content')),
+            included: $included === null ? null : DynamicIncludes::fromArray($included),
+            extra: Data::extra($data, [
+                'uuid', 'title', 'slug', 'teaser', 'category', 'featured_media',
+                'visibility', 'content', 'published_at', 'updated_at',
+            ]),
         );
-    }
-
-    /**
-     * @param array<string, mixed> $data
-     */
-    private static function nullableString(array $data, string $key): ?string
-    {
-        $value = $data[$key] ?? null;
-
-        return $value === null ? null : (string) $value;
-    }
-
-    /**
-     * @param array<string, mixed> $data
-     */
-    private static function nullableDate(array $data, string $key): ?DateTimeImmutable
-    {
-        $value = $data[$key] ?? null;
-
-        if ($value === null || $value === '') {
-            return null;
-        }
-
-        return new DateTimeImmutable((string) $value);
     }
 }

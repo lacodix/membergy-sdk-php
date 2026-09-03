@@ -1,0 +1,41 @@
+{
+  "data": {
+    "uuid": "30000000-0000-4000-8000-000000000001",
+    "title": "Erfolg beim Wertungsspiel",
+    "slug": "erfolg-beim-wertungsspiel",
+    "teaser": "Unser Jugendorchester erreicht die Bestnote.",
+    "category": {
+      "uuid": "20000000-0000-4000-8000-000000000001",
+      "title": "Aktuelles",
+      "slug": "aktuelles"
+    },
+    "featured_media": {
+      "uuid": "22222222-2222-4222-8222-222222222222",
+      "kind": "image",
+      "title": "Jugendorchester",
+      "alt": "Das Jugendorchester beim Wertungsspiel",
+      "mime_type": "image/webp",
+      "url": "https://api.membergy.test/api/v1/tenant/demo/content/image/22222222-2222-4222-8222-222222222222?v=1"
+    },
+    "visibility": "public",
+    "content": {
+      "schema_version": 1,
+      "blocks": [
+        {
+          "id": "cccccccc-cccc-4ccc-8ccc-ccccccccccc1",
+          "type": "text",
+          "version": 1,
+          "data": {
+            "body": {
+              "format": "html",
+              "value": "<p>Mit 95 Punkten erspielte sich das Orchester die Bestnote.</p>"
+            }
+          },
+          "settings": {}
+        }
+      ]
+    },
+    "published_at": "2026-08-08T10:00:00+00:00",
+    "updated_at": "2026-08-08T12:30:00+00:00"
+  }
+}

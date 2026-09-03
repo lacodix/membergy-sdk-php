@@ -1,0 +1,4 @@
+{
+  "message": "Too many requests. Please try again later.",
+  "code": "cms_rate_limited"
+}

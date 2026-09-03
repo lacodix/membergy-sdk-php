@@ -1,0 +1,25 @@
+{
+  "data": [
+    {
+      "uuid": "20000000-0000-4000-8000-000000000001",
+      "title": "Aktuelles",
+      "slug": "aktuelles",
+      "position": 10,
+      "description": "Neuigkeiten aus dem Vereinsleben.",
+      "media": null,
+      "updated_at": "2026-08-03T14:00:00+00:00"
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "per_page": 20,
+    "total": 1,
+    "last_page": 1
+  },
+  "links": {
+    "first": "https://api.membergy.test/api/v1/tenant/demo/content/post-categories?page=1",
+    "last": "https://api.membergy.test/api/v1/tenant/demo/content/post-categories?page=1",
+    "prev": null,
+    "next": null
+  }
+}

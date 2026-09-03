@@ -1,0 +1,20 @@
+{
+  "data": {
+    "firstname": "Alex",
+    "lastname": "Member",
+    "salutation": "mr",
+    "title": "Dr.",
+    "gender": "male",
+    "email": "member@example.test",
+    "address_addition": "Rear building",
+    "address_street": "Main Street 12",
+    "address_zip": "12345",
+    "address_city": "Berlin",
+    "country": "Germany",
+    "date_of_birth": "1985-06-15",
+    "date_of_birth_sharing_scope": "team",
+    "name_at_birth": "Legacy",
+    "date_of_wedding": "2012-09-01",
+    "updated_at": "2026-08-11T10:00:00+00:00"
+  }
+}

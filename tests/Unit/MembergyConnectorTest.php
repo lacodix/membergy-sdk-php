@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use GuzzleHttp\RequestOptions;
 use Lacodix\MembergySdk\Connectors\MembergyConnector;
 use Lacodix\MembergySdk\Exceptions\MembergyException;
+use Lacodix\MembergySdk\Requests\Content\ShowPageRequest;
 
 it('builds the correct base URL with api version', function () {
     $connector = new MembergyConnector(
@@ -43,4 +45,17 @@ it('returns a new instance when switching user tokens and keeps originals untouc
     expect($connector->hasUserToken())->toBeFalse()
         ->and($authed->hasUserToken())->toBeTrue()
         ->and($authed)->not->toBe($connector);
+});
+
+it('applies explicit connection and request timeouts to Saloon pending requests', function () {
+    $connector = new MembergyConnector(
+        baseUrl: 'https://members.example.org',
+        tenant: 'my-club',
+        connectTimeout: 2.5,
+        requestTimeout: 9.5,
+    );
+    $pending = $connector->createPendingRequest(new ShowPageRequest('my-club', 'welcome'));
+
+    expect($pending->config()->get(RequestOptions::CONNECT_TIMEOUT))->toBe(2.5)
+        ->and($pending->config()->get(RequestOptions::TIMEOUT))->toBe(9.5);
 });

@@ -1,0 +1,9 @@
+{
+  "message": "The request parameters are invalid.",
+  "code": "cms_validation_failed",
+  "errors": {
+    "sort": [
+      "Sort ist unzulässig."
+    ]
+  }
+}

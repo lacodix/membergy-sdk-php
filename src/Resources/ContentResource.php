@@ -21,14 +21,45 @@ class ContentResource
 {
     public function __construct(
         private readonly MembergyConnector $connector,
-    ) {
-    }
+    ) {}
 
     public function posts(): PostsResource
     {
         return new PostsResource($this->connector);
     }
 
-    // TODO: menus(), events(), boilerplates(), images(), files(),
-    //       newsletter() — added as they are implemented.
+    public function pages(): PagesResource
+    {
+        return new PagesResource($this->connector);
+    }
+
+    public function postCategories(): PostCategoriesResource
+    {
+        return new PostCategoriesResource($this->connector);
+    }
+
+    public function menus(): MenusResource
+    {
+        return new MenusResource($this->connector);
+    }
+
+    public function images(): ImagesResource
+    {
+        return new ImagesResource($this->connector);
+    }
+
+    public function files(): FilesResource
+    {
+        return new FilesResource($this->connector);
+    }
+
+    public function events(): EventsResource
+    {
+        return new EventsResource($this->connector);
+    }
+
+    public function boilerplates(): BoilerplatesResource
+    {
+        return new BoilerplatesResource($this->connector);
+    }
 }

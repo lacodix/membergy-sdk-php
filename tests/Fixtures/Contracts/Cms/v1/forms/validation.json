@@ -1,0 +1,9 @@
+{
+  "message": "The submitted form values are invalid.",
+  "code": "form_validation_failed",
+  "errors": {
+    "custom_field": [
+      "Unknown form field."
+    ]
+  }
+}

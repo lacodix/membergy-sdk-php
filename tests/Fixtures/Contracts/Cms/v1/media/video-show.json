@@ -1,0 +1,18 @@
+{
+  "data": {
+    "uuid": "44444444-4444-4444-8444-444444444444",
+    "kind": "video",
+    "title": "Konzerttrailer",
+    "alt": null,
+    "description": "Trailer zum Jahreskonzert.",
+    "filename": "konzerttrailer.mp4",
+    "mime_type": "video/mp4",
+    "size_bytes": 52428800,
+    "width": 1920,
+    "height": 1080,
+    "focus": null,
+    "visibility": "public",
+    "url": "https://api.membergy.test/api/v1/tenant/demo/content/file/44444444-4444-4444-8444-444444444444?v=1",
+    "updated_at": "2026-08-06T12:00:00+00:00"
+  }
+}

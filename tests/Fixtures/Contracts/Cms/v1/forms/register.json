@@ -1,0 +1,115 @@
+{
+  "data": {
+    "name": "register",
+    "title": "Musikverein Harmonie - Anmeldung",
+    "fields": [
+      {
+        "name": "email",
+        "label": "Email",
+        "type": "email",
+        "required": true,
+        "nullable": false,
+        "multiple": false,
+        "default": "",
+        "help": null,
+        "options": []
+      },
+      {
+        "name": "password",
+        "label": "Passwort",
+        "type": "password",
+        "required": true,
+        "nullable": true,
+        "multiple": false,
+        "default": null,
+        "help": null,
+        "options": []
+      },
+      {
+        "name": "password_confirmation",
+        "label": "Passwortbestätigung",
+        "type": "password",
+        "required": true,
+        "nullable": true,
+        "multiple": false,
+        "default": null,
+        "help": null,
+        "options": []
+      },
+      {
+        "name": "firstname",
+        "label": "Vorname",
+        "type": "text",
+        "required": true,
+        "nullable": false,
+        "multiple": false,
+        "default": "",
+        "help": null,
+        "options": []
+      },
+      {
+        "name": "lastname",
+        "label": "Nachname",
+        "type": "text",
+        "required": true,
+        "nullable": false,
+        "multiple": false,
+        "default": "",
+        "help": null,
+        "options": []
+      },
+      {
+        "name": "salutation",
+        "label": "Anrede",
+        "type": "select",
+        "required": true,
+        "nullable": true,
+        "multiple": false,
+        "default": null,
+        "help": null,
+        "options": [
+          { "value": "mr", "label": "Herr" },
+          { "value": "mrs", "label": "Frau" },
+          { "value": "company", "label": "Firma" },
+          { "value": "family", "label": "Familie" }
+        ]
+      },
+      {
+        "name": "gender",
+        "label": "Geschlecht",
+        "type": "select",
+        "required": true,
+        "nullable": true,
+        "multiple": false,
+        "default": null,
+        "help": null,
+        "options": [
+          { "value": "male", "label": "männlich" },
+          { "value": "female", "label": "weiblich" },
+          { "value": "divers", "label": "divers" }
+        ]
+      },
+      {
+        "name": "address_street",
+        "label": "Straße",
+        "type": "text",
+        "required": true,
+        "nullable": true,
+        "multiple": false,
+        "default": null,
+        "help": null,
+        "options": []
+      }
+    ],
+    "values": {
+      "email": "",
+      "password": null,
+      "password_confirmation": null,
+      "firstname": "",
+      "lastname": "",
+      "salutation": null,
+      "gender": null,
+      "address_street": null
+    }
+  }
+}

@@ -20,8 +20,7 @@ final class PaginatedResult
         public readonly array $items,
         public readonly array $meta,
         public readonly array $links,
-    ) {
-    }
+    ) {}
 
     public function currentPage(): ?int
     {
@@ -48,6 +47,22 @@ final class PaginatedResult
         $current = $this->currentPage();
         $last = $this->lastPage();
 
-        return $current !== null && $last !== null && $current < $last;
+        return $current !== null && $last !== null
+            ? $current < $last
+            : $this->nextCursor() !== null;
+    }
+
+    public function nextCursor(): ?string
+    {
+        return isset($this->meta['next_cursor']) && is_string($this->meta['next_cursor'])
+            ? $this->meta['next_cursor']
+            : null;
+    }
+
+    public function previousCursor(): ?string
+    {
+        return isset($this->meta['prev_cursor']) && is_string($this->meta['prev_cursor'])
+            ? $this->meta['prev_cursor']
+            : null;
     }
 }

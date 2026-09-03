@@ -6,6 +6,4 @@ namespace Lacodix\MembergySdk\Exceptions;
 
 use RuntimeException;
 
-class MembergyException extends RuntimeException
-{
-}
+class MembergyException extends RuntimeException {}

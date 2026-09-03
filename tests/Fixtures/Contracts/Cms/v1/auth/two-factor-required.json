@@ -1,0 +1,4 @@
+{
+  "message": "Two-factor authentication is required for this account.",
+  "code": "auth_two_factor_required"
+}

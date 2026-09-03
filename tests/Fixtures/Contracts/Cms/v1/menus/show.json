@@ -1,0 +1,71 @@
+{
+  "data": {
+    "uuid": "40000000-0000-4000-8000-000000000001",
+    "title": "Hauptnavigation",
+    "handle": "main",
+    "visibility": "public",
+    "items": [
+      {
+        "id": "41000000-0000-4000-8000-000000000001",
+        "label": "Verein",
+        "target": {
+          "type": "page",
+          "uuid": "10000000-0000-4000-8000-000000000001",
+          "slug": "willkommen",
+          "title": "Willkommen"
+        },
+        "open_in_new_tab": false,
+        "rel": [],
+        "meta": {},
+        "children": [
+          {
+            "id": "41000000-0000-4000-8000-000000000002",
+            "label": "Aktuelles",
+            "target": {
+              "type": "post_category",
+              "uuid": "20000000-0000-4000-8000-000000000001",
+              "slug": "aktuelles",
+              "title": "Aktuelles"
+            },
+            "open_in_new_tab": false,
+            "rel": [],
+            "meta": {},
+            "children": [
+              {
+                "id": "41000000-0000-4000-8000-000000000003",
+                "label": "Wertungsspiel",
+                "target": {
+                  "type": "post",
+                  "uuid": "30000000-0000-4000-8000-000000000001",
+                  "slug": "erfolg-beim-wertungsspiel",
+                  "title": "Erfolg beim Wertungsspiel"
+                },
+                "open_in_new_tab": false,
+                "rel": [],
+                "meta": {},
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "41000000-0000-4000-8000-000000000004",
+        "label": "Noten bestellen",
+        "target": {
+          "type": "custom_link",
+          "url": "https://shop.example.org/noten"
+        },
+        "open_in_new_tab": true,
+        "rel": [
+          "noopener",
+          "noreferrer"
+        ],
+        "meta": {},
+        "children": []
+      }
+    ],
+    "published_at": "2026-08-01T08:00:00+00:00",
+    "updated_at": "2026-08-09T16:00:00+00:00"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "data": [
+    {
+      "uuid": "11111111-1111-4111-8111-111111111111",
+      "kind": "image",
+      "title": "Jahreskonzert",
+      "alt": "Das Orchester auf der Bühne",
+      "description": "Aufnahme vom Jahreskonzert 2026.",
+      "filename": "jahreskonzert-2026.jpg",
+      "mime_type": "image/jpeg",
+      "size_bytes": 2457600,
+      "width": 2400,
+      "height": 1600,
+      "focus": {
+        "x": 0.52,
+        "y": 0.38
+      },
+      "visibility": "public",
+      "url": "https://api.membergy.test/api/v1/tenant/demo/content/image/11111111-1111-4111-8111-111111111111?v=1",
+      "updated_at": "2026-08-07T09:15:00+00:00"
+    },
+    {
+      "uuid": "22222222-2222-4222-8222-222222222222",
+      "kind": "image",
+      "title": "Jugendorchester",
+      "alt": "Das Jugendorchester beim Wertungsspiel",
+      "description": null,
+      "filename": "jugendorchester.webp",
+      "mime_type": "image/webp",
+      "size_bytes": 1024000,
+      "width": 1600,
+      "height": 1067,
+      "focus": null,
+      "visibility": "public",
+      "url": "https://api.membergy.test/api/v1/tenant/demo/content/image/22222222-2222-4222-8222-222222222222?v=1",
+      "updated_at": "2026-08-05T09:15:00+00:00"
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "per_page": 20,
+    "total": 2,
+    "last_page": 1
+  },
+  "links": {
+    "first": "https://api.membergy.test/api/v1/tenant/demo/content/images?page=1",
+    "last": "https://api.membergy.test/api/v1/tenant/demo/content/images?page=1",
+    "prev": null,
+    "next": null
+  }
+}

@@ -2,7 +2,7 @@
 
 ## Was dieses Repo ist
 
-Ein **downloadbares, framework-agnostisches PHP-SDK** (PHP 8.3+, Saloon 3), mit dem **externe
+Ein **downloadbares, framework-agnostisches PHP-SDK** (PHP 8.3+, Saloon 4), mit dem **externe
 Entwickler** die **CMS-Inhalte** aus einer Membergy-Instanz für ihre eigene Webseite/​Dienste
 abziehen können. Optionale Laravel-Integration (ServiceProvider, Facade, Config). **Früher
 Entwicklungsstand** – Scope & Checkliste in `README.md`.
@@ -27,13 +27,16 @@ Endpoint** der öffentlichen, tenant-bewussten CMS-API in `membergy`:
 
 | SDK-Resource | Membergy-Endpoint (`/api/v1/tenant/{tenant}/content/...`) | Controller |
 |---|---|---|
-| `posts()` ✅ | `posts`, `post-categories` | `App\Http\Controllers\Cms\PostsController` |
-| `menus()` ⬜ | `menus` | `…\Cms\MenusController` |
-| `images()`/`files()` ⬜ | `images`, `files`, `image/{uuid}`, `file/{uuid}` | `…\Cms\ImagesController`/`FilesController` |
-| `newsletter()` ⬜ | `newsletter/categories`, `newsletter/subscribe|unsubscribe` | `…\Cms\Newsletter*Controller` |
-| `boilerplates()` ⬜ | `boilerplates` | `…\Cms\BoilerplatesController` |
-| `auth()->tokenFromCredentials()` ⬜ | `POST /api/token` | `…\Api\AuthController` |
-| generischer `resources()` ⬜ | `/tenant/{tenant}/resources/...` (Sanctum) | `…\Api\ResourceController` |
+| `pages()` ✅ | `pages`, `pages/{slug}` | `App\Http\Controllers\Cms\PagesController` |
+| `posts()` ✅ | `posts`, `posts/{slug}` | `…\Cms\PostsController` |
+| `postCategories()` ✅ | `post-categories`, `post-categories/{slug}` | `…\Cms\PostCategoriesController` |
+| `menus()` ✅ | `menus`, `menus/{handle}` | `…\Cms\MenusController` |
+| `images()`/`files()` ✅ | `images`, `files`, `image/{uuid}`, `file/{uuid}` | `…\Cms\ImagesController`/`FilesController` |
+| `newsletter()` ✅ | `newsletter/categories`, DOI `newsletter/subscribe`, signed-link request `newsletter/unsubscribe` | `…\Cms\Newsletter*Controller` |
+| `boilerplates()` ✅ | `boilerplates` | `…\Cms\BoilerplatesController` |
+| `auth()->tokenFromCredentials()` ✅ | `POST /api/v1/token` | `…\Api\AuthController` |
+
+Admin- und Resourcerer-Shapes sind ausdrücklich keine Public-SDK-Verträge.
 
 **Regel beim Bauen eines SDK-Resources:** den **realen Response-Shape** des zugehörigen
 Membergy-Controllers (`/home/muellerd/workspace/lacodix/membergy/app/Http/Controllers/Cms/*`)

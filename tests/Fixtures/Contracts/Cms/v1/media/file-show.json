@@ -1,0 +1,18 @@
+{
+  "data": {
+    "uuid": "33333333-3333-4333-8333-333333333333",
+    "kind": "file",
+    "title": "Beitrittserklärung",
+    "alt": null,
+    "description": "Formular für neue Mitglieder.",
+    "filename": "beitrittserklaerung.pdf",
+    "mime_type": "application/pdf",
+    "size_bytes": 184320,
+    "width": null,
+    "height": null,
+    "focus": null,
+    "visibility": "public",
+    "url": "https://api.membergy.test/api/v1/tenant/demo/content/file/33333333-3333-4333-8333-333333333333?v=1",
+    "updated_at": "2026-08-06T11:00:00+00:00"
+  }
+}

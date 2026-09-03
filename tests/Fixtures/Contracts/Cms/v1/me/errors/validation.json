@@ -1,0 +1,9 @@
+{
+  "message": "The self-service request values are invalid.",
+  "code": "self_service_validation_failed",
+  "errors": {
+    "categories": [
+      "One or more categories are unavailable."
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "data": {
+    "uuid": "20000000-0000-4000-8000-000000000001",
+    "title": "Aktuelles",
+    "slug": "aktuelles",
+    "position": 10,
+    "description": "Neuigkeiten aus dem Vereinsleben.",
+    "media": null,
+    "updated_at": "2026-08-03T14:00:00+00:00"
+  }
+}

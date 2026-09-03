@@ -1,0 +1,9 @@
+{
+  "message": "The request parameters are invalid.",
+  "code": "auth_validation_failed",
+  "errors": {
+    "token": [
+      "Invalid password reset token."
+    ]
+  }
+}

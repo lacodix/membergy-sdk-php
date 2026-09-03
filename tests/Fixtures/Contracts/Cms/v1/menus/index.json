@@ -1,0 +1,24 @@
+{
+  "data": [
+    {
+      "uuid": "40000000-0000-4000-8000-000000000001",
+      "title": "Hauptnavigation",
+      "handle": "main",
+      "visibility": "public",
+      "published_at": "2026-08-01T08:00:00+00:00",
+      "updated_at": "2026-08-09T16:00:00+00:00"
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "per_page": 20,
+    "total": 1,
+    "last_page": 1
+  },
+  "links": {
+    "first": "https://api.membergy.test/api/v1/tenant/demo/content/menus?page=1",
+    "last": "https://api.membergy.test/api/v1/tenant/demo/content/menus?page=1",
+    "prev": null,
+    "next": null
+  }
+}

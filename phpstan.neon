@@ -5,11 +5,3 @@ parameters:
         - tests
     tmpDir: build/phpstan
     treatPhpDocTypesAsCertain: false
-    ignoreErrors:
-        # Laravel integration is optional — illuminate/support is only a suggest.
-        # Ignore "class not found" reports for those files when running PHPStan
-        # without Laravel installed.
-        -
-            message: '#.*Illuminate\\.*#'
-            paths:
-                - src/Laravel
