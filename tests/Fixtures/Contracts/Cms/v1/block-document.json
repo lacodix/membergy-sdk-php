@@ -40,7 +40,7 @@
         "link": null
       },
       "settings": {
-        "color": "brand"
+        "color": "#493a8c"
       }
     },
     {
@@ -63,7 +63,7 @@
       "settings": {
         "background": {
           "type": "color",
-          "color": "muted",
+          "color": "#f3f4f6",
           "image": null
         },
         "spacing": "large"

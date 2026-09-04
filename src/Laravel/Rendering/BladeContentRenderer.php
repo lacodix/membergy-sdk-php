@@ -133,7 +133,6 @@ final readonly class BladeContentRenderer implements ContentRenderer
             'overlap' => $settings->overlap,
             'margin' => $settings->margin,
             'title-position' => $settings->titlePosition,
-            'animation' => $settings->animation,
         ] as $name => $value) {
             if (is_string($value) && $value !== '') {
                 $classes[] = 'membergy-'.$name.'--'.$value;

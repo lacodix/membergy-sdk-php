@@ -18,7 +18,6 @@ final readonly class BlockSettings
         public ?string $overlap,
         public ?string $margin,
         public ?string $titlePosition,
-        public ?string $animation,
         public array $extra = [],
     ) {}
 
@@ -36,10 +35,9 @@ final readonly class BlockSettings
             overlap: Data::nullableString($data, 'overlap'),
             margin: Data::nullableString($data, 'margin'),
             titlePosition: Data::nullableString($data, 'title_position'),
-            animation: Data::nullableString($data, 'animation'),
             extra: Data::extra($data, [
                 'anchor', 'color', 'background', 'container', 'spacing', 'overlap',
-                'margin', 'title_position', 'animation',
+                'margin', 'title_position',
             ]),
         );
     }
