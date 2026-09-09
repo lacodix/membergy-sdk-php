@@ -24,7 +24,7 @@ use Psr\SimpleCache\CacheInterface;
  * (in Laravel through the bundled ServiceProvider, elsewhere by hand):
  *
  *   $client = new MembergyClient(
- *       baseUrl: 'https://members.example.org',
+ *       baseUrl: 'https://membergy.app',
  *       tenant:  'my-club',
  *   );
  *

@@ -1,6 +1,6 @@
 # Membergy SDK for PHP
 
-PHP SDK for the [Membergy](https://members.example.org) API.
+PHP SDK for the [Membergy](https://membergy.app) API.
 
 **Framework-agnostic**: works in any PHP 8.3+ project (Laravel, WordPress,
 Symfony, plain PHP). Ships with an optional Laravel integration
@@ -47,7 +47,7 @@ composer require lacodix/membergy-sdk-php
 use Lacodix\MembergySdk\MembergyClient;
 
 $client = new MembergyClient(
-    baseUrl: 'https://members.example.org',
+    baseUrl: 'https://membergy.app',
     tenant:  'my-club',
 );
 
@@ -214,9 +214,13 @@ php artisan membergy:install
 Add to `.env`:
 
 ```
-MEMBERGY_URL=https://members.example.org
+MEMBERGY_URL=https://membergy.app
 MEMBERGY_TENANT=my-club
 ```
+
+`MEMBERGY_URL` defaults to `https://membergy.app`. Point it at the reachable
+local or review instance when developing a consumer application, for example
+`MEMBERGY_URL=http://membergy.test`.
 
 Then resolve the client from the container or use the facade:
 

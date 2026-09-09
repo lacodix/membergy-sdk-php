@@ -11,11 +11,11 @@ return [
     |
     | The root URL of your Membergy instance (no trailing /api). Different
     | values per environment are typical:
-    |   production:   https://members.example.org
-    |   staging:      https://staging.members.example.org
+    |   production/default: https://membergy.app
+    |   local example:      http://membergy.test
     |
     */
-    'base_url' => env('MEMBERGY_URL', 'https://members.example.org'),
+    'base_url' => env('MEMBERGY_URL', 'https://membergy.app'),
 
     /*
     |---------------------------------------------------------------------------

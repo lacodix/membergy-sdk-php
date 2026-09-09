@@ -29,9 +29,25 @@ final class LaravelIntegrationTest extends TestCase
 
     protected function defineEnvironment($app): void
     {
-        $app['config']->set('membergy.base_url', 'https://api.membergy.test');
         $app['config']->set('membergy.tenant', 'demo');
         $app['config']->set('membergy.cache.enabled', false);
+    }
+
+    public function test_it_uses_the_production_base_url_by_default_and_accepts_an_explicit_override(): void
+    {
+        self::assertSame('https://membergy.app', $this->app['config']->get('membergy.base_url'));
+        self::assertSame(
+            'https://membergy.app/api/v1',
+            $this->app->make(MembergyClient::class)->connector()->resolveBaseUrl(),
+        );
+
+        $this->app['config']->set('membergy.base_url', 'http://local-membergy.test/');
+        $this->app->forgetInstance(MembergyClient::class);
+
+        self::assertSame(
+            'http://local-membergy.test/api/v1',
+            $this->app->make(MembergyClient::class)->connector()->resolveBaseUrl(),
+        );
     }
 
     public function test_it_renders_recursive_block_documents_and_the_content_component(): void
