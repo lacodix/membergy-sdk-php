@@ -35,6 +35,7 @@ use Psr\SimpleCache\CacheInterface;
  * bearer token and switch the client:
  *
  *   $authed = $client->withUserToken($token);
+ *   $access = $authed->me()->access()->get();
  *   $profile = $authed->me()->person()->get();
  *
  * The client itself is immutable: withUserToken() returns a new

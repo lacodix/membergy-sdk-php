@@ -1,0 +1,4 @@
+{
+  "message": "Too many requests. Please try again later.",
+  "code": "self_service_rate_limited"
+}

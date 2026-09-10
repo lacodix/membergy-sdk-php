@@ -6,6 +6,11 @@ namespace Lacodix\MembergySdk\Resources;
 
 final class MeResource extends AbstractResource
 {
+    public function access(): TenantAccessResource
+    {
+        return new TenantAccessResource($this->connector);
+    }
+
     public function person(): PersonResource
     {
         return new PersonResource($this->connector);

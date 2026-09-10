@@ -24,6 +24,7 @@ website-ready scope are implemented:
 - [x] Typed BlockDocument v1 DTOs, `UnknownBlock`, `UnknownMenuTarget`
 - [x] Configurable `MenuUrlResolver` foundation
 - [x] `auth()` (credentials token, current-token revocation, password reset)
+- [x] `me()->access()` (tenant access proof independent of person self-service)
 - [x] `me()->person()` (profile, dynamic form, updates)
 - [x] `me()->newsletter()` (member-owned category subscriptions)
 - [x] Conditional public/member cache partitions, ETag revalidation and explicit purge
@@ -44,6 +45,7 @@ composer require lacodix/membergy-sdk-php
 ## Usage (framework-agnostic)
 
 ```php
+use Lacodix\MembergySdk\Enums\EventVisibilityType;
 use Lacodix\MembergySdk\MembergyClient;
 
 $client = new MembergyClient(
@@ -75,6 +77,7 @@ $heroSrcset = $hero->srcset([480, 768, 1280, 1600]);
 
 $events = $client->content()->events()
     ->eventType('performance')
+    ->visibilities(EventVisibilityType::PUBLIC)
     ->perPage(20)
     ->get();
 
@@ -111,7 +114,12 @@ $token = $client->auth()->tokenFromCredentials(
 );
 $authed = $client->withUserToken($token->accessToken);
 
+$access = $authed->me()->access()->get();
 $internalPost = $authed->content()->posts()->find('internal-only-slug');
+$memberEvents = $authed->content()->events()
+    ->visibilities(EventVisibilityType::PUBLIC, EventVisibilityType::MEMBERS)
+    ->perPage(20)
+    ->get();
 $profile = $authed->me()->person()->get();
 $profileForm = $authed->me()->person()->form();
 $updatedProfile = $authed->me()->person()->update([
@@ -127,8 +135,9 @@ $authed->me()->newsletter()->replace([
 $authed->auth()->revokeCurrentToken();
 ```
 
-The token DTO exposes `emailVerified`; protected Membergy endpoints still enforce their
-normal verification middleware. Accounts with confirmed two-factor authentication throw
+The tenant access proof accepts direct single-/multi-tenant membership or global landlord
+access and does not require a person record. The token DTO exposes `emailVerified`; protected
+Membergy endpoints still enforce their normal verification middleware. Accounts with confirmed two-factor authentication throw
 `TwoFactorRequiredException`, because auth-v1 intentionally does not bypass an interactive
 second factor. Invalid credentials, revoked tokens and validation failures map to dedicated
 SDK exceptions.

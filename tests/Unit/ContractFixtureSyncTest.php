@@ -55,5 +55,5 @@ it('keeps the copied SDK fixtures byte-identical to the backend source of truth'
     $backendRegistry = rtrim($backendRoot, '/').'/docs/features/website-cms/contracts/v1/block-registry.json';
     expect(file_get_contents(contractFixturePath('block-registry.json')))
         ->toBe(file_get_contents($backendRegistry));
-    expect($fixtureCount)->toBe(48);
+    expect($fixtureCount)->toBe(50);
 });

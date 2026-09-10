@@ -6,7 +6,9 @@ use Lacodix\MembergySdk\Connectors\MembergyConnector;
 use Lacodix\MembergySdk\DataObjects\FormDefinition;
 use Lacodix\MembergySdk\DataObjects\MemberNewsletterSubscription;
 use Lacodix\MembergySdk\DataObjects\PersonProfile;
+use Lacodix\MembergySdk\DataObjects\TenantAccess;
 use Lacodix\MembergySdk\Exceptions\AuthenticationException;
+use Lacodix\MembergySdk\Exceptions\RateLimitException;
 use Lacodix\MembergySdk\Exceptions\RequestValidationException;
 use Lacodix\MembergySdk\Exceptions\ResourceNotFoundException;
 use Lacodix\MembergySdk\Exceptions\SelfServiceForbiddenException;
@@ -15,6 +17,7 @@ use Lacodix\MembergySdk\Requests\Me\AbstractSelfServiceRequest;
 use Lacodix\MembergySdk\Requests\Me\ShowNewsletterSubscriptionsRequest;
 use Lacodix\MembergySdk\Requests\Me\ShowPersonFormRequest;
 use Lacodix\MembergySdk\Requests\Me\ShowPersonRequest;
+use Lacodix\MembergySdk\Requests\Me\ShowTenantAccessRequest;
 use Lacodix\MembergySdk\Requests\Me\UpdateNewsletterSubscriptionsRequest;
 use Lacodix\MembergySdk\Requests\Me\UpdatePersonRequest;
 use Saloon\Http\Faking\MockClient;
@@ -33,6 +36,28 @@ function selfServiceClient(MockClient $mock, ?string $token = 'member-token'): M
 
     return MembergyClient::fromConnector($connector);
 }
+
+it('proves tenant access independently of person self-service', function () {
+    $mock = new MockClient([
+        ShowTenantAccessRequest::class => MockResponse::make(contractFixture('me/access.json')),
+    ]);
+
+    $access = selfServiceClient($mock)->me()->access()->get();
+
+    expect($access)->toBeInstanceOf(TenantAccess::class)
+        ->and($access->tenantSlug)->toBe('dstg-sachsen')
+        ->and($access->displayName)->toBe('Alex Member')
+        ->and($access->extra)->toBe([]);
+
+    $mock->assertSent(function (Request $request, Response $response): bool {
+        $pending = $response->getPendingRequest();
+
+        return $request instanceof ShowTenantAccessRequest
+            && $request->resolveEndpoint() === '/tenant/demo/me/access'
+            && $pending->headers()->get('Accept') === AbstractSelfServiceRequest::MEDIA_TYPE
+            && $pending->headers()->get('Authorization') === 'Bearer member-token';
+    });
+});
 
 it('hydrates the authenticated person profile and dynamic form through self-service-v1', function () {
     $mock = new MockClient([
@@ -221,3 +246,52 @@ it('maps self-service authentication, authorization, and lookup failures', funct
         ResourceNotFoundException::class,
     ],
 ]);
+
+it('maps tenant access authentication, authorization, and lookup failures', function (
+    string $fixture,
+    int $status,
+    string $exception,
+) {
+    $mock = new MockClient([
+        ShowTenantAccessRequest::class => MockResponse::make(contractFixture($fixture), $status),
+    ]);
+
+    expect(fn () => selfServiceClient($mock)->me()->access()->get())
+        ->toThrow($exception);
+})->with([
+    'unauthenticated' => [
+        'me/errors/unauthenticated.json',
+        401,
+        AuthenticationException::class,
+    ],
+    'forbidden' => [
+        'me/errors/forbidden.json',
+        403,
+        SelfServiceForbiddenException::class,
+    ],
+    'not found' => [
+        'me/errors/not-found.json',
+        404,
+        ResourceNotFoundException::class,
+    ],
+]);
+
+it('maps a rate-limited tenant access probe including retry-after', function () {
+    $mock = new MockClient([
+        ShowTenantAccessRequest::class => MockResponse::make(
+            contractFixture('me/errors/rate-limited.json'),
+            429,
+            ['Retry-After' => '37'],
+        ),
+    ]);
+
+    try {
+        selfServiceClient($mock)->me()->access()->get();
+    } catch (RateLimitException $exception) {
+        expect($exception->retryAfterSeconds)->toBe(37);
+
+        return;
+    }
+
+    throw new RuntimeException('Expected a typed tenant access rate limit exception.');
+});

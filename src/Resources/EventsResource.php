@@ -7,6 +7,7 @@ namespace Lacodix\MembergySdk\Resources;
 use InvalidArgumentException;
 use Lacodix\MembergySdk\DataObjects\Event;
 use Lacodix\MembergySdk\DataObjects\PaginatedResult;
+use Lacodix\MembergySdk\Enums\EventVisibilityType;
 use Lacodix\MembergySdk\Exceptions\ResourceNotFoundException;
 use Lacodix\MembergySdk\Requests\Content\ListEventsRequest;
 use Lacodix\MembergySdk\Requests\Content\ShowEventRequest;
@@ -49,6 +50,20 @@ final class EventsResource extends AbstractResource
         }
 
         return $this->withQuery(['event_type' => $type]);
+    }
+
+    public function visibilities(EventVisibilityType ...$visibilities): self
+    {
+        $values = array_map(
+            static fn (EventVisibilityType $visibility): string => $visibility->value,
+            $visibilities,
+        );
+
+        if ($values === [] || count($values) !== count(array_unique($values))) {
+            throw new InvalidArgumentException('Event visibilities must contain unique supported values.');
+        }
+
+        return $this->withQuery(['visibility' => $values]);
     }
 
     public function tagIds(int ...$tagIds): self

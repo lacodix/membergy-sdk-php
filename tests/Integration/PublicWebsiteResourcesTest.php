@@ -7,6 +7,7 @@ use Lacodix\MembergySdk\DataObjects\Boilerplate;
 use Lacodix\MembergySdk\DataObjects\Event;
 use Lacodix\MembergySdk\DataObjects\NewsletterCategory;
 use Lacodix\MembergySdk\DataObjects\NewsletterRequestResult;
+use Lacodix\MembergySdk\Enums\EventVisibilityType;
 use Lacodix\MembergySdk\Exceptions\ResourceNotFoundException;
 use Lacodix\MembergySdk\MembergyClient;
 use Lacodix\MembergySdk\Requests\Content\ListBoilerplatesRequest;
@@ -19,6 +20,7 @@ use Lacodix\MembergySdk\Requests\Content\SubscribeNewsletterRequest;
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
 use Saloon\Http\Request;
+use Saloon\Http\Response;
 
 function publicWebsiteClient(MockClient $mock, ?string $token = null): MembergyClient
 {
@@ -41,6 +43,7 @@ it('hydrates the compatible event timeline with filters timezone and cursor pagi
 
     $events = $client->content()->events()
         ->eventType('performance')
+        ->visibilities(EventVisibilityType::PUBLIC, EventVisibilityType::MEMBERS)
         ->tagIds(910001)
         ->participation(accepted: true)
         ->cursor('opaque-cursor')
@@ -56,11 +59,12 @@ it('hydrates the compatible event timeline with filters timezone and cursor pagi
         ->and($event->startAt?->format(DATE_ATOM))->toBe('2026-09-15T19:00:00+02:00')
         ->and($event->tags[0]->id)->toBe(910001);
 
-    $mock->assertSent(function (Request $request): bool {
+    $mock->assertSent(function (Request $request, Response $response): bool {
         return $request instanceof ListEventsRequest
             && $request->resolveEndpoint() === '/tenant/demo/content/events'
             && $request->query()->all() === [
                 'event_type' => 'performance',
+                'visibility' => ['public', 'members'],
                 'tags' => [910001],
                 'pp' => [
                     'no_decision' => false,
@@ -69,7 +73,11 @@ it('hydrates the compatible event timeline with filters timezone and cursor pagi
                 ],
                 'cursor' => 'opaque-cursor',
                 'per_page' => 10,
-            ];
+            ]
+            && str_contains(
+                $response->getPendingRequest()->getUri()->getQuery(),
+                'visibility%5B0%5D=public&visibility%5B1%5D=members',
+            );
     });
     $mock->assertSent(function (ShowEventRequest $request): bool {
         return $request->resolveEndpoint() === '/tenant/demo/content/events/50000000-0000-4000-8000-000000000001';
@@ -157,6 +165,13 @@ it('rejects invalid event and newsletter filters before sending a request', func
     $client = publicWebsiteClient(new MockClient);
 
     expect(fn () => $client->content()->events()->eventType('unknown'))
+        ->toThrow(InvalidArgumentException::class)
+        ->and(fn () => $client->content()->events()->visibilities())
+        ->toThrow(InvalidArgumentException::class)
+        ->and(fn () => $client->content()->events()->visibilities(
+            EventVisibilityType::PUBLIC,
+            EventVisibilityType::PUBLIC,
+        ))
         ->toThrow(InvalidArgumentException::class)
         ->and(fn () => $client->content()->events()->tagIds(0))
         ->toThrow(InvalidArgumentException::class)
