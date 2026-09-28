@@ -1,0 +1,64 @@
+{
+  "data": [
+    {
+      "type": "page",
+      "items": [
+        {
+          "uuid": "81000000-0000-4000-8000-000000000001",
+          "title": "Jahresbericht 2026",
+          "slug": "jahresbericht-2026",
+          "excerpt": "Der Jahresbericht fasst unsere wichtigsten Projekte zusammen.",
+          "visibility": "public"
+        }
+      ],
+      "meta": {
+        "page": 1,
+        "per_page": 5,
+        "has_more": false,
+        "next_page": null
+      }
+    },
+    {
+      "type": "post",
+      "items": [
+        {
+          "uuid": "82000000-0000-4000-8000-000000000001",
+          "title": "Unser Jahresrückblick",
+          "slug": "unser-jahresrueckblick",
+          "excerpt": "Der Jahresrückblick zeigt die Höhepunkte des Vereinslebens.",
+          "visibility": "public",
+          "published_at": "2026-08-08T10:00:00+00:00"
+        }
+      ],
+      "meta": {
+        "page": 1,
+        "per_page": 5,
+        "has_more": false,
+        "next_page": null
+      }
+    },
+    {
+      "type": "event",
+      "items": [
+        {
+          "uuid": "83000000-0000-4000-8000-000000000001",
+          "title": "Jahresversammlung",
+          "excerpt": "Die Jahresversammlung findet im Bürgerhaus statt.",
+          "visibility": "public",
+          "all_day": false,
+          "start_date": null,
+          "end_date": null,
+          "start_at": "2026-09-15T19:00:00+02:00",
+          "end_at": "2026-09-15T21:00:00+02:00",
+          "timezone": "Europe/Berlin"
+        }
+      ],
+      "meta": {
+        "page": 1,
+        "per_page": 5,
+        "has_more": false,
+        "next_page": null
+      }
+    }
+  ]
+}

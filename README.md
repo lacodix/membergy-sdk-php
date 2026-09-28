@@ -19,7 +19,8 @@ website-ready scope are implemented:
 - [x] `content()->menus()` with recursive typed targets
 - [x] `content()->images()` / `->files()`
 - [x] `content()->events()` / `->boilerplates()`
-- [x] `newsletter()` (UUID categories, DOI subscribe / signed unsubscribe request)
+- [x] `content()->search()` (typed page, post and event groups with continuation)
+- [x] `newsletter()` (UUID categories, DOI subscribe / headless confirmation / signed unsubscribe request)
 - [x] `registration()` (tenant form definition and submission)
 - [x] Typed BlockDocument v1 DTOs, `UnknownBlock`, `UnknownMenuTarget`
 - [x] Configurable `MenuUrlResolver` foundation
@@ -46,6 +47,7 @@ composer require lacodix/membergy-sdk-php
 
 ```php
 use Lacodix\MembergySdk\Enums\EventVisibilityType;
+use Lacodix\MembergySdk\Enums\SearchResultType;
 use Lacodix\MembergySdk\MembergyClient;
 
 $client = new MembergyClient(
@@ -81,9 +83,20 @@ $events = $client->content()->events()
     ->perPage(20)
     ->get();
 
+$search = $client->content()->search()
+    ->query('Jahresbericht')
+    ->get();
+$morePosts = $client->content()->search()
+    ->query('Jahresbericht')
+    ->type(SearchResultType::POST)
+    ->page(2)
+    ->get();
+
 $categories = $client->newsletter()->categories();
 $client->newsletter()->subscribe('guest@example.org', [$categories[0]->uuid]);
+$client->newsletter()->confirm($opaqueConfirmationToken);
 $client->newsletter()->requestUnsubscribe('guest@example.org');
+$client->withoutUserToken()->newsletter()->unsubscribeAll($opaqueUnsubscribeToken);
 
 $registrationForm = $client->registration()->form();
 $client->registration()->submit([
@@ -96,10 +109,17 @@ $client->registration()->submit([
 ]);
 ```
 
-Both public newsletter calls return a neutral status and never expose whether the email
-address or subscription exists. The expiring signed links sent by Membergy open a
-browser confirmation page; only its explicit POST activates the subscription or applies
-the selected all-or-category unsubscribe action.
+The public subscribe and unsubscribe-request calls return a neutral status and never
+expose whether the email address or subscription exists. By default, expiring signed
+links sent by Membergy open its scanner-safe browser landing. A tenant-configured,
+first-party landing may instead submit the opaque confirmation token from its explicit
+POST handler to `confirm()` server-to-server. It may likewise submit an opaque full-
+unsubscribe token to `unsubscribeAll()` from an explicit POST handler. The SDK does not
+decode or cache these tokens, and neither method accepts a callback URL. A GET never
+changes a subscription. Existing signed category-specific endpoints remain accepted by
+Membergy for compatibility; new consumers intentionally use `unsubscribeAll()` for an
+opaque guest credential and the authenticated `me()->newsletter()` self-service for
+category changes.
 
 ### Authenticated per-user access
 

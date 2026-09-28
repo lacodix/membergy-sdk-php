@@ -169,7 +169,7 @@ final class ResponseCache
         $path = trim((string) parse_url($pendingRequest->getUrl(), PHP_URL_PATH), '/');
 
         if (preg_match(
-            '#/content/(post-categories|pages|posts|menus|images?|files?|events|boilerplates|newsletter)(?:/|$)#',
+            '#/content/(post-categories|pages|posts|menus|images?|files?|events|boilerplates|newsletter|search)(?:/|$)#',
             $path,
             $matches,
         ) === 1) {

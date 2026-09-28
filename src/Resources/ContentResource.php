@@ -33,6 +33,11 @@ class ContentResource
         return new PagesResource($this->connector);
     }
 
+    public function search(): SearchResource
+    {
+        return new SearchResource($this->connector);
+    }
+
     public function postCategories(): PostCategoriesResource
     {
         return new PostCategoriesResource($this->connector);
