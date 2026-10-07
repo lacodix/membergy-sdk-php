@@ -1,0 +1,21 @@
+{
+    "method": "POST",
+    "path": "\/api\/v1\/tenant\/contract-club\/registrations\/magic-link",
+    "request": {
+        "email": "anna.qa@example.test"
+    },
+    "request_headers": {
+        "Accept": "application\/json",
+        "Content-Type": "application\/json"
+    },
+    "request_schema": "MagicRequest",
+    "request_valid": true,
+    "status": 202,
+    "response_schema": "AcceptedResponse",
+    "response_headers": {
+        "Content-Type": "application\/json",
+        "Cache-Control": "no-store, private",
+        "Referrer-Policy": "no-referrer",
+        "X-Content-Type-Options": "nosniff"
+    }
+}

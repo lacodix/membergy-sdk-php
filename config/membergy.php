@@ -38,6 +38,8 @@ return [
     | A static Sanctum user token for server-to-server use. Most public CMS
     | calls do not need one. In a Laravel web application, a token stored in
     | the configured session key takes precedence for the current request.
+    | Registration offer GET and submit reject this static config token;
+    | use a guest client withoutUserToken() or the applicant's own session token.
     |
     */
     'user_token' => env('MEMBERGY_USER_TOKEN'),

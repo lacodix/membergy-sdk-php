@@ -1,0 +1,1210 @@
+{
+  "backend_base": "988c25afedc5cfb64571b753de07ebac87031d74",
+  "source_commit": "44aa60b61a3e66e06e79ce4aeceebedfc6e48a6b",
+  "source_blobs": {
+    "app/Models/Traits/HasPublicSlug.php": "edf87e1aafc9b5b1548f1790da797d15b5cedb25",
+    "database/migrations/2026_08_11_074158_add_public_slug_to_tenants_table.php": "6ea0c002c2c3ce612abe33d6e5302395981d1939",
+    "app/Models/Tenant.php": "34c65150291db45e4df7cfab268866847951e7f8",
+    "tests/Unit/DataMigrations/TenantPublicSlugTest.php": "39d76b7f85f85d4fa3fec242b61a01d1b8538b64",
+    "tests/Unit/DataMigrations/TenantPublicSlugMigrationTest.php": "ae2e10062efb84a5644417c83c8ce2acda900abf",
+    "tests/Unit/Cms/ContractFixturesTest.php": "11dbacf37d27b66f66cefae6f056b232851c5807",
+    "docs/features/website-cms/registrierung-sdk-vertrag.md": "b1126de1341a093048266c8c82b76f40d0d03461"
+  },
+  "imports": "Only the committed slug trait/migration, minimal Tenant hunks and slug tests. Migration test extended to private prefixed MariaDB and named in-memory SQLite, including down(). Schema validator convention reused; no CMS/Auth implementation or fixtures imported.",
+  "capture_test": "tests/Feature/Api/RegistrationContractTest.php",
+  "capture_command": "./worktree-lifecycle.sh run-tests website-registration-links -- tests/Feature/Api/RegistrationContractTest.php tests/Unit/Contracts/RegistrationContractFixturesTest.php tests/Unit/DataMigrations/TenantPublicSlugTest.php tests/Unit/DataMigrations/TenantPublicSlugMigrationTest.php --update-snapshots --compact --stop-on-failure",
+  "preflight": "Before EACH PHP test invocation: same sail-8.4/membergy image, intl loaded and effective UID nonzero; serialize all MariaDB suites.",
+  "fixture_origin": "Real HTTP-kernel requests, real shared publication/submission/identity actions and real isolated databases. Mail and Queue fakes, fake storage with served synthetic PDF bytes. User Bearer minted by the actual current /api/v1/token route; no Auth response frozen.",
+  "domain": "Deterministic synthetic tenant public_slug contract-club, named offer/version/requirements/fees; fixed IDs 70001-70003 for publicly emitted domain identifiers. Frozen time 2026-10-01T12:00:00Z, then advance four seconds after using the actual offer GET ticket. All addresses use example.test. Document rich text is explicitly fixed before the published factory state computes its real hash; valid_from and change note are also fixed. PDF bytes are deterministic.",
+  "response_canonicalization": {
+    "/data/public_id": "One-to-one UUID registry in encounter order: 20000000-0000-4000-8000-000000000001 and onwards. Actual database binding and replay equality asserted before freezing.",
+    "/data/resume_context": "64 lower-case a characters, only after checking the actual opaque credential is 64 hex characters.",
+    "/data/submission_ticket": "synthetic-opaque-submission-ticket; actual ticket is consumed unchanged in HTTP requests.",
+    "byte_rule": "Replace the single JSON-encoded scalar value only; assert it occurs exactly once. No decode/re-encode, ID/time/hash/email/text/order/whitespace normalization of response bytes. Binary response bytes are unmodified."
+  },
+  "request_canonicalization": "Only server-generated link tokens, opaque tickets/contexts and User Bearer credentials are placeholders; returned UUID registry is preserved in request/public-id paths. Malformed resume headers and deterministic unknown-token zeros remain verbatim.",
+  "artifacts": "Response-only JSON/PDF under tests/Fixtures/Contracts/Cms/v1/registration. Requests/status/selected wire headers here. field-catalogue.json is current validator metadata, never represented as an HTTP response.",
+  "schema_validation": "Every raw and canonical JSON response uses its named closed definition, even during regeneration; every frozen response and canonical request is tested independently. Invalid UUID request is an explicit negative schema case. Document PDF bytes, MIME and privacy headers tested through HTTP.",
+  "versions": {
+    "laravel/framework": "13.23.0",
+    "pestphp/pest": "4.7.8",
+    "spatie/laravel-sluggable": "3.8.1",
+    "justinrainbow/json-schema": "6.13.1",
+    "lacodix/resourcerer": "0.35.51"
+  },
+  "excluded": "Auth-v1/reset/me, broad CMS and self-service, payment/SEPA, SDK/DSTG, external 2FA, IP forwarding, provider/mail/bank writes; integrated manual/browser acceptance deferred.",
+  "validation": {
+    "final_capture": {
+      "command": "./worktree-lifecycle.sh run-tests website-registration-links -- tests/Feature/Api/RegistrationContractTest.php tests/Unit/Contracts/RegistrationContractFixturesTest.php tests/Unit/DataMigrations/TenantPublicSlugTest.php tests/Unit/DataMigrations/TenantPublicSlugMigrationTest.php --update-snapshots --compact --stop-on-failure",
+      "exit": 0,
+      "output": "50 passed (916 assertions); 27.33s",
+      "regenerated": true
+    },
+    "affected_regression": {
+      "command": "./worktree-lifecycle.sh run-tests website-registration-links -- tests/Feature/Api/RegistrationContractTest.php tests/Unit/Contracts/RegistrationContractFixturesTest.php tests/Unit/DataMigrations/TenantPublicSlugTest.php tests/Unit/DataMigrations/TenantPublicSlugMigrationTest.php tests/Feature/Api/RegistrationOfferApiTest.php tests/Feature/Registrations/RegistrationHeadlessResumeTest.php tests/Feature/Registrations/RegistrationVerificationTest.php tests/Feature/Registrations/RegistrationMagicLinkTest.php tests/Feature/Registrations/RegistrationSubmissionTest.php tests/Feature/Registrations/RegistrationReadmissionTest.php tests/Feature/Registrations/RegistrationSessionTest.php tests/Feature/Registrations/RegistrationSchemaTypesTest.php tests/Feature/Registrations/RegistrationPersonBindingTest.php tests/Feature/Registrations/RegistrationRateLimitTest.php tests/Feature/RegistrationOffers/RegistrationOfferAccessTest.php tests/Feature/RegistrationOffers/RegistrationOfferPreviewTest.php tests/Feature/RegistrationOffers/GuidedSetupActionsTest.php tests/Unit/LangFilesTest.php tests/Unit/ActivityLoggingTest.php tests/Feature/Resources/Tenants/TenantDeleteTest.php --compact --stop-on-failure",
+      "exit": 0,
+      "output": "298 passed (6915 assertions); 183.31s",
+      "regenerated": false
+    },
+    "final_header_schema": {
+      "command": "./worktree-lifecycle.sh run-tests website-registration-links -- tests/Unit/Contracts/RegistrationContractFixturesTest.php --compact --stop-on-failure",
+      "exit": 0,
+      "output": "44 passed (605 assertions); 12.22s",
+      "regenerated": false
+    },
+    "preflight": {
+      "command": "vendor/bin/sail php -r 'if (! extension_loaded(\"intl\") || posix_geteuid() === 0) { exit(1); } echo \"intl loaded; uid=\" . posix_geteuid() . \"; PHP=\" . PHP_VERSION . \"\\n\";'",
+      "exit": 0,
+      "output": "intl loaded; uid=1000; PHP=8.4.24",
+      "frequency": "Immediately before every PHP test attempt, using the same sail-8.4/membergy image. Concurrency gates refused attempts while other suites were active; no fallback DB used."
+    },
+    "tooling_environment": {
+      "image": "sail-8.4/membergy",
+      "network": "none",
+      "preview_ports": [],
+      "source": "this worktree only",
+      "git_common_mount": "read-only",
+      "vendor_mount": "read-only",
+      "app_env": "boost_tooling",
+      "database": "sqlite :memory:",
+      "mail": "array"
+    },
+    "final_gates": [
+      {
+        "command": "vendor/bin/sail bin pint --dirty --format agent",
+        "exit": 0,
+        "output": "{\"tool\":\"pint\",\"result\":\"passed\"}"
+      },
+      {
+        "command": "vendor/bin/sail bin pint app/Models/Traits/HasPublicSlug.php app/Support/Registrations/RegistrationApiResponse.php app/Http/Middleware/AddRegistrationHeaders.php database/migrations/2026_08_11_074158_add_public_slug_to_tenants_table.php tests/Feature/Api/RegistrationContractTest.php tests/Fixtures/Registrations/Contracts/RegistrationContractSchema.php tests/Unit/Contracts/RegistrationContractFixturesTest.php tests/Unit/DataMigrations/TenantPublicSlugTest.php tests/Unit/DataMigrations/TenantPublicSlugMigrationTest.php --format agent",
+        "exit": 0,
+        "output": "{\"tool\":\"pint\",\"result\":\"passed\"}"
+      },
+      {
+        "command": "vendor/bin/sail bin pint tests/Unit/Contracts/RegistrationContractFixturesTest.php --format agent",
+        "exit": 0,
+        "output": "{\"tool\":\"pint\",\"result\":\"passed\"}"
+      },
+      {
+        "command": "vendor/bin/sail bin phpstan analyse --memory-limit=2G --no-progress --error-format=table",
+        "exit": 0,
+        "output": "[OK] No errors"
+      },
+      {
+        "command": "vendor/bin/sail bin phpcs --report=summary",
+        "exit": 0,
+        "output": "3321 / 3321 files; 1m37.25s; no errors or warnings"
+      },
+      {
+        "command": "vendor/bin/sail bin phpmd app,routes,database,config,tests text phpmd-ruleset.xml --exclude '*blade.php*'",
+        "exit": 0,
+        "output": "No violations emitted"
+      },
+      {
+        "command": "vendor/bin/sail artisan knowledgebase:sources:validate --no-interaction",
+        "exit": 0,
+        "output": "Valid: 1 bundle, 16 categories, 73 articles"
+      },
+      {
+        "command": "git diff --check",
+        "exit": 0,
+        "output": ""
+      }
+    ],
+    "nonzero_gates": [
+      {
+        "command": "vendor/bin/sail bin phpstan analyse --memory-limit=2G --no-progress --error-format=table",
+        "exit": 1,
+        "output": "3 errors: TestResponse generic type missing; two calls to Queue::pushed facade method not statically defined",
+        "resolution": "Generic template and a typed QueueFake getter; no suppressions or baseline changes"
+      },
+      {
+        "command": "vendor/bin/sail bin phpcs --report=summary",
+        "exit": 1,
+        "output": "121 errors, 0 warnings in 7 new/imported files",
+        "resolution": "Scoped PHPCBF fixed 121; exit 0. Repository PSR12 concatenation spacing and one blank line"
+      },
+      {
+        "command": "vendor/bin/sail bin phpcs app/Models/Traits/HasPublicSlug.php tests/Fixtures/Registrations/Contracts/RegistrationContractSchema.php --report=full",
+        "exit": 1,
+        "output": "12 concatenation-spacing errors",
+        "resolution": "Included in scoped formatting fix"
+      },
+      {
+        "command": "vendor/bin/sail bin phpcs --report=summary",
+        "exit": 1,
+        "output": "4 errors, 0 warnings in final unit header assertion",
+        "resolution": "Spacing-only correction, final full-tree gate exit 0"
+      }
+    ],
+    "test_iteration_history": [
+      {
+        "command": "capture + 2 slug files --update-snapshots --compact --stop-on-failure",
+        "exit": 2,
+        "counts": "1 failed, 3 passed (44 assertions)",
+        "cause": "Test capture used status() on Symfony StreamedResponse; corrected to getStatusCode()."
+      },
+      {
+        "command": "capture + 2 slug files --update-snapshots --compact --stop-on-failure",
+        "exit": 1,
+        "counts": "1 failed, 3 pending (68 assertions)",
+        "cause": "Synthetic payload lacked the required published salutation/gender choices; fixture corrected; capture now uses actual offer ticket."
+      },
+      {
+        "command": "capture + 2 slug files --update-snapshots --compact --stop-on-failure",
+        "exit": 2,
+        "counts": "1 failed, 3 passed (22 assertions)",
+        "cause": "Used unsupported travelSeconds test helper; replaced with installed travel(4)->seconds()."
+      },
+      {
+        "command": "same capture attempt after preflight",
+        "exit": 1,
+        "counts": "Pest not started",
+        "cause": "Serialization gate found another PHP suite; no concurrent tests started."
+      },
+      {
+        "command": "capture + 2 slug files --update-snapshots --compact --stop-on-failure",
+        "exit": 2,
+        "counts": "1 failed, 5 passed (118 assertions)",
+        "cause": "Pest helper proxy does not support indirect array modification; canonical UUID registry now copies and assigns the array. Synthetic exception reporting is faked."
+      },
+      {
+        "command": "capture + 2 slug files --update-snapshots --compact --stop-on-failure",
+        "exit": 0,
+        "counts": "6 passed (498 assertions)",
+        "duration": "15.46s",
+        "evidence": "39 real response files; source slug/mysql+sqlite checks pass."
+      },
+      {
+        "command": "capture + 2 slug files --update-snapshots --compact --stop-on-failure",
+        "exit": 0,
+        "counts": "6 passed (511 assertions)",
+        "duration": "15.57s"
+      },
+      {
+        "command": "capture + 2 slug files --update-snapshots --compact --stop-on-failure",
+        "exit": 0,
+        "counts": "6 passed (512 assertions)",
+        "duration": "15.71s"
+      },
+      {
+        "command": "capture + schema fixtures + 2 slug files --update-snapshots --compact --stop-on-failure",
+        "exit": 0,
+        "counts": "49 passed (912 assertions)",
+        "duration": "28.58s"
+      },
+      {
+        "command": "affected registration regressions after intl preflight",
+        "exit": 1,
+        "counts": "Pest not started",
+        "cause": "Serialization gate found other PHP suites."
+      },
+      {
+        "command": "tests/Feature/Api/RegistrationContractTest.php tests/Unit/Contracts/RegistrationContractFixturesTest.php tests/Unit/DataMigrations/TenantPublicSlugTest.php tests/Unit/DataMigrations/TenantPublicSlugMigrationTest.php tests/Feature/Api/RegistrationOfferApiTest.php tests/Feature/Registrations/RegistrationHeadlessResumeTest.php tests/Feature/Registrations/RegistrationVerificationTest.php tests/Feature/Registrations/RegistrationMagicLinkTest.php tests/Feature/Registrations/RegistrationSubmissionTest.php tests/Feature/Registrations/RegistrationReadmissionTest.php tests/Feature/Registrations/RegistrationSessionTest.php tests/Feature/Registrations/RegistrationSchemaTypesTest.php tests/Feature/Registrations/RegistrationPersonBindingTest.php tests/Feature/Registrations/RegistrationRateLimitTest.php tests/Feature/RegistrationOffers/RegistrationOfferAccessTest.php tests/Feature/RegistrationOffers/RegistrationOfferPreviewTest.php tests/Feature/RegistrationOffers/GuidedSetupActionsTest.php tests/Unit/LangFilesTest.php tests/Unit/ActivityLoggingTest.php tests/Feature/Resources/Tenants/TenantDeleteTest.php --compact --stop-on-failure",
+        "exit": 1,
+        "counts": "1 failed, 295 pending (14 assertions)",
+        "duration": "16.00s",
+        "cause": "Nonregenerating byte check caught a random document factory content/hash. Fixed the synthetic source content before publication; no hash canonicalization."
+      },
+      {
+        "command": "capture + schema fixtures + 2 slug files --update-snapshots --compact --stop-on-failure",
+        "exit": 0,
+        "counts": "50 passed (916 assertions)",
+        "duration": "27.33s",
+        "evidence": "Deterministic document content/hash captured; next full regression runs with no regeneration."
+      },
+      {
+        "command": "tests/Feature/Api/RegistrationContractTest.php tests/Unit/Contracts/RegistrationContractFixturesTest.php tests/Unit/DataMigrations/TenantPublicSlugTest.php tests/Unit/DataMigrations/TenantPublicSlugMigrationTest.php tests/Feature/Api/RegistrationOfferApiTest.php tests/Feature/Registrations/RegistrationHeadlessResumeTest.php tests/Feature/Registrations/RegistrationVerificationTest.php tests/Feature/Registrations/RegistrationMagicLinkTest.php tests/Feature/Registrations/RegistrationSubmissionTest.php tests/Feature/Registrations/RegistrationReadmissionTest.php tests/Feature/Registrations/RegistrationSessionTest.php tests/Feature/Registrations/RegistrationSchemaTypesTest.php tests/Feature/Registrations/RegistrationPersonBindingTest.php tests/Feature/Registrations/RegistrationRateLimitTest.php tests/Feature/RegistrationOffers/RegistrationOfferAccessTest.php tests/Feature/RegistrationOffers/RegistrationOfferPreviewTest.php tests/Feature/RegistrationOffers/GuidedSetupActionsTest.php tests/Unit/LangFilesTest.php tests/Unit/ActivityLoggingTest.php tests/Feature/Resources/Tenants/TenantDeleteTest.php --compact --stop-on-failure",
+        "exit": 1,
+        "counts": "1 failed, 244 passed, 51 pending (2022 assertions)",
+        "duration": "139.27s",
+        "cause": "New UI test switched browser actors in one session and received 401. Split actor scenarios into isolated feature tests; no harness or authorization change."
+      },
+      {
+        "command": "tests/Feature/Api/RegistrationContractTest.php tests/Unit/Contracts/RegistrationContractFixturesTest.php tests/Unit/DataMigrations/TenantPublicSlugTest.php tests/Unit/DataMigrations/TenantPublicSlugMigrationTest.php tests/Feature/Api/RegistrationOfferApiTest.php tests/Feature/Registrations/RegistrationHeadlessResumeTest.php tests/Feature/Registrations/RegistrationVerificationTest.php tests/Feature/Registrations/RegistrationMagicLinkTest.php tests/Feature/Registrations/RegistrationSubmissionTest.php tests/Feature/Registrations/RegistrationReadmissionTest.php tests/Feature/Registrations/RegistrationSessionTest.php tests/Feature/Registrations/RegistrationSchemaTypesTest.php tests/Feature/Registrations/RegistrationPersonBindingTest.php tests/Feature/Registrations/RegistrationRateLimitTest.php tests/Feature/RegistrationOffers/RegistrationOfferAccessTest.php tests/Feature/RegistrationOffers/RegistrationOfferPreviewTest.php tests/Feature/RegistrationOffers/GuidedSetupActionsTest.php tests/Unit/LangFilesTest.php tests/Unit/ActivityLoggingTest.php tests/Feature/Resources/Tenants/TenantDeleteTest.php --compact --stop-on-failure",
+        "exit": 0,
+        "counts": "298 passed (6915 assertions)",
+        "duration": "183.31s",
+        "evidence": "No fixture regeneration; all affected registration and classic tenant gates pass."
+      },
+      {
+        "command": "tests/Unit/Contracts/RegistrationContractFixturesTest.php --compact --stop-on-failure",
+        "exit": 0,
+        "counts": "44 passed (605 assertions)",
+        "duration": "12.49s",
+        "evidence": "OpenAPI MIME/privacy/Retry-After header parity and generic-media URL negative schema case."
+      },
+      {
+        "command": "tests/Unit/Contracts/RegistrationContractFixturesTest.php --compact --stop-on-failure",
+        "exit": 0,
+        "counts": "44 passed (605 assertions)",
+        "duration": "12.22s",
+        "evidence": "Same final schema checks after spacing-only correction."
+      }
+    ],
+    "fixture_evidence": {
+      "responses": 41,
+      "request_status_headers": 41,
+      "openapi_paths": 10,
+      "schema_definitions": 29,
+      "binary_bytes": "Unchanged actual streamed response from fake storage",
+      "canonicalization": "Only three explicitly recorded scalar paths; all nonvolatile encoded bytes compared"
+    },
+    "acceptance": [
+      "Adult/child guest application persisted; anti-abuse 201 persists nothing; no User creation",
+      "Existing real /token verified User Bearer -> safe offer prefill, own-person/predecessor parity, verified submission and no extra verification job",
+      "Unverified Bearer and plain guest get no protected prefill; simultaneous valid Bearer/context rejected",
+      "Scanner verification/resume GET remains read-only; explicit verify POST, neutral resend/magic requests",
+      "Headless exchange slug-only tenant, safe GET, submit/revoke, identical replay, invalid/foreign/conflicting/expired/revoked context and spent/expired token checks",
+      "Published/submittable document parent, real bytes, MIME/privacy headers, invalid/text/foreign requirements/tenants",
+      "All named routes mapped; 200/201/202/401/404/409/410/422/429/500 frozen and schema tested",
+      "Public slug rename stability/collision/bounded names; source numeric alias retained only on explicit registration bindings",
+      "Backfill including deleted tenants, unique+NOT NULL and down() row preservation on private MariaDB prefixed tables and named in-memory SQLite",
+      "Canonical expert-index link permission, member refusal and foreign-tenant isolation checked through HTTP"
+    ],
+    "manual_gap": "No preview or manual browser; integrated SDK/DSTG and total-flow acceptance expressly deferred by operator.",
+    "schema_and_queue_effects": "One additive tenants.public_slug migration; source reversible code only executed on isolated test tables by the private runner. No change to reviewed resume storage/hash/locking/expiry/revoke/queue payload or mail settings logic.",
+    "residual_gaps": "Current-base Auth-v1/reset and combined CMS integration remain excluded; SDK/DSTG not implemented or tested. Real migration/deployment needs separate GO. down() drops public slugs/index and external addresses, so no automatic rollback.",
+    "prohibited_actions": "No agents/review verdict, staging/commit/push/merge/cherry-pick/release/deploy, dependency or harness changes, other checkout writes, real provider/mail/bank calls, default/development/production migration/reset.",
+    "concurrency_gate_refusals": {
+      "count": 4,
+      "exit": 1,
+      "php_preflight_exit": 0,
+      "test_count": 0,
+      "note": "Each attempt stopped after detecting another PHP suite. No Pest invocation or competing MariaDB suite was started."
+    },
+    "tooling_notes": [
+      {
+        "command": "git show with the initially mistyped full target SHA",
+        "exit": 128,
+        "resolution": "Exact committed source resolved as 44aa60b61a3e66e06e79ce4aeceebedfc6e48a6b, matching the previously approved pinned source; no dirty CMS file used."
+      },
+      {
+        "command": "vendor/bin/sail artisan boost:execute-tool Laravel\\Boost\\Mcp\\Tools\\SearchDocs <base64 arguments> --no-interaction",
+        "exit": 0,
+        "tool_error": "Could not resolve boost.laravel.com in networkless tooling",
+        "resolution": "Installed source and official Laravel 13 documentation consulted; tooling remained networkless."
+      }
+    ]
+  },
+  "changed_paths_in_this_slice": [
+    "app/Exceptions/Handler.php",
+    "app/Http/Controllers/Api/RegistrationApplicationController.php",
+    "app/Http/Controllers/Api/RegistrationOfferController.php",
+    "app/Http/Kernel.php",
+    "app/Http/Middleware/AddRegistrationHeaders.php",
+    "app/Models/Tenant.php",
+    "app/Models/Traits/HasPublicSlug.php",
+    "app/Resources/RegistrationOffer.php",
+    "app/Support/RegistrationOffers/GuidedOfferState.php",
+    "app/Support/Registrations/RegistrationApiResponse.php",
+    "database/migrations/2026_08_11_074158_add_public_slug_to_tenants_table.php",
+    "docs/features/anmeldungen/README.md",
+    "docs/features/anmeldungen/ablauf.md",
+    "docs/features/website-cms/contracts/v1/registration.openapi.json",
+    "docs/features/website-cms/contracts/v1/schemas/registration.schema.json",
+    "resources/knowledgebase/articles/registration-offers-manage/de.md",
+    "routes/api.php",
+    "tests/Feature/Api/RegistrationContractTest.php",
+    "tests/Feature/Api/RegistrationOfferApiTest.php",
+    "tests/Feature/RegistrationOffers/RegistrationOfferAccessTest.php",
+    "tests/Feature/Registrations/RegistrationHeadlessResumeTest.php",
+    "tests/Fixtures/Contracts/Cms/v1/registration/application-foreign-account.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/application-guest.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/application-own.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/conflict.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/context-conflicting.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/context-expired.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/context-foreign.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/context-malformed.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/context-revoked.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/document-foreign.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/document-missing-70001.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/document-missing-999999.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/document.pdf",
+    "tests/Fixtures/Contracts/Cms/v1/registration/magic-requested.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/offer-account-follow-up.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/offer-account.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/offer-guest.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/offer-own-person.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/offer-resumed.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/offer-unverified-account.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/rate-limited.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/resend.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/resume-browser.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/resume-exchange.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/resume-expired.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/resume-landing.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/resume-replayed.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/resumed-replay.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/server-error-debug.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/submitted-account-follow-up.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/submitted-account.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/submitted-adult.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/submitted-child.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/submitted-resumed.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/suppressed.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/tenant-missing.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/validation.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/verification-landing.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/verification-replay.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/verification-unknown.json",
+    "tests/Fixtures/Contracts/Cms/v1/registration/verified.json",
+    "tests/Fixtures/Registrations/Contracts/RegistrationContractSchema.php",
+    "tests/Fixtures/Registrations/Contracts/application-foreign-account.json",
+    "tests/Fixtures/Registrations/Contracts/application-guest.json",
+    "tests/Fixtures/Registrations/Contracts/application-own.json",
+    "tests/Fixtures/Registrations/Contracts/conflict.json",
+    "tests/Fixtures/Registrations/Contracts/context-conflicting.json",
+    "tests/Fixtures/Registrations/Contracts/context-expired.json",
+    "tests/Fixtures/Registrations/Contracts/context-foreign.json",
+    "tests/Fixtures/Registrations/Contracts/context-malformed.json",
+    "tests/Fixtures/Registrations/Contracts/context-revoked.json",
+    "tests/Fixtures/Registrations/Contracts/document-foreign.json",
+    "tests/Fixtures/Registrations/Contracts/document-missing-70001.json",
+    "tests/Fixtures/Registrations/Contracts/document-missing-999999.json",
+    "tests/Fixtures/Registrations/Contracts/document.json",
+    "tests/Fixtures/Registrations/Contracts/field-catalogue.json",
+    "tests/Fixtures/Registrations/Contracts/magic-requested.json",
+    "tests/Fixtures/Registrations/Contracts/offer-account-follow-up.json",
+    "tests/Fixtures/Registrations/Contracts/offer-account.json",
+    "tests/Fixtures/Registrations/Contracts/offer-guest.json",
+    "tests/Fixtures/Registrations/Contracts/offer-own-person.json",
+    "tests/Fixtures/Registrations/Contracts/offer-resumed.json",
+    "tests/Fixtures/Registrations/Contracts/offer-unverified-account.json",
+    "tests/Fixtures/Registrations/Contracts/provenance.json",
+    "tests/Fixtures/Registrations/Contracts/rate-limited.json",
+    "tests/Fixtures/Registrations/Contracts/resend.json",
+    "tests/Fixtures/Registrations/Contracts/resume-browser.json",
+    "tests/Fixtures/Registrations/Contracts/resume-exchange.json",
+    "tests/Fixtures/Registrations/Contracts/resume-expired.json",
+    "tests/Fixtures/Registrations/Contracts/resume-landing.json",
+    "tests/Fixtures/Registrations/Contracts/resume-replayed.json",
+    "tests/Fixtures/Registrations/Contracts/resumed-replay.json",
+    "tests/Fixtures/Registrations/Contracts/server-error-debug.json",
+    "tests/Fixtures/Registrations/Contracts/submitted-account-follow-up.json",
+    "tests/Fixtures/Registrations/Contracts/submitted-account.json",
+    "tests/Fixtures/Registrations/Contracts/submitted-adult.json",
+    "tests/Fixtures/Registrations/Contracts/submitted-child.json",
+    "tests/Fixtures/Registrations/Contracts/submitted-resumed.json",
+    "tests/Fixtures/Registrations/Contracts/suppressed.json",
+    "tests/Fixtures/Registrations/Contracts/tenant-missing.json",
+    "tests/Fixtures/Registrations/Contracts/validation.json",
+    "tests/Fixtures/Registrations/Contracts/verification-landing.json",
+    "tests/Fixtures/Registrations/Contracts/verification-replay.json",
+    "tests/Fixtures/Registrations/Contracts/verification-unknown.json",
+    "tests/Fixtures/Registrations/Contracts/verified.json",
+    "tests/Unit/Contracts/RegistrationContractFixturesTest.php",
+    "tests/Unit/DataMigrations/TenantPublicSlugMigrationTest.php",
+    "tests/Unit/DataMigrations/TenantPublicSlugTest.php"
+  ],
+  "review_fixes_w1": {
+    "role": "Same sole backend developer; no independent review or verdict",
+    "input_snapshot": "ddc6cfe8dcc246656d6aa32e95df2c54d6515e0c7f27c42c04b1e7cd10678173",
+    "base": "988c25afedc5cfb64571b753de07ebac87031d74",
+    "accepted_findings": {
+      "W1-F1": {
+        "changed_paths": [
+          "tests/Feature/Actions/People/JoinPeopleConcurrencyTest.php",
+          "tests/Feature/Actions/People/ManagePersonSubtenantMembershipTest.php",
+          "tests/Feature/Billing/TransactionDirectDebitXmlConcurrencyTest.php",
+          "tests/Feature/Billing/TransactionDirectDebitXmlTest.php",
+          "tests/Feature/Invitations/AcceptInvitationConcurrencyTest.php",
+          "tests/Feature/Me/PersonTargetWriterRaceTest.php",
+          "tests/Feature/Meetings/MeetingActionsTest.php",
+          "tests/Feature/Meetings/MeetingConcurrencyTest.php",
+          "tests/Feature/Meetings/MeetingReferenceHistorizationTest.php",
+          "tests/Feature/Meetings/MeetingReportConcurrencyTest.php",
+          "tests/Feature/Models/TenantSubtenantMembershipModeTest.php",
+          "tests/Feature/Polls/CreateEventFromPollConcurrencyTest.php",
+          "tests/Feature/Polls/PollDispatchMigrationPortabilityTest.php",
+          "tests/Feature/Polls/PollDomainMigrationPortabilityTest.php",
+          "tests/Feature/Polls/PollEventConversionSchemaTest.php",
+          "tests/Feature/Polls/PollIdentityConcurrencyTest.php",
+          "tests/Feature/Polls/PollPublishConcurrencyTest.php",
+          "tests/Feature/Polls/PollVotingConcurrencyTest.php",
+          "tests/Feature/RegistrationOffers/RegistrationOfferPublishConcurrencyTest.php",
+          "tests/Feature/Registrations/RegistrationAdmissionConcurrencyTest.php",
+          "tests/Feature/Registrations/RegistrationManagementConcurrencyTest.php",
+          "tests/Feature/Registrations/RegistrationPersonBindingConcurrencyTest.php",
+          "tests/Feature/Registrations/RegistrationSubmissionConcurrencyTest.php",
+          "tests/Feature/Resources/ResourceBookings/EventResourceAllocationConcurrencyTest.php",
+          "tests/Feature/Resources/ResourceBookings/ResourceBookingConcurrencyTest.php",
+          "tests/Feature/Resources/ResourceBookings/ResourceBookingSeriesConcurrencyTest.php"
+        ],
+        "behavior": "Add a valid unique public_slug from the existing fixture identity only to full migrated-schema raw inserts; no business assertion, permission, harness, migration or default changed.",
+        "inventory": {
+          "literalSites": 49,
+          "literalFiles": 33,
+          "fullSchemaSites": [
+            {
+              "path": "tests/Feature/Me/PersonTargetWriterRaceTest.php",
+              "line": 103,
+              "number": [
+                "'STAGE3-' . $suffix,"
+              ],
+              "name": [
+                "'Stage3 race club ' . $suffix,"
+              ]
+            },
+            {
+              "path": "tests/Feature/Invitations/AcceptInvitationConcurrencyTest.php",
+              "line": 175,
+              "number": [
+                "\"INV{$suffix}\","
+              ],
+              "name": [
+                "\"Invitation race {$suffix}\","
+              ]
+            },
+            {
+              "path": "tests/Feature/Meetings/MeetingConcurrencyTest.php",
+              "line": 150,
+              "number": [
+                "\"FIRST{$suffix}\","
+              ],
+              "name": [
+                "\"First participation {$suffix}\","
+              ]
+            },
+            {
+              "path": "tests/Feature/Meetings/MeetingConcurrencyTest.php",
+              "line": 804,
+              "number": [
+                "\"CARRY{$suffix}\","
+              ],
+              "name": [
+                "\"Carry concurrency {$suffix}\","
+              ]
+            },
+            {
+              "path": "tests/Feature/Meetings/MeetingConcurrencyTest.php",
+              "line": 945,
+              "number": [
+                "\"CONC{$suffix}\","
+              ],
+              "name": [
+                "\"Concurrency {$suffix}\","
+              ]
+            },
+            {
+              "path": "tests/Feature/Meetings/MeetingConcurrencyTest.php",
+              "line": 1333,
+              "number": [
+                "\"STALE{$suffix}\","
+              ],
+              "name": [
+                "\"Stale view {$suffix}\","
+              ]
+            },
+            {
+              "path": "tests/Feature/Meetings/MeetingConcurrencyTest.php",
+              "line": 1514,
+              "number": [
+                "\"LATE{$suffix}\","
+              ],
+              "name": [
+                "\"Late reply {$suffix}\","
+              ]
+            },
+            {
+              "path": "tests/Feature/Meetings/MeetingConcurrencyTest.php",
+              "line": 1681,
+              "number": [
+                "\"RLOCK{$suffix}\","
+              ],
+              "name": [
+                "\"RSVP lock order {$suffix}\","
+              ]
+            },
+            {
+              "path": "tests/Feature/Meetings/MeetingReferenceHistorizationTest.php",
+              "line": 86,
+              "number": [
+                "\"FDR{$suffix}\","
+              ],
+              "name": [
+                "\"Force Delete Retry {$suffix}\","
+              ]
+            },
+            {
+              "path": "tests/Feature/Meetings/MeetingActionsTest.php",
+              "line": 284,
+              "number": [
+                "\"RETRY{$suffix}\","
+              ],
+              "name": [
+                "\"Action Retry {$suffix}\","
+              ]
+            },
+            {
+              "path": "tests/Feature/Meetings/MeetingReportConcurrencyTest.php",
+              "line": 343,
+              "number": [
+                "\"RACE{$suffix}\","
+              ],
+              "name": [
+                "\"Report race {$suffix}\","
+              ]
+            },
+            {
+              "path": "tests/Feature/Meetings/MeetingReportConcurrencyTest.php",
+              "line": 1008,
+              "number": [
+                "'SQLITE-REPORT',"
+              ],
+              "name": [
+                "'SQLite report tenant',"
+              ]
+            },
+            {
+              "path": "tests/Feature/Meetings/MeetingReportConcurrencyTest.php",
+              "line": 1135,
+              "number": [
+                "\"REPORT{$suffix}\","
+              ],
+              "name": [
+                "\"Report concurrency {$suffix}\","
+              ]
+            },
+            {
+              "path": "tests/Feature/Registrations/RegistrationAdmissionConcurrencyTest.php",
+              "line": 171,
+              "number": [
+                "\"ADM{$suffix}\","
+              ],
+              "name": [
+                "\"Admission race {$suffix}\","
+              ]
+            },
+            {
+              "path": "tests/Feature/Registrations/RegistrationPersonBindingConcurrencyTest.php",
+              "line": 142,
+              "number": [
+                "\"FDR{$suffix}\","
+              ],
+              "name": [
+                "\"Force-delete race {$suffix}\","
+              ]
+            },
+            {
+              "path": "tests/Feature/Registrations/RegistrationSubmissionConcurrencyTest.php",
+              "line": 93,
+              "number": [
+                "'RSR' . $suffix,"
+              ],
+              "name": [
+                "'Submission race ' . $suffix, 'email' => $email,"
+              ]
+            },
+            {
+              "path": "tests/Feature/Registrations/RegistrationManagementConcurrencyTest.php",
+              "line": 170,
+              "number": [
+                "\"RMR{$suffix}\","
+              ],
+              "name": [
+                "\"Registration race {$suffix}\","
+              ]
+            },
+            {
+              "path": "tests/Feature/RegistrationOffers/RegistrationOfferPublishConcurrencyTest.php",
+              "line": 174,
+              "number": [
+                "\"OFR{$suffix}\","
+              ],
+              "name": [
+                "\"Offer race {$suffix}\","
+              ]
+            },
+            {
+              "path": "tests/Feature/RegistrationOffers/RegistrationOfferPublishConcurrencyTest.php",
+              "line": 752,
+              "number": [
+                "\"OFC{$suffix}\","
+              ],
+              "name": [
+                "\"Offer create race {$suffix}\","
+              ]
+            },
+            {
+              "path": "tests/Feature/RegistrationOffers/RegistrationOfferPublishConcurrencyTest.php",
+              "line": 818,
+              "number": [
+                "\"OFS{$suffix}\","
+              ],
+              "name": [
+                "\"Guided offer race {$suffix}\","
+              ]
+            },
+            {
+              "path": "tests/Feature/Billing/TransactionDirectDebitXmlConcurrencyTest.php",
+              "line": 182,
+              "number": [
+                "'DD' . $suffix,"
+              ],
+              "name": [
+                "'Direct debit XML race tenant',"
+              ]
+            },
+            {
+              "path": "tests/Feature/Billing/TransactionDirectDebitXmlTest.php",
+              "line": 1584,
+              "number": [
+                "'RR' . $suffix,"
+              ],
+              "name": [
+                "'Direct debit XML recovery retry tenant',"
+              ]
+            },
+            {
+              "path": "tests/Feature/Models/TenantSubtenantMembershipModeTest.php",
+              "line": 123,
+              "number": [
+                "'DOWNGRADE-' . Str::random(8),"
+              ],
+              "name": [
+                "'Membership downgrade concurrency tenant',"
+              ]
+            },
+            {
+              "path": "tests/Feature/Polls/PollDomainMigrationPortabilityTest.php",
+              "line": 253,
+              "number": [
+                "'POLL-SQLITE',"
+              ],
+              "name": [
+                "'Poll SQLite tenant',"
+              ]
+            },
+            {
+              "path": "tests/Feature/Polls/PollIdentityConcurrencyTest.php",
+              "line": 39,
+              "number": [
+                "\"POLRACE{$suffix}\","
+              ],
+              "name": [
+                "\"Poll identity race {$suffix}\","
+              ]
+            },
+            {
+              "path": "tests/Feature/Polls/PollEventConversionSchemaTest.php",
+              "line": 138,
+              "number": [],
+              "name": []
+            },
+            {
+              "path": "tests/Feature/Polls/PollEventConversionSchemaTest.php",
+              "line": 198,
+              "number": [],
+              "name": []
+            },
+            {
+              "path": "tests/Feature/Polls/PollEventConversionSchemaTest.php",
+              "line": 199,
+              "number": [],
+              "name": []
+            },
+            {
+              "path": "tests/Feature/Polls/CreateEventFromPollConcurrencyTest.php",
+              "line": 48,
+              "number": [
+                "\"POLEVT{$suffix}\","
+              ],
+              "name": [
+                "\"Poll event conversion race {$suffix}\","
+              ]
+            },
+            {
+              "path": "tests/Feature/Polls/PollDispatchMigrationPortabilityTest.php",
+              "line": 131,
+              "number": [
+                "'POLL-DISPATCH-SQLITE',"
+              ],
+              "name": [
+                "'Poll dispatch SQLite tenant',"
+              ]
+            },
+            {
+              "path": "tests/Feature/Polls/PollDispatchMigrationPortabilityTest.php",
+              "line": 144,
+              "number": [
+                "'POLL-DISPATCH-SQLITE-FOREIGN',"
+              ],
+              "name": [
+                "'Foreign poll dispatch SQLite tenant',"
+              ]
+            },
+            {
+              "path": "tests/Feature/Polls/PollPublishConcurrencyTest.php",
+              "line": 48,
+              "number": [
+                "\"POLPUB{$suffix}\","
+              ],
+              "name": [
+                "\"Poll publish race {$suffix}\","
+              ]
+            },
+            {
+              "path": "tests/Feature/Polls/PollVotingConcurrencyTest.php",
+              "line": 47,
+              "number": [
+                "\"POLVOT{$suffix}\","
+              ],
+              "name": [
+                "\"Poll ballot race {$suffix}\","
+              ]
+            },
+            {
+              "path": "tests/Feature/Resources/ResourceBookings/EventResourceAllocationConcurrencyTest.php",
+              "line": 136,
+              "number": [
+                "'EA' . $suffix,"
+              ],
+              "name": [
+                "'Event allocation race tenant',"
+              ]
+            },
+            {
+              "path": "tests/Feature/Resources/ResourceBookings/ResourceBookingSeriesConcurrencyTest.php",
+              "line": 122,
+              "number": [
+                "'RS' . $suffix,"
+              ],
+              "name": [
+                "'Resource series race tenant',"
+              ]
+            },
+            {
+              "path": "tests/Feature/Resources/ResourceBookings/ResourceBookingConcurrencyTest.php",
+              "line": 147,
+              "number": [
+                "'RB' . $suffix,"
+              ],
+              "name": [
+                "'Resource race tenant',"
+              ]
+            },
+            {
+              "path": "tests/Feature/Actions/People/ManagePersonSubtenantMembershipTest.php",
+              "line": 474,
+              "number": [
+                "'CONCURRENCY-' . Str::random(8),"
+              ],
+              "name": [
+                "'Membership concurrency tenant',"
+              ]
+            },
+            {
+              "path": "tests/Feature/Actions/People/JoinPeopleConcurrencyTest.php",
+              "line": 132,
+              "number": [
+                "'CAPACITY-' . Str::random(8),"
+              ],
+              "name": [
+                "'Capacity race tenant',"
+              ]
+            }
+          ],
+          "minimalExcludedSites": [
+            {
+              "path": "tests/Unit/DataMigrations/TenantPublicSlugMigrationTest.php",
+              "line": 40,
+              "number": [],
+              "name": [
+                "'Demo Club', 'deleted_at' => null],"
+              ]
+            },
+            {
+              "path": "tests/Feature/Meetings/MeetingConcurrencyTest.php",
+              "line": 540,
+              "number": [],
+              "name": []
+            },
+            {
+              "path": "tests/Feature/Meetings/MeetingActionsTest.php",
+              "line": 276,
+              "number": [],
+              "name": []
+            },
+            {
+              "path": "tests/Feature/Migrations/TransactionDirectDebitLedgerMigrationTest.php",
+              "line": 83,
+              "number": [],
+              "name": []
+            },
+            {
+              "path": "tests/Feature/Migrations/TransactionDirectDebitLedgerMigrationTest.php",
+              "line": 554,
+              "number": [],
+              "name": []
+            },
+            {
+              "path": "tests/Feature/Migrations/TransactionDirectDebitLedgerMigrationTest.php",
+              "line": 794,
+              "number": [],
+              "name": []
+            },
+            {
+              "path": "tests/Feature/Migrations/FinTsBankAccountMappingMigrationTest.php",
+              "line": 95,
+              "number": [],
+              "name": [
+                "'FinTS mapping migration tenant',"
+              ]
+            },
+            {
+              "path": "tests/Feature/Migrations/TenantBillingCountryBackfillTest.php",
+              "line": 52,
+              "number": [],
+              "name": []
+            },
+            {
+              "path": "tests/Feature/Migrations/ActionJobRetryIndexMigrationTest.php",
+              "line": 129,
+              "number": [],
+              "name": []
+            },
+            {
+              "path": "tests/Feature/Migrations/ResourceBookingSeriesMigrationTest.php",
+              "line": 43,
+              "number": [],
+              "name": []
+            },
+            {
+              "path": "tests/Feature/Migrations/BankAccountFinTsAccessMigrationTest.php",
+              "line": 34,
+              "number": [],
+              "name": []
+            }
+          ],
+          "variableMinimal": [
+            {
+              "path": "tests/Feature/Migrations/RegistrationResumeContextSqliteTest.php",
+              "line": 18,
+              "note": "foreach creates ID-only tenants table and inserts through $table"
+            }
+          ],
+          "audit": "app/database raw SQL + static Tenant bulk insert + query-builder and variable table references inspected; no application/database raw tenant insert caller found",
+          "line_numbers": "Locations are from the pre-fix source snapshot; required-column additions shift later line numbers."
+        }
+      },
+      "W1-F2": {
+        "changed_paths": [
+          "app/Exceptions/Handler.php",
+          "app/Support/Registrations/RegistrationApiResponse.php",
+          "tests/Feature/Api/RegistrationContractTest.php"
+        ],
+        "behavior": "Framework shouldRenderJsonWhen callback is request-scoped to registration API or existing expectsJson behavior. Correct 401/422 for text/html, neutral 405 and preserved Allow/WWW-Authenticate, private/no-store/no-referrer. Unrelated browser authentication still redirects."
+      },
+      "W1-F3": {
+        "changed_paths": [
+          "app/Support/Registrations/RegistrationApiResponse.php",
+          "tests/Unit/Support/Registrations/RegistrationApiResponseTest.php"
+        ],
+        "behavior": "Use Request::decodedPath for the tenant registration matcher. Isolated Request normalization + synthetic middleware response dataset only; no external target or live probing."
+      },
+      "W1-F4": {
+        "changed_paths": [
+          "docs/features/website-cms/contracts/v1/schemas/registration.schema.json",
+          "tests/Feature/Api/RegistrationContractTest.php",
+          "tests/Unit/Contracts/RegistrationContractFixturesTest.php"
+        ],
+        "behavior": "ResponseContact allows 255; request Contact remains 190. Real verified bearer/own-person HTTP prefill returns the stored 255-character synthetic contact, validates OfferResponse, and unchanged submission validation rejects it with 422. No trimming or persistence change."
+      }
+    },
+    "import_comparison": [
+      {
+        "path": "app/Models/Traits/HasPublicSlug.php",
+        "diff_w_exit": 0,
+        "byte_equal": false,
+        "source_blob": "edf87e1aafc9b5b1548f1790da797d15b5cedb25",
+        "normalized_diff": ""
+      },
+      {
+        "path": "database/migrations/2026_08_11_074158_add_public_slug_to_tenants_table.php",
+        "diff_w_exit": 0,
+        "byte_equal": true,
+        "source_blob": "6ea0c002c2c3ce612abe33d6e5302395981d1939",
+        "normalized_diff": ""
+      },
+      {
+        "path": "app/Models/Tenant.php",
+        "diff_w_exit": 0,
+        "byte_equal": true,
+        "source_blob": "34c65150291db45e4df7cfab268866847951e7f8",
+        "normalized_diff": ""
+      },
+      {
+        "path": "tests/Unit/DataMigrations/TenantPublicSlugTest.php",
+        "diff_w_exit": 0,
+        "byte_equal": false,
+        "source_blob": "39d76b7f85f85d4fa3fec242b61a01d1b8538b64",
+        "normalized_diff": ""
+      },
+      {
+        "path": "tests/Unit/DataMigrations/TenantPublicSlugMigrationTest.php",
+        "diff_w_exit": 1,
+        "byte_equal": false,
+        "source_blob": "ae2e10062efb84a5644417c83c8ce2acda900abf",
+        "normalized_diff": "9a10\n> use PHPUnit\\Framework\\Attributes\\DataProvider;\n14c15,16\n<     public function testItBackfillsEveryExistingTenantAndEnforcesANonNullUniquePublicSlug(): void\n---\n>     #[DataProvider('databaseEngines')]\n>     public function testItBackfillsEveryExistingTenantAndEnforcesANonNullUniquePublicSlug(string $driver): void\n19c21,23\n<         $connectionConfig = config(\"database.connections.{$originalConnection}\");\n---\n>         $connectionConfig = $driver === 'sqlite'\n>             ? ['driver' => 'sqlite', 'database' => ':memory:', 'foreign_key_constraints' => true]\n>             : config(\"database.connections.{$originalConnection}\");\n67a72,75\n> \n>             $migration->down();\n>             $this->assertFalse(Schema::hasColumn('tenants', 'public_slug'));\n>             $this->assertSame(5, DB::table('tenants')->count());\n73a82,87\n>     }\n> \n>     /** @return array<string, array{string}> */\n>     public static function databaseEngines(): array\n>     {\n>         return ['private MariaDB prefixed tables' => ['mysql'], 'isolated SQLite memory' => ['sqlite']];\n"
+      }
+    ],
+    "import_comparison_note": "diff -w is explicitly distinct from byte equality. Source migration-test differences are pre-existing deliberate private MariaDB/SQLite DataProvider and isolated down()/row-preservation coverage, not new W1 edits.",
+    "fixture_gate": {
+      "responses": 41,
+      "byte_hashes_unchanged": true,
+      "regeneration": false,
+      "canonicalization": "No change to the three previously recorded scalar canonicalization paths; no new captured fixture or fabricated response."
+    },
+    "commands": {
+      "intl_preflight": "vendor/bin/sail php -r 'if (! extension_loaded(\"intl\") || posix_geteuid() === 0) { exit(1); } echo \"intl loaded; uid=\" . posix_geteuid() . \"; PHP=\" . PHP_VERSION . \"\\n\";'",
+      "red": "./worktree-lifecycle.sh run-tests website-registration-links -- tests/Feature/Registrations/RegistrationSubmissionConcurrencyTest.php tests/Feature/Polls/PollVotingConcurrencyTest.php tests/Feature/Polls/PollEventConversionSchemaTest.php --compact",
+      "focused": "./worktree-lifecycle.sh run-tests website-registration-links -- tests/Feature/Registrations/RegistrationSubmissionConcurrencyTest.php tests/Feature/Polls/PollVotingConcurrencyTest.php tests/Feature/Polls/PollEventConversionSchemaTest.php tests/Feature/Api/RegistrationContractTest.php tests/Unit/Contracts/RegistrationContractFixturesTest.php tests/Unit/Support/Registrations/RegistrationApiResponseTest.php --compact",
+      "affected": "./worktree-lifecycle.sh run-tests website-registration-links -- tests/Feature/Actions/People/JoinPeopleConcurrencyTest.php tests/Feature/Actions/People/ManagePersonSubtenantMembershipTest.php tests/Feature/Billing/TransactionDirectDebitXmlConcurrencyTest.php tests/Feature/Billing/TransactionDirectDebitXmlTest.php tests/Feature/Invitations/AcceptInvitationConcurrencyTest.php tests/Feature/Me/PersonTargetWriterRaceTest.php tests/Feature/Meetings/MeetingActionsTest.php tests/Feature/Meetings/MeetingConcurrencyTest.php tests/Feature/Meetings/MeetingReferenceHistorizationTest.php tests/Feature/Meetings/MeetingReportConcurrencyTest.php tests/Feature/Models/TenantSubtenantMembershipModeTest.php tests/Feature/Polls/CreateEventFromPollConcurrencyTest.php tests/Feature/Polls/PollDispatchMigrationPortabilityTest.php tests/Feature/Polls/PollDomainMigrationPortabilityTest.php tests/Feature/Polls/PollEventConversionSchemaTest.php tests/Feature/Polls/PollIdentityConcurrencyTest.php tests/Feature/Polls/PollPublishConcurrencyTest.php tests/Feature/Polls/PollVotingConcurrencyTest.php tests/Feature/RegistrationOffers/RegistrationOfferPublishConcurrencyTest.php tests/Feature/Registrations/RegistrationAdmissionConcurrencyTest.php tests/Feature/Registrations/RegistrationManagementConcurrencyTest.php tests/Feature/Registrations/RegistrationPersonBindingConcurrencyTest.php tests/Feature/Registrations/RegistrationSubmissionConcurrencyTest.php tests/Feature/Resources/ResourceBookings/EventResourceAllocationConcurrencyTest.php tests/Feature/Resources/ResourceBookings/ResourceBookingConcurrencyTest.php tests/Feature/Resources/ResourceBookings/ResourceBookingSeriesConcurrencyTest.php tests/Feature/Api/RegistrationContractTest.php tests/Unit/Contracts/RegistrationContractFixturesTest.php tests/Unit/Support/Registrations/RegistrationApiResponseTest.php tests/Unit/DataMigrations/TenantPublicSlugMigrationTest.php tests/Unit/DataMigrations/TenantPublicSlugTest.php tests/Feature/Migrations/RegistrationResumeContextSqliteTest.php tests/Feature/Api/RegistrationOfferApiTest.php tests/Feature/Registrations/RegistrationHeadlessResumeTest.php tests/Feature/Registrations/RegistrationVerificationTest.php tests/Feature/Registrations/RegistrationMagicLinkTest.php tests/Feature/Registrations/RegistrationSubmissionTest.php tests/Feature/Registrations/RegistrationReadmissionTest.php tests/Feature/Registrations/RegistrationSessionTest.php tests/Feature/Registrations/RegistrationSchemaTypesTest.php tests/Feature/Registrations/RegistrationPersonBindingTest.php tests/Feature/Registrations/RegistrationRateLimitTest.php --compact",
+      "static": {
+        "phpstan": "vendor/bin/sail bin phpstan analyse --memory-limit=2G --no-progress --error-format=table",
+        "phpcs": "vendor/bin/sail bin phpcs --report=summary",
+        "phpmd": "vendor/bin/sail bin phpmd app,routes,database,config,tests text phpmd-ruleset.xml --exclude '*blade.php*'"
+      },
+      "docs": "vendor/bin/sail artisan knowledgebase:sources:validate --no-interaction",
+      "sail_tooling_environment": "export WORKTREE_BOOST_SOURCE=\"$PWD\" WORKTREE_BOOST_VENDOR=\"$PWD/vendor\" WWWUSER=\"$(id -u)\" WORKTREE_BOOST_APP_KEY=\"base64:$(openssl rand -base64 32)\" SAIL_SKIP_CHECKS=1 APP_SERVICE=app APP_USER=1000 SAIL_FILES=\"docker-compose.worktree-boost.yml:/tmp/membergy-registration-w1-01a10d75.yml\" COMPOSE_PROJECT_NAME=membergy_registration_w1_tooling_01a10d75",
+      "private_runner_boundary": "Unset APP_SERVICE, APP_USER, SAIL_FILES, COMPOSE_PROJECT_NAME, SAIL_SKIP_CHECKS, WORKTREE_BOOST_SOURCE, WORKTREE_BOOST_VENDOR, WORKTREE_BOOST_APP_KEY and WWWUSER after the same-image preflight and before worktree-lifecycle.sh; never inherit the tooling Compose project into the private MariaDB runner.",
+      "serialization_gate": "if docker ps --format '{{.Names}}' | rg '^membergy_test_' || ps -C php -o args= | rg '(^|/)(pest|phpunit)( |$)|artisan test'; then echo 'Another PHP suite active; no tests started'; exit 1; fi",
+      "sqlite_preflight": "vendor/bin/sail exec -T --user 1000 -e APP_ENV=testing -e DB_CONNECTION=sqlite -e SQLITE_DATABASE=:memory: -e MEMBERGY_TEST_DATABASE=testing_wt_website_registration_links -e DB_HOST=127.0.0.1 -e APP_CONFIG_CACHE=/tmp/membergy-registration-w1-sqlite-config.php -e LARAVEL_STORAGE_PATH=/tmp/membergy-registration-w1-sqlite/storage -e VIEW_COMPILED_PATH=/tmp/membergy-registration-w1-sqlite/storage/framework/views -e MAIL_MAILER=array -e SESSION_DRIVER=array -e CACHE_DRIVER=array -e CACHE_GLOBAL_DRIVER=array -e QUEUE_CONNECTION=sync -e TELESCOPE_ENABLED=false -e PULSE_ENABLED=false -e BROADCAST_DRIVER=null app php -r 'if (! extension_loaded(\"intl\") || posix_geteuid() === 0 || getenv(\"DB_CONNECTION\") !== \"sqlite\" || getenv(\"SQLITE_DATABASE\") !== \":memory:\") { exit(1); } echo \"intl loaded; uid=\" . posix_geteuid() . \"; PHP=\" . PHP_VERSION . \"; sqlite=:memory:; networkless image\\n\";'",
+      "sqlite": "vendor/bin/sail exec -T --user 1000 -e APP_ENV=testing -e DB_CONNECTION=sqlite -e SQLITE_DATABASE=:memory: -e MEMBERGY_TEST_DATABASE=testing_wt_website_registration_links -e DB_HOST=127.0.0.1 -e APP_CONFIG_CACHE=/tmp/membergy-registration-w1-sqlite-config.php -e LARAVEL_STORAGE_PATH=/tmp/membergy-registration-w1-sqlite/storage -e VIEW_COMPILED_PATH=/tmp/membergy-registration-w1-sqlite/storage/framework/views -e MAIL_MAILER=array -e SESSION_DRIVER=array -e CACHE_DRIVER=array -e CACHE_GLOBAL_DRIVER=array -e QUEUE_CONNECTION=sync -e TELESCOPE_ENABLED=false -e PULSE_ENABLED=false -e BROADCAST_DRIVER=null app bash -c 'set -e; mkdir -p \"$LARAVEL_STORAGE_PATH/app\" \"$LARAVEL_STORAGE_PATH/logs\" \"$LARAVEL_STORAGE_PATH/framework/views\" \"$LARAVEL_STORAGE_PATH/framework/cache/data\" \"$LARAVEL_STORAGE_PATH/framework/sessions\"; exec php vendor/bin/pest \"$@\"' registration-w1-sqlite tests/Feature/Actions/People/ManagePersonSubtenantMembershipTest.php tests/Feature/Billing/TransactionDirectDebitXmlTest.php tests/Feature/Meetings/MeetingActionsTest.php tests/Feature/Meetings/MeetingConcurrencyTest.php tests/Feature/Meetings/MeetingReferenceHistorizationTest.php tests/Feature/Meetings/MeetingReportConcurrencyTest.php tests/Feature/Models/TenantSubtenantMembershipModeTest.php tests/Feature/Polls/PollDispatchMigrationPortabilityTest.php tests/Feature/Polls/PollDomainMigrationPortabilityTest.php tests/Feature/Polls/PollEventConversionSchemaTest.php tests/Feature/Api/RegistrationContractTest.php tests/Unit/Contracts/RegistrationContractFixturesTest.php tests/Unit/Support/Registrations/RegistrationApiResponseTest.php tests/Unit/DataMigrations/TenantPublicSlugTest.php tests/Feature/Migrations/RegistrationResumeContextSqliteTest.php tests/Feature/Api/RegistrationOfferApiTest.php tests/Feature/Registrations/RegistrationHeadlessResumeTest.php tests/Feature/Registrations/RegistrationVerificationTest.php tests/Feature/Registrations/RegistrationMagicLinkTest.php tests/Feature/Registrations/RegistrationSubmissionTest.php tests/Feature/Registrations/RegistrationReadmissionTest.php tests/Feature/Registrations/RegistrationSessionTest.php tests/Feature/Registrations/RegistrationSchemaTypesTest.php tests/Feature/Registrations/RegistrationPersonBindingTest.php tests/Feature/Registrations/RegistrationRateLimitTest.php --compact --stop-on-failure",
+      "pint": [
+        "vendor/bin/sail bin pint --dirty --format agent",
+        "vendor/bin/sail bin pint app/Support/Registrations/RegistrationApiResponse.php tests/Feature/Api/RegistrationContractTest.php tests/Unit/Contracts/RegistrationContractFixturesTest.php tests/Unit/Support/Registrations/RegistrationApiResponseTest.php --format agent"
+      ],
+      "sqlite_cache_isolated": "vendor/bin/sail exec -T --user 1000 -e APP_ENV=testing -e DB_CONNECTION=sqlite -e SQLITE_DATABASE=:memory: -e MEMBERGY_TEST_DATABASE=testing_wt_website_registration_links -e DB_HOST=127.0.0.1 -e APP_CONFIG_CACHE=/tmp/membergy-registration-w1-sqlite-config.php -e LARAVEL_STORAGE_PATH=/tmp/membergy-registration-w1-sqlite/storage -e VIEW_COMPILED_PATH=/tmp/membergy-registration-w1-sqlite/storage/framework/views -e MAIL_MAILER=array -e SESSION_DRIVER=array -e CACHE_DRIVER=array -e CACHE_GLOBAL_DRIVER=array -e QUEUE_CONNECTION=sync -e TELESCOPE_ENABLED=false -e PULSE_ENABLED=false -e BROADCAST_DRIVER=null app bash -c 'set -e; mkdir -p \"$LARAVEL_STORAGE_PATH/app\" \"$LARAVEL_STORAGE_PATH/logs\" \"$LARAVEL_STORAGE_PATH/framework/views\" \"$LARAVEL_STORAGE_PATH/framework/cache/data\" \"$LARAVEL_STORAGE_PATH/framework/sessions\"; exec php vendor/bin/pest \"$@\"' registration-w1-sqlite tests/Feature/Actions/People/ManagePersonSubtenantMembershipTest.php tests/Feature/Billing/TransactionDirectDebitXmlTest.php tests/Feature/Meetings/MeetingActionsTest.php tests/Feature/Meetings/MeetingConcurrencyTest.php tests/Feature/Meetings/MeetingReferenceHistorizationTest.php tests/Feature/Meetings/MeetingReportConcurrencyTest.php tests/Feature/Models/TenantSubtenantMembershipModeTest.php tests/Feature/Polls/PollDispatchMigrationPortabilityTest.php tests/Feature/Polls/PollDomainMigrationPortabilityTest.php tests/Feature/Polls/PollEventConversionSchemaTest.php tests/Feature/Api/RegistrationContractTest.php tests/Unit/Contracts/RegistrationContractFixturesTest.php tests/Unit/Support/Registrations/RegistrationApiResponseTest.php tests/Unit/DataMigrations/TenantPublicSlugTest.php tests/Feature/Migrations/RegistrationResumeContextSqliteTest.php tests/Feature/Api/RegistrationOfferApiTest.php tests/Feature/Registrations/RegistrationHeadlessResumeTest.php tests/Feature/Registrations/RegistrationVerificationTest.php tests/Feature/Registrations/RegistrationMagicLinkTest.php tests/Feature/Registrations/RegistrationSubmissionTest.php tests/Feature/Registrations/RegistrationReadmissionTest.php tests/Feature/Registrations/RegistrationSessionTest.php tests/Feature/Registrations/RegistrationSchemaTypesTest.php tests/Feature/Registrations/RegistrationPersonBindingTest.php tests/Feature/Registrations/RegistrationRateLimitTest.php --compact --stop-on-failure --cache-directory /tmp/membergy-registration-w1-sqlite/pest-cache"
+    },
+    "executed_tests": [
+      {
+        "command": "./worktree-lifecycle.sh run-tests website-registration-links -- tests/Feature/Registrations/RegistrationSubmissionConcurrencyTest.php tests/Feature/Polls/PollVotingConcurrencyTest.php tests/Feature/Polls/PollEventConversionSchemaTest.php --compact",
+        "exit": 2,
+        "counts": "15 failed (6 assertions)",
+        "duration": "53.71s",
+        "evidence": "MariaDB 1364 public_slug required; isolated SQLite NOT NULL tenants.public_slug."
+      },
+      {
+        "command": "./worktree-lifecycle.sh run-tests website-registration-links -- tests/Feature/Registrations/RegistrationSubmissionConcurrencyTest.php tests/Feature/Polls/PollVotingConcurrencyTest.php tests/Feature/Polls/PollEventConversionSchemaTest.php tests/Feature/Api/RegistrationContractTest.php tests/Unit/Contracts/RegistrationContractFixturesTest.php tests/Unit/Support/Registrations/RegistrationApiResponseTest.php --compact",
+        "exit": 1,
+        "counts": "2 failed, 82 passed (1611 assertions)",
+        "duration": "62.50s",
+        "evidence": "All named migration fixture cases now pass; two new no-queue-effect assertions counted arrangement jobs. Reset Queue fake after arrangement and retain assertNothingPushed."
+      },
+      {
+        "command": "./worktree-lifecycle.sh run-tests website-registration-links -- tests/Feature/Registrations/RegistrationSubmissionConcurrencyTest.php tests/Feature/Polls/PollVotingConcurrencyTest.php tests/Feature/Polls/PollEventConversionSchemaTest.php tests/Feature/Api/RegistrationContractTest.php tests/Unit/Contracts/RegistrationContractFixturesTest.php tests/Unit/Support/Registrations/RegistrationApiResponseTest.php --compact",
+        "exit": 0,
+        "counts": "84 passed (1611 assertions)",
+        "duration": "62.15s",
+        "note": "No fixture regeneration. Named red paths, W1-F2/F3/F4 and frozen schema cases green."
+      },
+      {
+        "command": "./worktree-lifecycle.sh run-tests website-registration-links -- tests/Feature/Actions/People/JoinPeopleConcurrencyTest.php tests/Feature/Actions/People/ManagePersonSubtenantMembershipTest.php tests/Feature/Billing/TransactionDirectDebitXmlConcurrencyTest.php tests/Feature/Billing/TransactionDirectDebitXmlTest.php tests/Feature/Invitations/AcceptInvitationConcurrencyTest.php tests/Feature/Me/PersonTargetWriterRaceTest.php tests/Feature/Meetings/MeetingActionsTest.php tests/Feature/Meetings/MeetingConcurrencyTest.php tests/Feature/Meetings/MeetingReferenceHistorizationTest.php tests/Feature/Meetings/MeetingReportConcurrencyTest.php tests/Feature/Models/TenantSubtenantMembershipModeTest.php tests/Feature/Polls/CreateEventFromPollConcurrencyTest.php tests/Feature/Polls/PollDispatchMigrationPortabilityTest.php tests/Feature/Polls/PollDomainMigrationPortabilityTest.php tests/Feature/Polls/PollEventConversionSchemaTest.php tests/Feature/Polls/PollIdentityConcurrencyTest.php tests/Feature/Polls/PollPublishConcurrencyTest.php tests/Feature/Polls/PollVotingConcurrencyTest.php tests/Feature/RegistrationOffers/RegistrationOfferPublishConcurrencyTest.php tests/Feature/Registrations/RegistrationAdmissionConcurrencyTest.php tests/Feature/Registrations/RegistrationManagementConcurrencyTest.php tests/Feature/Registrations/RegistrationPersonBindingConcurrencyTest.php tests/Feature/Registrations/RegistrationSubmissionConcurrencyTest.php tests/Feature/Resources/ResourceBookings/EventResourceAllocationConcurrencyTest.php tests/Feature/Resources/ResourceBookings/ResourceBookingConcurrencyTest.php tests/Feature/Resources/ResourceBookings/ResourceBookingSeriesConcurrencyTest.php tests/Feature/Api/RegistrationContractTest.php tests/Unit/Contracts/RegistrationContractFixturesTest.php tests/Unit/Support/Registrations/RegistrationApiResponseTest.php tests/Unit/DataMigrations/TenantPublicSlugMigrationTest.php tests/Unit/DataMigrations/TenantPublicSlugTest.php tests/Feature/Migrations/RegistrationResumeContextSqliteTest.php tests/Feature/Api/RegistrationOfferApiTest.php tests/Feature/Registrations/RegistrationHeadlessResumeTest.php tests/Feature/Registrations/RegistrationVerificationTest.php tests/Feature/Registrations/RegistrationMagicLinkTest.php tests/Feature/Registrations/RegistrationSubmissionTest.php tests/Feature/Registrations/RegistrationReadmissionTest.php tests/Feature/Registrations/RegistrationSessionTest.php tests/Feature/Registrations/RegistrationSchemaTypesTest.php tests/Feature/Registrations/RegistrationPersonBindingTest.php tests/Feature/Registrations/RegistrationRateLimitTest.php --compact",
+        "exit": 0,
+        "counts": "502 passed (4821 assertions)",
+        "duration": "538.19s",
+        "note": "Nonregenerating 42-file affected insertion/caller and registration neighbor selection. Started after a clean exact process/container gate; another owner's MariaDB test suite was observed near completion. Attempt to stop our own PHP process found its container already gone; command had completed exit 0, no signal sent. This run is green but has a serialization evidence gap."
+      },
+      {
+        "counts": "415 passed, 44 skipped (3455 assertions)",
+        "duration": "277.85s",
+        "warnings": [
+          "Pest result cache write attempted in read-only vendor/pestphp/pest/.temp/test-results",
+          "Browser plugin shutdown attempted to persist vendor/pestphp/pest-plugin-browser/.temp/playwright-server.json on the read-only vendor mount"
+        ],
+        "command": "vendor/bin/sail exec -T --user 1000 -e APP_ENV=testing -e DB_CONNECTION=sqlite -e SQLITE_DATABASE=:memory: -e MEMBERGY_TEST_DATABASE=testing_wt_website_registration_links -e DB_HOST=127.0.0.1 -e APP_CONFIG_CACHE=/tmp/membergy-registration-w1-sqlite-config.php -e LARAVEL_STORAGE_PATH=/tmp/membergy-registration-w1-sqlite/storage -e VIEW_COMPILED_PATH=/tmp/membergy-registration-w1-sqlite/storage/framework/views -e MAIL_MAILER=array -e SESSION_DRIVER=array -e CACHE_DRIVER=array -e CACHE_GLOBAL_DRIVER=array -e QUEUE_CONNECTION=sync -e TELESCOPE_ENABLED=false -e PULSE_ENABLED=false -e BROADCAST_DRIVER=null app bash -c 'set -e; mkdir -p \"$LARAVEL_STORAGE_PATH/app\" \"$LARAVEL_STORAGE_PATH/logs\" \"$LARAVEL_STORAGE_PATH/framework/views\" \"$LARAVEL_STORAGE_PATH/framework/cache/data\" \"$LARAVEL_STORAGE_PATH/framework/sessions\"; exec php vendor/bin/pest \"$@\"' registration-w1-sqlite tests/Feature/Actions/People/ManagePersonSubtenantMembershipTest.php tests/Feature/Billing/TransactionDirectDebitXmlTest.php tests/Feature/Meetings/MeetingActionsTest.php tests/Feature/Meetings/MeetingConcurrencyTest.php tests/Feature/Meetings/MeetingReferenceHistorizationTest.php tests/Feature/Meetings/MeetingReportConcurrencyTest.php tests/Feature/Models/TenantSubtenantMembershipModeTest.php tests/Feature/Polls/PollDispatchMigrationPortabilityTest.php tests/Feature/Polls/PollDomainMigrationPortabilityTest.php tests/Feature/Polls/PollEventConversionSchemaTest.php tests/Feature/Api/RegistrationContractTest.php tests/Unit/Contracts/RegistrationContractFixturesTest.php tests/Unit/Support/Registrations/RegistrationApiResponseTest.php tests/Unit/DataMigrations/TenantPublicSlugTest.php tests/Feature/Migrations/RegistrationResumeContextSqliteTest.php tests/Feature/Api/RegistrationOfferApiTest.php tests/Feature/Registrations/RegistrationHeadlessResumeTest.php tests/Feature/Registrations/RegistrationVerificationTest.php tests/Feature/Registrations/RegistrationMagicLinkTest.php tests/Feature/Registrations/RegistrationSubmissionTest.php tests/Feature/Registrations/RegistrationReadmissionTest.php tests/Feature/Registrations/RegistrationSessionTest.php tests/Feature/Registrations/RegistrationSchemaTypesTest.php tests/Feature/Registrations/RegistrationPersonBindingTest.php tests/Feature/Registrations/RegistrationRateLimitTest.php --compact --stop-on-failure",
+        "exit": 0,
+        "note": "Portable business/schema/request parity on default SQLite memory with safe managed metadata, network none. MySQL row-lock cases skip. Warning-only cache writes were denied by the read-only shared vendor; no vendor file changed."
+      },
+      {
+        "command": "./worktree-lifecycle.sh run-tests website-registration-links -- tests/Feature/Actions/People/JoinPeopleConcurrencyTest.php tests/Feature/Actions/People/ManagePersonSubtenantMembershipTest.php tests/Feature/Billing/TransactionDirectDebitXmlConcurrencyTest.php tests/Feature/Billing/TransactionDirectDebitXmlTest.php tests/Feature/Invitations/AcceptInvitationConcurrencyTest.php tests/Feature/Me/PersonTargetWriterRaceTest.php tests/Feature/Meetings/MeetingActionsTest.php tests/Feature/Meetings/MeetingConcurrencyTest.php tests/Feature/Meetings/MeetingReferenceHistorizationTest.php tests/Feature/Meetings/MeetingReportConcurrencyTest.php tests/Feature/Models/TenantSubtenantMembershipModeTest.php tests/Feature/Polls/CreateEventFromPollConcurrencyTest.php tests/Feature/Polls/PollDispatchMigrationPortabilityTest.php tests/Feature/Polls/PollDomainMigrationPortabilityTest.php tests/Feature/Polls/PollEventConversionSchemaTest.php tests/Feature/Polls/PollIdentityConcurrencyTest.php tests/Feature/Polls/PollPublishConcurrencyTest.php tests/Feature/Polls/PollVotingConcurrencyTest.php tests/Feature/RegistrationOffers/RegistrationOfferPublishConcurrencyTest.php tests/Feature/Registrations/RegistrationAdmissionConcurrencyTest.php tests/Feature/Registrations/RegistrationManagementConcurrencyTest.php tests/Feature/Registrations/RegistrationPersonBindingConcurrencyTest.php tests/Feature/Registrations/RegistrationSubmissionConcurrencyTest.php tests/Feature/Resources/ResourceBookings/EventResourceAllocationConcurrencyTest.php tests/Feature/Resources/ResourceBookings/ResourceBookingConcurrencyTest.php tests/Feature/Resources/ResourceBookings/ResourceBookingSeriesConcurrencyTest.php tests/Feature/Api/RegistrationContractTest.php tests/Unit/Contracts/RegistrationContractFixturesTest.php tests/Unit/Support/Registrations/RegistrationApiResponseTest.php tests/Unit/DataMigrations/TenantPublicSlugMigrationTest.php tests/Unit/DataMigrations/TenantPublicSlugTest.php tests/Feature/Migrations/RegistrationResumeContextSqliteTest.php tests/Feature/Api/RegistrationOfferApiTest.php tests/Feature/Registrations/RegistrationHeadlessResumeTest.php tests/Feature/Registrations/RegistrationVerificationTest.php tests/Feature/Registrations/RegistrationMagicLinkTest.php tests/Feature/Registrations/RegistrationSubmissionTest.php tests/Feature/Registrations/RegistrationReadmissionTest.php tests/Feature/Registrations/RegistrationSessionTest.php tests/Feature/Registrations/RegistrationSchemaTypesTest.php tests/Feature/Registrations/RegistrationPersonBindingTest.php tests/Feature/Registrations/RegistrationRateLimitTest.php --compact",
+        "exit": 137,
+        "counts": "Interrupted before a completed-suite summary",
+        "cause": "Second idle-gated 42-file MariaDB attempt: another owner's guided-onboarding-concept suite started while ours ran. INT and TERM did not end the owned Pest process; verified ownership again, then KILL only that process. Its lifecycle container was removed automatically. No additional DB cleanup/reset attempted.",
+        "note": "Not a passing run; wait for operator-reserved exclusive window before any further MariaDB attempt."
+      },
+      {
+        "command": "vendor/bin/sail exec -T --user 1000 -e APP_ENV=testing -e DB_CONNECTION=sqlite -e SQLITE_DATABASE=:memory: -e MEMBERGY_TEST_DATABASE=testing_wt_website_registration_links -e DB_HOST=127.0.0.1 -e APP_CONFIG_CACHE=/tmp/membergy-registration-w1-sqlite-config.php -e LARAVEL_STORAGE_PATH=/tmp/membergy-registration-w1-sqlite/storage -e VIEW_COMPILED_PATH=/tmp/membergy-registration-w1-sqlite/storage/framework/views -e MAIL_MAILER=array -e SESSION_DRIVER=array -e CACHE_DRIVER=array -e CACHE_GLOBAL_DRIVER=array -e QUEUE_CONNECTION=sync -e TELESCOPE_ENABLED=false -e PULSE_ENABLED=false -e BROADCAST_DRIVER=null app bash -c 'set -e; mkdir -p \"$LARAVEL_STORAGE_PATH/app\" \"$LARAVEL_STORAGE_PATH/logs\" \"$LARAVEL_STORAGE_PATH/framework/views\" \"$LARAVEL_STORAGE_PATH/framework/cache/data\" \"$LARAVEL_STORAGE_PATH/framework/sessions\"; exec php vendor/bin/pest \"$@\"' registration-w1-sqlite tests/Feature/Actions/People/ManagePersonSubtenantMembershipTest.php tests/Feature/Billing/TransactionDirectDebitXmlTest.php tests/Feature/Meetings/MeetingActionsTest.php tests/Feature/Meetings/MeetingConcurrencyTest.php tests/Feature/Meetings/MeetingReferenceHistorizationTest.php tests/Feature/Meetings/MeetingReportConcurrencyTest.php tests/Feature/Models/TenantSubtenantMembershipModeTest.php tests/Feature/Polls/PollDispatchMigrationPortabilityTest.php tests/Feature/Polls/PollDomainMigrationPortabilityTest.php tests/Feature/Polls/PollEventConversionSchemaTest.php tests/Feature/Api/RegistrationContractTest.php tests/Unit/Contracts/RegistrationContractFixturesTest.php tests/Unit/Support/Registrations/RegistrationApiResponseTest.php tests/Unit/DataMigrations/TenantPublicSlugTest.php tests/Feature/Migrations/RegistrationResumeContextSqliteTest.php tests/Feature/Api/RegistrationOfferApiTest.php tests/Feature/Registrations/RegistrationHeadlessResumeTest.php tests/Feature/Registrations/RegistrationVerificationTest.php tests/Feature/Registrations/RegistrationMagicLinkTest.php tests/Feature/Registrations/RegistrationSubmissionTest.php tests/Feature/Registrations/RegistrationReadmissionTest.php tests/Feature/Registrations/RegistrationSessionTest.php tests/Feature/Registrations/RegistrationSchemaTypesTest.php tests/Feature/Registrations/RegistrationPersonBindingTest.php tests/Feature/Registrations/RegistrationRateLimitTest.php --compact --stop-on-failure --cache-directory /tmp/membergy-registration-w1-sqlite/pest-cache",
+        "exit": 0,
+        "counts": "415 passed, 44 skipped (3455 assertions)",
+        "duration": "278.54s",
+        "note": "Same networkless Sail image and UID 1000 intl preflight. Isolated in-memory SQLite, temporary storage/config, task-only tmpfs caches; no cache warnings. No fixture regeneration, harness or dependency change."
+      }
+    ],
+    "excluded": [
+      "auth/reset/SDK/DSTG",
+      "unaccepted deferred B/D",
+      "migration change/real execution",
+      "harness/deps",
+      "other worktrees",
+      "review/agents",
+      "commit/stage/push"
+    ],
+    "deferred": [
+      "Auth-v1/reset",
+      "SDK/DSTG",
+      "current-master integration",
+      "per-offer limiter alias aggregation/forwarding policy",
+      "force-deleted slug reuse",
+      "live migration rollout/rollback"
+    ],
+    "manual_gap": "No preview or browser. Integrated manual E2E remains expressly deferred.",
+    "schema_api_queue_effects": "No migration/model/storage/queue/token/mail-setting change. Response-only contact schema gains one named definition; scoped API exceptions keep meaningful statuses and headers.",
+    "prohibited_actions": "No staging/commit/push/merge/cherry-pick/rebase/release/deploy/MR/tag, dependency/harness change, agent/reviewer, other checkout write, real provider/mail/bank call, default/development/production DB migration/reset.",
+    "final_gates": [
+      {
+        "command": "vendor/bin/sail bin pint --dirty --format agent",
+        "exit": 0,
+        "output": "{\"tool\":\"pint\",\"result\":\"passed\"}"
+      },
+      {
+        "command": "vendor/bin/sail bin pint app/Support/Registrations/RegistrationApiResponse.php tests/Feature/Api/RegistrationContractTest.php tests/Unit/Contracts/RegistrationContractFixturesTest.php tests/Unit/Support/Registrations/RegistrationApiResponseTest.php --format agent",
+        "exit": 0,
+        "output": "{\"tool\":\"pint\",\"result\":\"passed\"}"
+      },
+      {
+        "command": "vendor/bin/sail bin phpstan analyse --memory-limit=2G --no-progress --error-format=table",
+        "exit": 0,
+        "output": "[OK] No errors"
+      },
+      {
+        "command": "vendor/bin/sail bin phpcs --report=summary",
+        "exit": 0,
+        "output": "3322 / 3322 files; 1m55.95s; 0 errors, 0 warnings"
+      },
+      {
+        "command": "vendor/bin/sail bin phpmd app,routes,database,config,tests text phpmd-ruleset.xml --exclude '*blade.php*'",
+        "exit": 0,
+        "output": "No violations emitted"
+      },
+      {
+        "command": "vendor/bin/sail artisan knowledgebase:sources:validate --no-interaction",
+        "exit": 0,
+        "output": "Valid: 1 bundle, 16 categories, 73 articles"
+      },
+      {
+        "command": "Parse registration.schema.json, registration.openapi.json and provenance.json; git diff --check",
+        "exit": 0,
+        "output": "All three JSON sources parse; no whitespace errors."
+      }
+    ],
+    "nonzero_checks": [
+      {
+        "command": "vendor/bin/sail bin phpcs --report=summary",
+        "exit": 2,
+        "output": "0 errors, 2 line-length warnings in the new long-contact feature/unit tests; 3322 files; 2m15.57s",
+        "resolution": "Wrapped the payload and shortened the test name; assertions unchanged. Scoped Pint and PHPCS exit 0, then final full PHPCS exit 0."
+      }
+    ],
+    "runtime_isolation": {
+      "image": "sail-8.4/membergy",
+      "task_owned_container": "membergy_registration_w1_tooling_01a10d75-app-1",
+      "network": "none",
+      "ports": [],
+      "uid": 1000,
+      "php": "8.4.24",
+      "intl": true,
+      "source": "this worktree",
+      "vendor": "read-only",
+      "git_common": "read-only",
+      "app_env_tooling": "boost_tooling",
+      "sqlite": "in-memory; isolated /tmp/membergy-registration-w1-sqlite storage/config paths; matching managed test marker",
+      "mysql": "testing_wt_website_registration_links via private lifecycle only",
+      "providers": "fake/array/null; networkless SQLite context",
+      "preview": "none",
+      "tmpfs_cache_only": {
+        "pest": "32 MiB, uid 1000, mode 0700",
+        "browser_plugin": "1 MiB, uid 1000, mode 0700",
+        "package_code": "unchanged/read-only",
+        "project_harness": "unchanged"
+      },
+      "cache_fix": "Only two bounded task-owned tmpfs mounts in the temporary external Compose override and --cache-directory under isolated /tmp. Pest/Browser package source and project config/harness unchanged. This avoids denied vendor-cache writes without suppressing warnings."
+    },
+    "preservation": {
+      "original_candidate_paths": 140,
+      "unchanged_original_paths": 133,
+      "changed_original_paths": [
+        "app/Exceptions/Handler.php",
+        "tests/Feature/Registrations/RegistrationSubmissionConcurrencyTest.php",
+        "app/Support/Registrations/RegistrationApiResponse.php",
+        "docs/features/website-cms/contracts/v1/schemas/registration.schema.json",
+        "tests/Feature/Api/RegistrationContractTest.php",
+        "tests/Fixtures/Registrations/Contracts/provenance.json",
+        "tests/Unit/Contracts/RegistrationContractFixturesTest.php"
+      ],
+      "response_files": 41,
+      "response_hashes_unchanged": true,
+      "all_changed_paths": [
+        "app/Exceptions/Handler.php",
+        "tests/Feature/Actions/People/JoinPeopleConcurrencyTest.php",
+        "tests/Feature/Actions/People/ManagePersonSubtenantMembershipTest.php",
+        "tests/Feature/Billing/TransactionDirectDebitXmlConcurrencyTest.php",
+        "tests/Feature/Billing/TransactionDirectDebitXmlTest.php",
+        "tests/Feature/Invitations/AcceptInvitationConcurrencyTest.php",
+        "tests/Feature/Me/PersonTargetWriterRaceTest.php",
+        "tests/Feature/Meetings/MeetingActionsTest.php",
+        "tests/Feature/Meetings/MeetingConcurrencyTest.php",
+        "tests/Feature/Meetings/MeetingReferenceHistorizationTest.php",
+        "tests/Feature/Meetings/MeetingReportConcurrencyTest.php",
+        "tests/Feature/Models/TenantSubtenantMembershipModeTest.php",
+        "tests/Feature/Polls/CreateEventFromPollConcurrencyTest.php",
+        "tests/Feature/Polls/PollDispatchMigrationPortabilityTest.php",
+        "tests/Feature/Polls/PollDomainMigrationPortabilityTest.php",
+        "tests/Feature/Polls/PollEventConversionSchemaTest.php",
+        "tests/Feature/Polls/PollIdentityConcurrencyTest.php",
+        "tests/Feature/Polls/PollPublishConcurrencyTest.php",
+        "tests/Feature/Polls/PollVotingConcurrencyTest.php",
+        "tests/Feature/RegistrationOffers/RegistrationOfferPublishConcurrencyTest.php",
+        "tests/Feature/Registrations/RegistrationAdmissionConcurrencyTest.php",
+        "tests/Feature/Registrations/RegistrationManagementConcurrencyTest.php",
+        "tests/Feature/Registrations/RegistrationPersonBindingConcurrencyTest.php",
+        "tests/Feature/Registrations/RegistrationSubmissionConcurrencyTest.php",
+        "tests/Feature/Resources/ResourceBookings/EventResourceAllocationConcurrencyTest.php",
+        "tests/Feature/Resources/ResourceBookings/ResourceBookingConcurrencyTest.php",
+        "tests/Feature/Resources/ResourceBookings/ResourceBookingSeriesConcurrencyTest.php",
+        "app/Support/Registrations/RegistrationApiResponse.php",
+        "docs/features/website-cms/contracts/v1/schemas/registration.schema.json",
+        "tests/Feature/Api/RegistrationContractTest.php",
+        "tests/Unit/Contracts/RegistrationContractFixturesTest.php",
+        "tests/Unit/Support/Registrations/RegistrationApiResponseTest.php",
+        "tests/Fixtures/Registrations/Contracts/provenance.json"
+      ],
+      "verified_after_all_checks": true
+    },
+    "serialization_observation": {
+      "gate_refusals": 9,
+      "first_affected_run": "Started alone after exact process/container activity checks. Another owner's membergy_test_event-chat-20261006 suite was observed near completion. The requested stop found our container already removed: no signal sent, exit 1 for that no-op stop attempt. Pest completed exit 0 with 502 tests and 4821 assertions. Do not represent this green run as fully serialized.",
+      "repeat": "Second idle-gated attempt stopped with exit 137 after guided-onboarding-concept began concurrently. Only our uniquely verified container/Pest process was targeted; no other owner process touched. Waiting for an operator-reserved 10-minute window; no more autonomous MariaDB retries."
+    },
+    "driver_boundary": "All 26 affected insertion files plus 16 relevant registration/slug/schema neighbors selected for private MariaDB. 25 mixed/portable files selected for default isolated SQLite memory, including portable branches in mixed concurrency files. 44 existing MySQL-only cases skip there; pure MariaDB row-lock race files are not claimed portable. Public slug migration test runs its explicit private-MariaDB and SQLite datasets in the MariaDB selection; omit it from default-SQLite selection to avoid relabelling a SQLite-cloned connection as MySQL.",
+    "residual_evidence_gate": "Fully serialized 42-file MariaDB repeat needs an operator-reserved exclusive window. Both autonomous attempts started alone after exact activity checks; another owner started during each. First completed green; second stopped with exit 137. No further MariaDB retry launched; no scope or fixture assertion weakened.",
+    "sqlite_final": {
+      "command": "vendor/bin/sail exec -T --user 1000 -e APP_ENV=testing -e DB_CONNECTION=sqlite -e SQLITE_DATABASE=:memory: -e MEMBERGY_TEST_DATABASE=testing_wt_website_registration_links -e DB_HOST=127.0.0.1 -e APP_CONFIG_CACHE=/tmp/membergy-registration-w1-sqlite-config.php -e LARAVEL_STORAGE_PATH=/tmp/membergy-registration-w1-sqlite/storage -e VIEW_COMPILED_PATH=/tmp/membergy-registration-w1-sqlite/storage/framework/views -e MAIL_MAILER=array -e SESSION_DRIVER=array -e CACHE_DRIVER=array -e CACHE_GLOBAL_DRIVER=array -e QUEUE_CONNECTION=sync -e TELESCOPE_ENABLED=false -e PULSE_ENABLED=false -e BROADCAST_DRIVER=null app bash -c 'set -e; mkdir -p \"$LARAVEL_STORAGE_PATH/app\" \"$LARAVEL_STORAGE_PATH/logs\" \"$LARAVEL_STORAGE_PATH/framework/views\" \"$LARAVEL_STORAGE_PATH/framework/cache/data\" \"$LARAVEL_STORAGE_PATH/framework/sessions\"; exec php vendor/bin/pest \"$@\"' registration-w1-sqlite tests/Feature/Actions/People/ManagePersonSubtenantMembershipTest.php tests/Feature/Billing/TransactionDirectDebitXmlTest.php tests/Feature/Meetings/MeetingActionsTest.php tests/Feature/Meetings/MeetingConcurrencyTest.php tests/Feature/Meetings/MeetingReferenceHistorizationTest.php tests/Feature/Meetings/MeetingReportConcurrencyTest.php tests/Feature/Models/TenantSubtenantMembershipModeTest.php tests/Feature/Polls/PollDispatchMigrationPortabilityTest.php tests/Feature/Polls/PollDomainMigrationPortabilityTest.php tests/Feature/Polls/PollEventConversionSchemaTest.php tests/Feature/Api/RegistrationContractTest.php tests/Unit/Contracts/RegistrationContractFixturesTest.php tests/Unit/Support/Registrations/RegistrationApiResponseTest.php tests/Unit/DataMigrations/TenantPublicSlugTest.php tests/Feature/Migrations/RegistrationResumeContextSqliteTest.php tests/Feature/Api/RegistrationOfferApiTest.php tests/Feature/Registrations/RegistrationHeadlessResumeTest.php tests/Feature/Registrations/RegistrationVerificationTest.php tests/Feature/Registrations/RegistrationMagicLinkTest.php tests/Feature/Registrations/RegistrationSubmissionTest.php tests/Feature/Registrations/RegistrationReadmissionTest.php tests/Feature/Registrations/RegistrationSessionTest.php tests/Feature/Registrations/RegistrationSchemaTypesTest.php tests/Feature/Registrations/RegistrationPersonBindingTest.php tests/Feature/Registrations/RegistrationRateLimitTest.php --compact --stop-on-failure --cache-directory /tmp/membergy-registration-w1-sqlite/pest-cache",
+      "exit": 0,
+      "counts": "415 passed, 44 skipped (3455 assertions)",
+      "duration": "278.54s",
+      "note": "Same networkless Sail image and UID 1000 intl preflight. Isolated in-memory SQLite, temporary storage/config, task-only tmpfs caches; no cache warnings. No fixture regeneration, harness or dependency change."
+    },
+    "cleanup": {
+      "command": "vendor/bin/sail --project-directory \"$PWD\" --env-file /dev/null down (owned networkless project only)",
+      "exit": 0,
+      "output": "Owned tooling container stopped and removed; owned temporary override removed. No owned tooling/test container remains; no preview/server started.",
+      "capacity_bytes": 37084131328,
+      "root_owned_runtime_files": 0
+    }
+  },
+  "preservation": {
+    "prior_candidate_files_unchanged": 31,
+    "prior_candidate_paths_changed": [
+      "app/Http/Controllers/Api/RegistrationApplicationController.php",
+      "app/Http/Controllers/Api/RegistrationOfferController.php",
+      "docs/features/anmeldungen/README.md",
+      "docs/features/anmeldungen/ablauf.md",
+      "resources/knowledgebase/articles/registration-offers-manage/de.md",
+      "tests/Feature/Registrations/RegistrationHeadlessResumeTest.php"
+    ]
+  }
+}

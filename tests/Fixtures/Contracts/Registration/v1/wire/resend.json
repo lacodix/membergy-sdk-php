@@ -1,0 +1,23 @@
+{
+    "method": "POST",
+    "path": "\/api\/v1\/registrations\/verification\/resend",
+    "request": {
+        "public_id": "20000000-0000-4000-8000-000000000001",
+        "submission_key": "10000000-0000-4000-8000-000000000001",
+        "email": "anna.qa@example.test"
+    },
+    "request_headers": {
+        "Accept": "application\/json",
+        "Content-Type": "application\/json"
+    },
+    "request_schema": "ResendRequest",
+    "request_valid": true,
+    "status": 202,
+    "response_schema": "AcceptedResponse",
+    "response_headers": {
+        "Content-Type": "application\/json",
+        "Cache-Control": "no-store, private",
+        "Referrer-Policy": "no-referrer",
+        "X-Content-Type-Options": "nosniff"
+    }
+}

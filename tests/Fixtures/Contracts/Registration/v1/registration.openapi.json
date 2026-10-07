@@ -1,0 +1,2177 @@
+{
+  "openapi": "3.1.0",
+  "jsonSchemaDialect": "http://json-schema.org/draft-07/schema#",
+  "info": {
+    "title": "Membergy registration-v1",
+    "version": "1.0.0",
+    "description": "Executable current-base registration transport only. Existing /token supplies User Bearer; its Auth response is excluded. Canonical immutable tenant public_slug; existing numeric caller alias remains accepted but no numeric website URLs are generated. No public listing, payment block, me, Auth-v1/reset or CMS endpoints."
+  },
+  "servers": [
+    {
+      "url": "/api/v1"
+    }
+  ],
+  "paths": {
+    "/tenant/{tenant}/registration-offers/{slug}": {
+      "get": {
+        "operationId": "api_registration-offers_show",
+        "x-laravel-route": "api.registration-offers.show",
+        "parameters": [
+          {
+            "name": "tenant",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "schemas/registration.schema.json#/definitions/TenantSlug"
+            }
+          },
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Membergy-Registration-Resume",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "description": "Only the bound tenant, applicant, standard offer and version; never combine with User Bearer. Invalid/foreign 404; expired/revoked/stale 410. GET reads; successful new submission revokes. Identical key replay returns the original receipt until expiry."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/OfferResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "HTTP 401. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "HTTP 404. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "HTTP 410. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "HTTP 429. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              },
+              "Retry-After": {
+                "description": "Seconds until this existing limiter permits another attempt.",
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "HTTP 500. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {},
+          {
+            "UserBearer": []
+          },
+          {
+            "RegistrationResume": []
+          }
+        ]
+      }
+    },
+    "/tenant/{tenant}/registration-offers/{slug}/documents/{requirement}": {
+      "get": {
+        "operationId": "api_registration-offers_document",
+        "x-laravel-route": "api.registration-offers.document",
+        "parameters": [
+          {
+            "name": "tenant",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "schemas/registration.schema.json#/definitions/TenantSlug"
+            }
+          },
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "requirement",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "HTTP 401. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "HTTP 404. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "HTTP 429. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              },
+              "Retry-After": {
+                "description": "Seconds until this existing limiter permits another attempt.",
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "HTTP 500. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/tenant/{tenant}/registration-offers/{slug}/applications": {
+      "post": {
+        "operationId": "api_registrations_store",
+        "x-laravel-route": "api.registrations.store",
+        "parameters": [
+          {
+            "name": "tenant",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "schemas/registration.schema.json#/definitions/TenantSlug"
+            }
+          },
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Membergy-Registration-Resume",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "description": "Only the bound tenant, applicant, standard offer and version; never combine with User Bearer. Invalid/foreign 404; expired/revoked/stale 410. GET reads; successful new submission revokes. Identical key replay returns the original receipt until expiry."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/SubmissionResponse"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "HTTP 201. An indistinguishable 201 may persist nothing; it does not promise delivery or acceptance.",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/SubmissionResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "HTTP 401. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "HTTP 404. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "HTTP 409. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "HTTP 410. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "HTTP 422. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/ValidationError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "HTTP 429. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              },
+              "Retry-After": {
+                "description": "Seconds until this existing limiter permits another attempt.",
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "HTTP 500. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "schemas/registration.schema.json#/definitions/SubmissionRequest"
+              }
+            }
+          }
+        },
+        "security": [
+          {},
+          {
+            "UserBearer": []
+          },
+          {
+            "RegistrationResume": []
+          }
+        ]
+      }
+    },
+    "/tenant/{tenant}/registrations/magic-link": {
+      "post": {
+        "operationId": "api_registrations_magic-link",
+        "x-laravel-route": "api.registrations.magic-link",
+        "parameters": [
+          {
+            "name": "tenant",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "schemas/registration.schema.json#/definitions/TenantSlug"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "HTTP 202. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/AcceptedResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "HTTP 401. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "HTTP 404. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "HTTP 422. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/ValidationError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "HTTP 429. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              },
+              "Retry-After": {
+                "description": "Seconds until this existing limiter permits another attempt.",
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "HTTP 500. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "schemas/registration.schema.json#/definitions/MagicRequest"
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/registrations/verify/{token}": {
+      "get": {
+        "operationId": "api_registrations_verify",
+        "x-laravel-route": "api.registrations.verify",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{64}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/TokenStateResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "HTTP 404. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "HTTP 410. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "HTTP 429. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              },
+              "Retry-After": {
+                "description": "Seconds until this existing limiter permits another attempt.",
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "HTTP 500. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "Scanner-safe read-only landing. GET never consumes the token. Only an explicit verification or resume POST consumes it.",
+        "security": []
+      }
+    },
+    "/registrations/verification": {
+      "post": {
+        "operationId": "api_registrations_verification",
+        "x-laravel-route": "api.registrations.verification",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "HTTP 200. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/SubmissionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "HTTP 404. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "HTTP 410. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "HTTP 422. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/ValidationError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "HTTP 429. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              },
+              "Retry-After": {
+                "description": "Seconds until this existing limiter permits another attempt.",
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "HTTP 500. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "schemas/registration.schema.json#/definitions/TokenRequest"
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/registrations/verification/resend": {
+      "post": {
+        "operationId": "api_registrations_verification_resend",
+        "x-laravel-route": "api.registrations.verification.resend",
+        "parameters": [],
+        "responses": {
+          "202": {
+            "description": "HTTP 202. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/AcceptedResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "HTTP 422. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/ValidationError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "HTTP 429. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              },
+              "Retry-After": {
+                "description": "Seconds until this existing limiter permits another attempt.",
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "HTTP 500. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "schemas/registration.schema.json#/definitions/ResendRequest"
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/registrations/resume/{token}": {
+      "get": {
+        "operationId": "api_registrations_resume",
+        "x-laravel-route": "api.registrations.resume",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{64}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/TokenStateResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "HTTP 404. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "HTTP 410. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "HTTP 429. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              },
+              "Retry-After": {
+                "description": "Seconds until this existing limiter permits another attempt.",
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "HTTP 500. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "Scanner-safe read-only landing. GET never consumes the token. Only an explicit verification or resume POST consumes it.",
+        "security": []
+      }
+    },
+    "/registrations/resume": {
+      "post": {
+        "operationId": "api_registrations_resume_store",
+        "x-laravel-route": "api.registrations.resume.store",
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "application/vnd.membergy.registration-v1+json selects headless exchange. application/json keeps the existing browser session response."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "schemas/registration.schema.json#/definitions/ResumeResponse"
+                    },
+                    {
+                      "$ref": "schemas/registration.schema.json#/definitions/BrowserResumeResponse"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "HTTP 404. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "HTTP 410. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "HTTP 422. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/ValidationError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "HTTP 429. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              },
+              "Retry-After": {
+                "description": "Seconds until this existing limiter permits another attempt.",
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "HTTP 500. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "schemas/registration.schema.json#/definitions/TokenRequest"
+              }
+            }
+          }
+        },
+        "description": "One-use atomic exchange. Headless returns slug, applicant, standard offer, version, safe prefill and hash-only stored context bounded to link deadline and at most 60 minutes. No account creation. User Bearer is rejected for headless.",
+        "security": []
+      }
+    },
+    "/registrations/{publicId}": {
+      "get": {
+        "operationId": "api_registrations_show",
+        "x-laravel-route": "api.registrations.show",
+        "parameters": [
+          {
+            "name": "publicId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "schemas/registration.schema.json#/definitions/UuidV4"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP 200. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/OwnApplicationResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "HTTP 401. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "HTTP 404. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "HTTP 429. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              },
+              "Retry-After": {
+                "description": "Seconds until this existing limiter permits another attempt.",
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "HTTP 500. ",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always private and no-store.",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store, private"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas/registration.schema.json#/definitions/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "UserBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Existing Sanctum User credential; verified accounts obtain safe prefill and submit verified without another mail."
+      },
+      "RegistrationResume": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Membergy-Registration-Resume",
+        "description": "Purpose-bound applicant proof, not Sanctum and not a login."
+      }
+    }
+  }
+}

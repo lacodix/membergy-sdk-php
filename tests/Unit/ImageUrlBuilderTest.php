@@ -46,8 +46,16 @@ it('exposes and enforces the SDK to API compatibility matrix', function () {
     $client = new MembergyClient('https://members.example.org', 'demo');
 
     expect($client->compatibility())->toBe(Compatibility::matrix())
-        ->and($client->compatibility()['api'])->toBe('v1')
-        ->and($client->compatibility()['block_document_schema'])->toBe(1)
+        ->and($client->compatibility())->toBe([
+            'api' => 'v1',
+            'cms' => 'cms-v1',
+            'auth' => 'auth-v1',
+            'self_service' => 'self-service-v1',
+            'block_document_schema' => 1,
+        ])
+        ->and(defined(Compatibility::class.'::FORMS_CONTRACT'))->toBeFalse()
+        ->and(array_column((new ReflectionClass(MembergyClient::class))->getMethods(), 'name'))
+        ->not->toContain('registration')
         ->and(fn () => new MembergyClient(
             'https://members.example.org',
             'demo',

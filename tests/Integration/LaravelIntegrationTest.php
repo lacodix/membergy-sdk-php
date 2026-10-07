@@ -14,10 +14,21 @@ use Illuminate\Support\ServiceProvider;
 use Lacodix\MembergySdk\Contracts\ContentRenderer;
 use Lacodix\MembergySdk\DataObjects\BlockDocument;
 use Lacodix\MembergySdk\DataObjects\DynamicIncludes;
+use Lacodix\MembergySdk\Exceptions\RegistrationIdentityException;
 use Lacodix\MembergySdk\Laravel\MembergyServiceProvider;
 use Lacodix\MembergySdk\Laravel\Rendering\BladeContentRenderer;
 use Lacodix\MembergySdk\MembergyClient;
+use Lacodix\MembergySdk\Requests\Content\ShowPageRequest;
+use Lacodix\MembergySdk\Requests\Registrations\ShowRegistrationOfferRequest;
+use Lacodix\MembergySdk\Requests\Registrations\SubmitRegistrationApplicationRequest;
+use Lacodix\MembergySdk\Tests\Support\ArrayCache;
+use Lacodix\MembergySdk\Tests\Support\RegistrationFixtures as Fixtures;
 use Orchestra\Testbench\TestCase;
+use Saloon\Http\Faking\MockClient;
+use Saloon\Http\Faking\MockResponse;
+use Saloon\Http\Request as SaloonRequest;
+use Saloon\Http\Response;
+use SensitiveParameter;
 
 final class LaravelIntegrationTest extends TestCase
 {
@@ -282,6 +293,104 @@ final class LaravelIntegrationTest extends TestCase
             'member:'.hash('sha256', 'session-token'),
             $client->connector()->cacheScope(),
         );
+    }
+
+    public function test_static_laravel_tokens_cannot_supply_registration_identity_but_remain_usable_for_cms(): void
+    {
+        $client = $this->registrationClient();
+        $mock = new MockClient([
+            ShowRegistrationOfferRequest::class => Fixtures::response('offer-account'),
+            SubmitRegistrationApplicationRequest::class => Fixtures::response('submitted-account'),
+            ShowPageRequest::class => MockResponse::make(contractFixture('pages/show.json')),
+        ]);
+        $client->connector()->withMockClient($mock);
+
+        foreach ([$client, $client->withCache(new ArrayCache, new ArrayCache)] as $candidate) {
+            foreach (['offer', 'submit'] as $operation) {
+                try {
+                    if ($operation === 'offer') {
+                        $candidate->registrationOffers()->find('membership');
+                    } else {
+                        $candidate->registrationApplications()->submit('membership', Fixtures::submission('submitted-account'));
+                    }
+                    self::fail('A static server token must not identify a registration applicant.');
+                } catch (RegistrationIdentityException $error) {
+                    self::assertSame('Invalid registration identity context for this request.', $error->getMessage());
+                    self::assertNull($error->getPrevious());
+                    self::assertStringNotContainsString('synthetic-static-server-token', (string) $error);
+                }
+            }
+        }
+        $mock->assertSentCount(0);
+
+        $client->content()->pages()->find('willkommen');
+        $mock->assertSent(fn (ShowPageRequest $request, Response $response): bool => $response->getPendingRequest()->headers()->get('Authorization') === 'Bearer synthetic-static-server-token');
+        $mock->assertSentCount(1);
+    }
+
+    public function test_the_applicant_session_token_overrides_static_config_for_offer_and_submission(): void
+    {
+        $client = $this->registrationClient('synthetic-session-applicant-token');
+        $mock = new MockClient([Fixtures::response('offer-account'), Fixtures::response('submitted-account')]);
+        $client->connector()->withMockClient($mock);
+        $account = $client->withCache(new ArrayCache, new ArrayCache);
+
+        self::assertSame('account.qa@example.test', $account->registrationOffers()->find('membership')->applicant?->email);
+        self::assertSame('verified', $account->registrationApplications()->submit('membership', Fixtures::submission('submitted-account'))->status);
+        foreach ([ShowRegistrationOfferRequest::class, SubmitRegistrationApplicationRequest::class] as $class) {
+            $mock->assertSent(fn (SaloonRequest $request, Response $response): bool => $request instanceof $class
+                && $response->getPendingRequest()->headers()->get('Authorization') === 'Bearer synthetic-session-applicant-token');
+        }
+        $mock->assertSentCount(2);
+    }
+
+    public function test_explicit_account_and_guest_copies_preserve_identity_without_mutating_the_static_client(): void
+    {
+        $static = $this->registrationClient();
+        $mock = new MockClient([Fixtures::response('offer-account'), Fixtures::response('submitted-account'), Fixtures::response('offer-guest')]);
+        $static->connector()->withMockClient($mock);
+        $account = $static->withUserToken('synthetic-explicit-applicant-token')->withCache(new ArrayCache, new ArrayCache);
+        $guest = $static->withoutUserToken()->withCache(new ArrayCache, new ArrayCache);
+
+        self::assertSame('account.qa@example.test', $account->registrationOffers()->find('membership')->applicant?->email);
+        self::assertSame('verified', $account->registrationApplications()->submit('membership', Fixtures::submission('submitted-account'))->status);
+        self::assertNull($guest->registrationOffers()->find('membership')->applicant);
+        foreach ([ShowRegistrationOfferRequest::class, SubmitRegistrationApplicationRequest::class] as $class) {
+            $mock->assertSent(fn (SaloonRequest $request, Response $response): bool => $request instanceof $class
+                && $response->getPendingRequest()->headers()->get('Authorization') === 'Bearer synthetic-explicit-applicant-token');
+        }
+        $mock->assertSent(fn (ShowRegistrationOfferRequest $request, Response $response): bool => $response->getPendingRequest()->headers()->get('Authorization') === null);
+        try {
+            $static->registrationOffers()->find('membership');
+            self::fail('Copies must leave the original static-token client protected.');
+        } catch (RegistrationIdentityException) {
+            $mock->assertSentCount(3);
+        }
+
+        $explicit = new MembergyClient('https://sdk.membergy.test', 'contract-club', userToken: 'synthetic-constructor-applicant-token');
+        $explicitMock = new MockClient([Fixtures::response('offer-account')]);
+        $explicit->connector()->withMockClient($explicitMock);
+        self::assertSame('account.qa@example.test', $explicit->registrationOffers()->find('membership')->applicant?->email);
+        $explicitMock->assertSent(fn (ShowRegistrationOfferRequest $request, Response $response): bool => $response->getPendingRequest()->headers()->get('Authorization') === 'Bearer synthetic-constructor-applicant-token');
+        $explicitMock->assertSentCount(1);
+    }
+
+    private function registrationClient(#[SensitiveParameter] ?string $sessionToken = null): MembergyClient
+    {
+        $this->app['config']->set('membergy.base_url', 'https://sdk.membergy.test');
+        $this->app['config']->set('membergy.tenant', 'contract-club');
+        $this->app['config']->set('membergy.user_token', 'synthetic-static-server-token');
+        $request = Request::create('/registration');
+        if ($sessionToken !== null) {
+            $session = new Store('membergy-registration-test', new ArraySessionHandler(120));
+            $session->start();
+            $session->put('membergy_user_token', $sessionToken);
+            $request->setLaravelSession($session);
+        }
+        $this->app->instance('request', $request);
+        $this->app->forgetInstance(MembergyClient::class);
+
+        return $this->app->make(MembergyClient::class);
     }
 
     public function test_it_registers_the_install_command_and_publishable_assets(): void

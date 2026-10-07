@@ -79,6 +79,7 @@ class MembergyServiceProvider extends ServiceProvider
             $config = $app['config']['membergy'];
             $transport = $config['transport'] ?? [];
             $token = $config['user_token'] ?? null;
+            $staticToken = is_string($token) && $token !== '';
             $request = $app->bound('request') ? $app->make('request') : null;
             if ($request instanceof Request && $request->hasSession()) {
                 $sessionToken = $request->session()->get(
@@ -86,10 +87,11 @@ class MembergyServiceProvider extends ServiceProvider
                 );
                 if (is_string($sessionToken) && $sessionToken !== '') {
                     $token = $sessionToken;
+                    $staticToken = false;
                 }
             }
 
-            return new MembergyClient(
+            $client = new MembergyClient(
                 baseUrl: (string) $config['base_url'],
                 tenant: (string) $config['tenant'],
                 userToken: is_string($token) && $token !== '' ? $token : null,
@@ -102,6 +104,10 @@ class MembergyServiceProvider extends ServiceProvider
                 tries: (int) ($transport['tries'] ?? 3),
                 retryInterval: (int) ($transport['retry_interval'] ?? 200),
             );
+
+            return $staticToken && is_string($token)
+                ? MembergyClient::fromConnector($client->connector()->withStaticUserToken($token))
+                : $client;
         });
 
         $this->app->scoped(MediaUrlFactory::class, static function ($app): MediaUrlFactory {

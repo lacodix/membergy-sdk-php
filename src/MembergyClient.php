@@ -14,7 +14,8 @@ use Lacodix\MembergySdk\Resources\AuthResource;
 use Lacodix\MembergySdk\Resources\ContentResource;
 use Lacodix\MembergySdk\Resources\MeResource;
 use Lacodix\MembergySdk\Resources\NewsletterResource;
-use Lacodix\MembergySdk\Resources\RegistrationResource;
+use Lacodix\MembergySdk\Resources\RegistrationApplicationsResource;
+use Lacodix\MembergySdk\Resources\RegistrationOffersResource;
 use Psr\SimpleCache\CacheInterface;
 
 /**
@@ -92,9 +93,14 @@ class MembergyClient
         return new NewsletterResource($this->connector);
     }
 
-    public function registration(): RegistrationResource
+    public function registrationOffers(): RegistrationOffersResource
     {
-        return new RegistrationResource($this->connector);
+        return new RegistrationOffersResource($this->connector);
+    }
+
+    public function registrationApplications(): RegistrationApplicationsResource
+    {
+        return new RegistrationApplicationsResource($this->connector);
     }
 
     public function auth(): AuthResource

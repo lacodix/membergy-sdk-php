@@ -1,0 +1,1263 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://membergy.app/schemas/registration/v1/registration.schema.json",
+  "title": "Membergy registration-v1 executable wire contract",
+  "description": "Current backend registration routes only. Tenant numeric IDs are not generated website keys. Auth-v1/reset, CMS, payment and SDK/DSTG are excluded.",
+  "definitions": {
+    "TenantSlug": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+      "maxLength": 220
+    },
+    "UuidV4": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$"
+    },
+    "RegistrationStatus": {
+      "enum": [
+        "submitted",
+        "verified",
+        "accepted",
+        "rejected",
+        "expired"
+      ]
+    },
+    "Attributes": {
+      "type": "object",
+      "properties": {
+        "firstname": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 255
+        },
+        "lastname": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 255
+        },
+        "date_of_birth": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Validated as a date by the shared Laravel pipeline. Canonical clients send YYYY-MM-DD."
+        },
+        "name_at_birth": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 255
+        },
+        "date_of_wedding": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Validated as a date by the shared Laravel pipeline. Canonical clients send YYYY-MM-DD."
+        },
+        "salutation": {
+          "enum": [
+            "mr",
+            "mrs",
+            "company",
+            "family",
+            null
+          ]
+        },
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 255
+        },
+        "gender": {
+          "enum": [
+            "male",
+            "female",
+            "divers",
+            null
+          ]
+        },
+        "address_addition": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 255
+        },
+        "address_street": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 255
+        },
+        "address_zip": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 255
+        },
+        "address_city": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 255
+        },
+        "country": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 255
+        },
+        "department": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 255
+        },
+        "service_class_id": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "description": "Must belong to the choices of this tenant and published field."
+        },
+        "salary_bracket_id": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "description": "Must belong to the choices of this tenant and published field."
+        },
+        "trainee": {
+          "enum": [
+            true,
+            false,
+            0,
+            1,
+            "0",
+            "1",
+            null
+          ]
+        },
+        "retired": {
+          "enum": [
+            true,
+            false,
+            0,
+            1,
+            "0",
+            "1",
+            null
+          ]
+        },
+        "parttime": {
+          "enum": [
+            "fulltime",
+            "parttime-1",
+            "parttime-2",
+            "parttime-3",
+            null
+          ]
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "Contact": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "private_phone",
+            "private_mobilephone",
+            "private_fax",
+            "private_email",
+            "job_phone",
+            "job_mobilephone",
+            "job_fax",
+            "job_email",
+            "club_email"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 190
+        }
+      },
+      "required": [
+        "type",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "ResponseContact": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "private_phone",
+            "private_mobilephone",
+            "private_fax",
+            "private_email",
+            "job_phone",
+            "job_mobilephone",
+            "job_fax",
+            "job_email",
+            "club_email"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        }
+      },
+      "required": [
+        "type",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "Prefill": {
+      "type": "object",
+      "properties": {
+        "attributes": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/Attributes"
+            },
+            {
+              "type": "array",
+              "maxItems": 0
+            }
+          ]
+        },
+        "contacts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ResponseContact"
+          }
+        },
+        "locked_fields": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "firstname",
+              "lastname",
+              "date_of_birth",
+              "name_at_birth",
+              "date_of_wedding",
+              "salutation",
+              "title",
+              "gender",
+              "address_addition",
+              "address_street",
+              "address_zip",
+              "address_city",
+              "country",
+              "department",
+              "service_class_id",
+              "salary_bracket_id",
+              "trainee",
+              "retired",
+              "parttime"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "address_is_fixed": {
+          "type": "boolean"
+        },
+        "is_follow_up": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "attributes",
+        "contacts",
+        "locked_fields",
+        "address_is_fixed",
+        "is_follow_up"
+      ],
+      "additionalProperties": false
+    },
+    "Applicant": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 255
+        }
+      },
+      "required": [
+        "email"
+      ],
+      "additionalProperties": false
+    },
+    "Offer": {
+      "type": "object",
+      "properties": {
+        "slug": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "slug",
+        "title"
+      ],
+      "additionalProperties": false
+    },
+    "Version": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "label": {
+          "type": "string"
+        },
+        "valid_from": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "effective_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "registration_opens_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "registration_closes_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "sepa_mode": {
+          "enum": [
+            "off"
+          ]
+        },
+        "subtenant_mode": {
+          "enum": [
+            "single",
+            "multiple",
+            null
+          ]
+        },
+        "status_selection_rule": {
+          "enum": [
+            "optional",
+            "exactly_one",
+            "at_least_one",
+            null
+          ]
+        },
+        "option_selection_rule": {
+          "enum": [
+            "optional",
+            "exactly_one",
+            "at_least_one",
+            null
+          ]
+        },
+        "option_selection_label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "allows_minor_participants": {
+          "type": "boolean"
+        },
+        "guardian_participation": {
+          "enum": [
+            "child_only",
+            "optional",
+            "required"
+          ]
+        },
+        "guardian_participation_preselected": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "valid_from",
+        "effective_at",
+        "registration_opens_at",
+        "registration_closes_at",
+        "sepa_mode",
+        "subtenant_mode",
+        "status_selection_rule",
+        "option_selection_rule",
+        "option_selection_label",
+        "allows_minor_participants",
+        "guardian_participation",
+        "guardian_participation_preselected"
+      ],
+      "additionalProperties": false
+    },
+    "Field": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "enum": [
+            "firstname",
+            "lastname",
+            "date_of_birth",
+            "name_at_birth",
+            "date_of_wedding",
+            "salutation",
+            "title",
+            "gender",
+            "address_addition",
+            "address_street",
+            "address_zip",
+            "address_city",
+            "country",
+            "department",
+            "service_class_id",
+            "salary_bracket_id",
+            "trainee",
+            "retired",
+            "parttime"
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "type": {
+          "enum": [
+            "text",
+            "date",
+            "select",
+            "boolean"
+          ]
+        },
+        "options": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "array",
+              "maxItems": 0
+            }
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "note",
+        "required",
+        "type",
+        "options"
+      ],
+      "additionalProperties": false
+    },
+    "Fee": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "name": {
+          "type": "string"
+        },
+        "amount": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?[0-9]+\\.[0-9]{2}$"
+        },
+        "interval": {
+          "enum": [
+            "monthly",
+            "bi_monthly",
+            "quarterly",
+            "half_yearly",
+            "yearly"
+          ]
+        },
+        "currency": {
+          "enum": [
+            "EUR"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "amount",
+        "interval",
+        "currency"
+      ],
+      "additionalProperties": false
+    },
+    "Option": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "type": {
+          "enum": [
+            "subtenant",
+            "status",
+            "team",
+            "choice"
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "selectable": {
+          "type": "boolean"
+        },
+        "preselected": {
+          "type": "boolean"
+        },
+        "position": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "fees": {
+          "type": "object",
+          "properties": {
+            "primary": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Fee"
+              }
+            },
+            "guardian": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Fee"
+              }
+            }
+          },
+          "required": [
+            "primary",
+            "guardian"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "label",
+        "note",
+        "selectable",
+        "preselected",
+        "position",
+        "fees"
+      ],
+      "additionalProperties": false
+    },
+    "Requirement": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "kind": {
+          "enum": [
+            "text",
+            "document"
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "body": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "statement": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "position": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "content_hash": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "document_url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri",
+          "pattern": "^https?://[^/?#]+/api/v1/tenant/[a-z][a-z0-9]*(?:-[a-z0-9]+)*/registration-offers/[^/?#]+/documents/[1-9][0-9]*$"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "title",
+        "body",
+        "statement",
+        "required",
+        "position",
+        "content_hash",
+        "document_url"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "document"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "body": {
+                "type": "null"
+              },
+              "document_url": {
+                "type": "string",
+                "format": "uri",
+                "pattern": "^https?://[^/?#]+/api/v1/tenant/[a-z][a-z0-9]*(?:-[a-z0-9]+)*/registration-offers/[^/?#]+/documents/[1-9][0-9]*$"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "document_url": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "required": {
+                "const": false
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "statement": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "OfferResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "object",
+          "properties": {
+            "offer": {
+              "$ref": "#/definitions/Offer"
+            },
+            "version": {
+              "$ref": "#/definitions/Version"
+            },
+            "submission_ticket": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Opaque encrypted ticket from this GET. Submit unchanged; do not decode."
+            },
+            "form_schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Field"
+              }
+            },
+            "options": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Option"
+              }
+            },
+            "requirements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Requirement"
+              }
+            },
+            "applicant": {
+              "$ref": "#/definitions/Applicant"
+            },
+            "prefill": {
+              "$ref": "#/definitions/Prefill"
+            }
+          },
+          "required": [
+            "offer",
+            "version",
+            "submission_ticket",
+            "form_schema",
+            "options",
+            "requirements"
+          ],
+          "additionalProperties": false,
+          "dependencies": {
+            "applicant": [
+              "prefill"
+            ],
+            "prefill": [
+              "applicant"
+            ]
+          }
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "SubmissionResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "object",
+          "properties": {
+            "public_id": {
+              "$ref": "#/definitions/UuidV4"
+            },
+            "status": {
+              "$ref": "#/definitions/RegistrationStatus"
+            }
+          },
+          "required": [
+            "public_id",
+            "status"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "AcceptedResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "ValidationError": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "errors": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          }
+        }
+      },
+      "required": [
+        "message",
+        "errors"
+      ],
+      "additionalProperties": false
+    },
+    "TokenStateResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "object",
+          "properties": {
+            "state": {
+              "enum": [
+                "usable"
+              ]
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "BrowserResumeResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "object",
+          "properties": {
+            "offer": {
+              "type": "object",
+              "properties": {
+                "slug": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slug"
+              ],
+              "additionalProperties": false
+            },
+            "version": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "additionalProperties": false
+            },
+            "prefill": {
+              "$ref": "#/definitions/Prefill"
+            }
+          },
+          "required": [
+            "offer",
+            "version",
+            "prefill"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "ResumeResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "object",
+          "properties": {
+            "tenant": {
+              "type": "object",
+              "properties": {
+                "slug": {
+                  "$ref": "#/definitions/TenantSlug"
+                }
+              },
+              "required": [
+                "slug"
+              ],
+              "additionalProperties": false
+            },
+            "applicant": {
+              "$ref": "#/definitions/Applicant"
+            },
+            "offer": {
+              "type": "object",
+              "properties": {
+                "slug": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slug"
+              ],
+              "additionalProperties": false
+            },
+            "version": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "additionalProperties": false
+            },
+            "prefill": {
+              "$ref": "#/definitions/Prefill"
+            },
+            "resume_context": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$",
+              "description": "Purpose-bound opaque applicant proof; encrypted server session only. Not a user token."
+            },
+            "resume_expires_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "required": [
+            "tenant",
+            "applicant",
+            "offer",
+            "version",
+            "prefill",
+            "resume_context",
+            "resume_expires_at"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "OwnApplicationResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "object",
+          "properties": {
+            "public_id": {
+              "$ref": "#/definitions/UuidV4"
+            },
+            "status": {
+              "$ref": "#/definitions/RegistrationStatus"
+            },
+            "submitted_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "participant_count": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2
+            },
+            "offer": {
+              "$ref": "#/definitions/Offer"
+            }
+          },
+          "required": [
+            "public_id",
+            "status",
+            "submitted_at",
+            "participant_count",
+            "offer"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "TokenRequest": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "Raw one-time link token; unknown values are neutral 404 and spent/expired values 410."
+        }
+      },
+      "required": [
+        "token"
+      ],
+      "additionalProperties": false
+    },
+    "MagicRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 255
+        }
+      },
+      "required": [
+        "email"
+      ],
+      "additionalProperties": false
+    },
+    "ResendRequest": {
+      "type": "object",
+      "properties": {
+        "public_id": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "submission_key": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 255
+        }
+      },
+      "required": [
+        "public_id",
+        "submission_key",
+        "email"
+      ],
+      "additionalProperties": false
+    },
+    "Person": {
+      "type": "object",
+      "properties": {
+        "attributes": {
+          "$ref": "#/definitions/Attributes"
+        },
+        "contacts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Contact"
+          },
+          "maxItems": 10
+        }
+      },
+      "required": [
+        "attributes"
+      ],
+      "additionalProperties": false
+    },
+    "Participant": {
+      "type": "object",
+      "properties": {
+        "person_index": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "option_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "maxItems": 50
+        }
+      },
+      "required": [
+        "person_index"
+      ],
+      "additionalProperties": false
+    },
+    "Proof": {
+      "type": "object",
+      "properties": {
+        "participant_index": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "requirement_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "shown_content_hash": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      },
+      "required": [
+        "participant_index",
+        "requirement_id",
+        "shown_content_hash"
+      ],
+      "additionalProperties": false
+    },
+    "SubmissionRequest": {
+      "type": "object",
+      "properties": {
+        "submission_key": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "offer_version_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "submission_ticket": {
+          "type": "string",
+          "minLength": 1
+        },
+        "website": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Honeypot must stay empty; a hit may return an indistinguishable 201 without persisting."
+        },
+        "email": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "email",
+          "maxLength": 255
+        },
+        "remark": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1000
+        },
+        "people": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Person"
+          },
+          "minItems": 1,
+          "maxItems": 2
+        },
+        "participants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Participant"
+          },
+          "minItems": 1,
+          "maxItems": 2
+        },
+        "proofs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Proof"
+          },
+          "maxItems": 100
+        }
+      },
+      "required": [
+        "submission_key",
+        "offer_version_id",
+        "submission_ticket",
+        "people",
+        "participants"
+      ],
+      "additionalProperties": false,
+      "description": "Public validated fields only. Guest email is required by identity validation. Required person fields, choices, role rules and proofs derive from the current published offer. Verified account core values override client values. No payment block."
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/definitions/OfferResponse"
+    },
+    {
+      "$ref": "#/definitions/SubmissionResponse"
+    },
+    {
+      "$ref": "#/definitions/Error"
+    },
+    {
+      "$ref": "#/definitions/ValidationError"
+    },
+    {
+      "$ref": "#/definitions/TokenStateResponse"
+    },
+    {
+      "$ref": "#/definitions/ResumeResponse"
+    },
+    {
+      "$ref": "#/definitions/BrowserResumeResponse"
+    },
+    {
+      "$ref": "#/definitions/OwnApplicationResponse"
+    }
+  ]
+}

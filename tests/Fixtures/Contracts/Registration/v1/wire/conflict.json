@@ -1,0 +1,59 @@
+{
+    "method": "POST",
+    "path": "\/api\/v1\/tenant\/contract-club\/registration-offers\/membership\/applications",
+    "request": {
+        "submission_key": "10000000-0000-4000-8000-000000000003",
+        "submission_ticket": "synthetic-opaque-submission-ticket",
+        "offer_version_id": 70001,
+        "email": "change.qa@example.test",
+        "people": [
+            {
+                "attributes": {
+                    "firstname": "Anna-Qa",
+                    "lastname": "Sonnenschein-Qa",
+                    "date_of_birth": "1990-04-05",
+                    "address_city": "Musterstadt-Qa",
+                    "salutation": "mr",
+                    "gender": "male"
+                },
+                "contacts": []
+            }
+        ],
+        "participants": [
+            {
+                "person_index": 0,
+                "option_ids": [
+                    70001
+                ]
+            }
+        ],
+        "proofs": [
+            {
+                "participant_index": 0,
+                "requirement_id": 70001,
+                "shown_content_hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+            },
+            {
+                "participant_index": 0,
+                "requirement_id": 70002,
+                "shown_content_hash": "843b8e6693b162295ad1509aa5228475028405f00aabd56ff3564aebb0f56c37"
+            }
+        ],
+        "website": "",
+        "remark": "Synthetic applicant remark."
+    },
+    "request_headers": {
+        "Accept": "application\/json",
+        "Content-Type": "application\/json"
+    },
+    "request_schema": "SubmissionRequest",
+    "request_valid": true,
+    "status": 409,
+    "response_schema": "Error",
+    "response_headers": {
+        "Content-Type": "application\/json",
+        "Cache-Control": "no-store, private",
+        "Referrer-Policy": "no-referrer",
+        "X-Content-Type-Options": "nosniff"
+    }
+}

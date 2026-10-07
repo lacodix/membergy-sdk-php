@@ -21,7 +21,6 @@ website-ready scope are implemented:
 - [x] `content()->events()` / `->boilerplates()`
 - [x] `content()->search()` (typed page, post and event groups with continuation)
 - [x] `newsletter()` (UUID categories, DOI subscribe / headless confirmation / signed unsubscribe request)
-- [x] `registration()` (tenant form definition and submission)
 - [x] Typed BlockDocument v1 DTOs, `UnknownBlock`, `UnknownMenuTarget`
 - [x] Configurable `MenuUrlResolver` foundation
 - [x] `auth()` (credentials token, current-token revocation, password reset)
@@ -97,16 +96,6 @@ $client->newsletter()->subscribe('guest@example.org', [$categories[0]->uuid]);
 $client->newsletter()->confirm($opaqueConfirmationToken);
 $client->newsletter()->requestUnsubscribe('guest@example.org');
 $client->withoutUserToken()->newsletter()->unsubscribeAll($opaqueUnsubscribeToken);
-
-$registrationForm = $client->registration()->form();
-$client->registration()->submit([
-    'salutation' => 'mr',
-    'firstname' => 'Sam',
-    'lastname' => 'Taylor',
-    'email' => 'sam@example.org',
-    'password' => 'a-secret-password',
-    'password_confirmation' => 'a-secret-password',
-]);
 ```
 
 The public subscribe and unsubscribe-request calls return a neutral status and never
@@ -120,6 +109,13 @@ changes a subscription. Existing signed category-specific endpoints remain accep
 Membergy for compatibility; new consumers intentionally use `unsubscribeAll()` for an
 opaque guest credential and the authenticated `me()->newsletter()` self-service for
 category changes.
+
+Membergy has replaced its former `forms/register` endpoint with dedicated registration
+offer and application endpoints. The SDK now provides provisional, typed
+`registrationOffers()` and `registrationApplications()` resources against the captured
+registration-v1 contract. See [registration usage and limits](docs/registration.md).
+Backend review and an exclusive serial backend test gate are still pending; this
+implementation is not yet an integrated or released compatibility guarantee.
 
 ### Authenticated per-user access
 
@@ -204,9 +200,15 @@ Server `no-store` always wins. Public and member keys use separate stores/scopes
 member keys contain a one-way token fingerprint, never a bearer token. Laravel leaves
 member caching disabled by default.
 
+Registration resources bypass SDK caching entirely, including private offers,
+prefill, token landings and document bytes. Resume credentials are supplied to each
+offer/submit request explicitly and never stored on the client or shared connector.
+
 GET/HEAD requests retry transient network failures, 429 and 5xx with bounded exponential
 backoff. Writes are never replayed. Exhausted 429 responses become
 `RateLimitException` with an optional `retryAfterSeconds` value.
+Registration requests make one attempt and use separate, sanitized
+`RegistrationException` types, including `RegistrationRateLimitException`.
 
 ### Menus and consumer URLs
 
@@ -261,6 +263,9 @@ $posts = Membergy::content()->posts()->get();
 
 The Laravel binding is request-scoped. A token in the configured session key takes
 precedence over the optional static token without leaking into Octane or later requests.
+Config-sourced static tokens remain available for CMS calls; registration offer GET and
+submit reject them before sending. Use `withoutUserToken()` for guests or the current
+applicant's session / explicit `withUserToken()` client for account registration.
 Public caching uses the configured Laravel cache store. Useful commands:
 
 ```bash
@@ -294,19 +299,26 @@ versions.
 ## Testing
 
 ```bash
+MEMBERGY_BACKEND_ROOT=/path/to/cms-source \
+MEMBERGY_REGISTRATION_BACKEND_ROOT=/path/to/registration-source \
 composer test
 ```
 
-Unit tests are standalone. Integration tests use Saloon's `MockClient`
-to simulate HTTP responses — no Membergy instance required.
+Unit tests run locally. Integration tests use Saloon's `MockClient`
+to simulate HTTP responses — no running Membergy instance required. Both source
+checkouts are required for the separate fixture gates.
 
-The copied API fixtures under `tests/Fixtures/Contracts/Cms/v1` are byte-identical to
-the backend source of truth. When both repositories are checked out, run the cross-repo
-gate with:
+The copied API fixtures under `tests/Fixtures/Contracts/Cms/v1` contain exactly 49
+backend response fixtures plus the separate `block-registry.json`. The cross-repo
+gate requires `MEMBERGY_BACKEND_ROOT` to point to the authoritative backend checkout;
+a missing checkout fails the gate and is never skipped. It checks missing and extra
+files in both repositories and byte-identical responses and BlockRegistry.
 
-```bash
-MEMBERGY_BACKEND_ROOT=/path/to/membergy composer test
-```
+Registration fixtures live separately under `tests/Fixtures/Contracts/Registration/v1`:
+41 captured backend responses (including the exact PDF bytes), their request/status/header
+metadata, OpenAPI, JSON schema and provenance. `MEMBERGY_REGISTRATION_BACKEND_ROOT`
+selects that source checkout. Its independent gate rejects missing or extra SDK files
+and any byte difference; it never skips or changes the CMS gate's source.
 
 ## License
 

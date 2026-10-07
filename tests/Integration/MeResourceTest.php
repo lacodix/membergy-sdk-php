@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use Lacodix\MembergySdk\Connectors\MembergyConnector;
 use Lacodix\MembergySdk\DataObjects\FormDefinition;
+use Lacodix\MembergySdk\DataObjects\FormField;
+use Lacodix\MembergySdk\DataObjects\FormOption;
 use Lacodix\MembergySdk\DataObjects\MemberNewsletterSubscription;
 use Lacodix\MembergySdk\DataObjects\PersonProfile;
 use Lacodix\MembergySdk\DataObjects\TenantAccess;
@@ -77,6 +79,13 @@ it('hydrates the authenticated person profile and dynamic form through self-serv
         ->and($person->extra)->toBe([])
         ->and($form)->toBeInstanceOf(FormDefinition::class)
         ->and($form->name)->toBe('person')
+        ->and($form->fields[0])->toBeInstanceOf(FormField::class)
+        ->and($form->fields[0]->name)->toBe('firstname')
+        ->and($form->fields[0]->required)->toBeTrue()
+        ->and($form->fields[6]->name)->toBe('salutation')
+        ->and($form->fields[6]->options[0])->toBeInstanceOf(FormOption::class)
+        ->and($form->fields[6]->options[0]->value)->toBe('mr')
+        ->and($form->fields[6]->options[0]->label)->toBe('Herr')
         ->and($form->values['metadata'])->toBe(['shirt_size' => 'M']);
 
     $shirtSize = array_values(array_filter(

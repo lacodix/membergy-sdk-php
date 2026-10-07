@@ -12,8 +12,6 @@ final class Compatibility
 
     public const CMS_CONTRACT = 'cms-v1';
 
-    public const FORMS_CONTRACT = 'forms-v1';
-
     public const AUTH_CONTRACT = 'auth-v1';
 
     public const SELF_SERVICE_CONTRACT = 'self-service-v1';
@@ -35,7 +33,6 @@ final class Compatibility
         return [
             'api' => self::API_VERSION,
             'cms' => self::CMS_CONTRACT,
-            'forms' => self::FORMS_CONTRACT,
             'auth' => self::AUTH_CONTRACT,
             'self_service' => self::SELF_SERVICE_CONTRACT,
             'block_document_schema' => self::BLOCK_DOCUMENT_SCHEMA,

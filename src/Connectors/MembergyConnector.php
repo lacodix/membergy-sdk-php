@@ -9,6 +9,10 @@ use Lacodix\MembergySdk\Cache\ResponseCache;
 use Lacodix\MembergySdk\Cache\ResponseCacheMiddleware;
 use Lacodix\MembergySdk\Compatibility;
 use Lacodix\MembergySdk\Exceptions\MembergyException;
+use Lacodix\MembergySdk\Exceptions\RegistrationIdentityException;
+use Lacodix\MembergySdk\Requests\Registrations\AbstractRegistrationRequest;
+use Lacodix\MembergySdk\Requests\Registrations\ShowRegistrationOfferRequest;
+use Lacodix\MembergySdk\Requests\Registrations\SubmitRegistrationApplicationRequest;
 use Saloon\Enums\Method;
 use Saloon\Enums\PipeOrder;
 use Saloon\Exceptions\Request\FatalRequestException;
@@ -18,6 +22,7 @@ use Saloon\Http\Connector;
 use Saloon\Http\PendingRequest;
 use Saloon\Http\Request;
 use Saloon\Traits\Plugins\HasTimeout;
+use SensitiveParameter;
 
 /**
  * The Membergy API connector.
@@ -43,6 +48,8 @@ final class MembergyConnector extends Connector
     protected float $connectTimeout;
 
     protected float $requestTimeout;
+
+    private bool $staticUserToken = false;
 
     public function __construct(
         string $baseUrl,
@@ -97,7 +104,11 @@ final class MembergyConnector extends Connector
 
     public function boot(PendingRequest $pendingRequest): void
     {
-        if ($this->responseCache === null) {
+        $request = $pendingRequest->getRequest();
+        if ($this->staticUserToken && ($request instanceof ShowRegistrationOfferRequest || $request instanceof SubmitRegistrationApplicationRequest)) {
+            throw new RegistrationIdentityException('A static server token cannot identify a registration applicant.');
+        }
+        if ($this->responseCache === null || $pendingRequest->getRequest() instanceof AbstractRegistrationRequest) {
             return;
         }
 
@@ -132,6 +143,15 @@ final class MembergyConnector extends Connector
     public function withUserToken(string $token): self
     {
         return $this->copyWithUserToken($token);
+    }
+
+    /** Static server credentials remain usable for CMS, but never identify a registration applicant. */
+    public function withStaticUserToken(#[SensitiveParameter] string $token): self
+    {
+        $connector = $this->copyWithUserToken($token);
+        $connector->staticUserToken = true;
+
+        return $connector;
     }
 
     public function withoutUserToken(): self
@@ -184,6 +204,7 @@ final class MembergyConnector extends Connector
             tries: $this->tries ?? 3,
             retryInterval: $this->retryInterval ?? 200,
         );
+        $connector->staticUserToken = $this->staticUserToken;
 
         $mockClient = $this->getMockClient();
         if ($mockClient !== null) {

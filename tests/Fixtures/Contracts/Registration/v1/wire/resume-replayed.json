@@ -1,0 +1,21 @@
+{
+    "method": "POST",
+    "path": "\/api\/v1\/registrations\/resume",
+    "request": {
+        "token": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "request_headers": {
+        "Accept": "application\/vnd.membergy.registration-v1+json",
+        "Content-Type": "application\/json"
+    },
+    "request_schema": "TokenRequest",
+    "request_valid": true,
+    "status": 410,
+    "response_schema": "Error",
+    "response_headers": {
+        "Content-Type": "application\/json",
+        "Cache-Control": "no-store, private",
+        "Referrer-Policy": "no-referrer",
+        "X-Content-Type-Options": "nosniff"
+    }
+}

@@ -12,13 +12,15 @@ use Lacodix\MembergySdk\Resources\AuthResource;
 use Lacodix\MembergySdk\Resources\ContentResource;
 use Lacodix\MembergySdk\Resources\MeResource;
 use Lacodix\MembergySdk\Resources\NewsletterResource;
-use Lacodix\MembergySdk\Resources\RegistrationResource;
+use Lacodix\MembergySdk\Resources\RegistrationApplicationsResource;
+use Lacodix\MembergySdk\Resources\RegistrationOffersResource;
 use Psr\SimpleCache\CacheInterface;
 
 /**
  * @method static ContentResource content()
  * @method static NewsletterResource newsletter()
- * @method static RegistrationResource registration()
+ * @method static RegistrationOffersResource registrationOffers()
+ * @method static RegistrationApplicationsResource registrationApplications()
  * @method static AuthResource auth()
  * @method static MeResource me()
  * @method static MembergyClient withUserToken(string $token)
