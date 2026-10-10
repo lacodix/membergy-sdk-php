@@ -49,7 +49,7 @@ final class ResponseCache
             (string) $pendingRequest->getUri(),
             is_string($accept) ? $accept : 'application/json',
         ]);
-        $key = $this->options->prefix.':response:'.hash('sha256', $identity);
+        $key = hash('sha256', $this->options->prefix.'|response|'.$identity);
         $stored = $store->get($key);
         $entry = is_array($stored) ? CacheEntry::fromArray($stored) : null;
 
@@ -68,6 +68,12 @@ final class ResponseCache
 
     public function store(CacheContext $context, Response $response): void
     {
+        if (in_array($response->status(), [401, 403, 404, 410], true)) {
+            $this->forget($context);
+
+            return;
+        }
+
         if ($response->status() !== 200 || ! $response->isJson()) {
             return;
         }
@@ -251,6 +257,6 @@ final class ResponseCache
 
     private function generationKey(string $name): string
     {
-        return $this->options->prefix.':generation:'.$name;
+        return hash('sha256', $this->options->prefix.'|generation|'.$name);
     }
 }

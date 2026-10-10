@@ -27,8 +27,8 @@ final class MenusResource extends AbstractPaginatedResource
     {
         try {
             $response = $this->send(new ShowMenuRequest($this->connector->tenant(), $handle));
-        } catch (ResourceNotFoundException $exception) {
-            throw new ResourceNotFoundException("Menu with handle '{$handle}' not found.", previous: $exception);
+        } catch (ResourceNotFoundException) {
+            throw new ResourceNotFoundException("Menu with handle '{$handle}' not found.");
         }
 
         return Menu::fromArray(Payload::data(Payload::fromResponse($response)));

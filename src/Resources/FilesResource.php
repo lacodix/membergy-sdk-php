@@ -29,8 +29,8 @@ final class FilesResource extends AbstractPaginatedResource
     {
         try {
             $response = $this->send(new ShowFileRequest($this->connector->tenant(), $uuid));
-        } catch (ResourceNotFoundException $exception) {
-            throw new ResourceNotFoundException("File with UUID '{$uuid}' not found.", previous: $exception);
+        } catch (ResourceNotFoundException) {
+            throw new ResourceNotFoundException("File with UUID '{$uuid}' not found.");
         }
 
         return (new MediaFactory)->fileFromArray(Payload::data(Payload::fromResponse($response)));

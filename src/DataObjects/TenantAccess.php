@@ -13,6 +13,7 @@ final readonly class TenantAccess
         public string $tenantSlug,
         public string $displayName,
         public array $extra = [],
+        public ?string $managementUrl = null,
     ) {}
 
     /** @param array<string, mixed> $data */
@@ -21,7 +22,8 @@ final readonly class TenantAccess
         return new self(
             tenantSlug: Data::string($data, 'tenant_slug'),
             displayName: Data::string($data, 'display_name'),
-            extra: Data::extra($data, ['tenant_slug', 'display_name']),
+            extra: Data::extra($data, ['tenant_slug', 'display_name', 'management_url']),
+            managementUrl: Data::nullableString($data, 'management_url'),
         );
     }
 }

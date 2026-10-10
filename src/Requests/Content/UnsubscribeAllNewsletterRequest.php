@@ -4,17 +4,20 @@ declare(strict_types=1);
 
 namespace Lacodix\MembergySdk\Requests\Content;
 
+use Lacodix\MembergySdk\Requests\RedactsSensitivePayload;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Traits\Body\HasJsonBody;
+use SensitiveParameter;
 
 final class UnsubscribeAllNewsletterRequest extends AbstractContentRequest implements HasBody
 {
     use HasJsonBody;
+    use RedactsSensitivePayload;
 
     protected Method $method = Method::POST;
 
-    public function __construct(string $tenant, private string $token)
+    public function __construct(string $tenant, #[SensitiveParameter] private string $token)
     {
         parent::__construct($tenant);
     }

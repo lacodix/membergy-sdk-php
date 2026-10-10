@@ -1206,5 +1206,56 @@
       "resources/knowledgebase/articles/registration-offers-manage/de.md",
       "tests/Feature/Registrations/RegistrationHeadlessResumeTest.php"
     ]
+  },
+  "overnight_joining_date_20261008": {
+    "base_sha": "b38ef8e2ff524d27085cafaf29ec7ec73ecf3cda",
+    "frozen_time": "2026-10-01T12:00:00Z",
+    "capture_command": "./worktree-lifecycle.sh run-tests website-registration-cms-integration -- tests/Feature/Api/RegistrationContractTest.php tests/Unit/LangFilesTest.php --compact --update-snapshots",
+    "capture_exit": 0,
+    "capture_result": "13 passed, 2 incomplete (snapshot regeneration), 5111 assertions",
+    "new_http_captures": [
+      "offer-month.json",
+      "submitted-joining-date.json"
+    ],
+    "method": "Existing registrationContractCapture obtains real HTTP response bytes and selected request/status/header metadata; existing documented volatile canonicalization only. Off snapshots regenerated with joining_date:null and desired_joining_date:null prefill. No response bytes hand-edited."
+  },
+  "overnight_website_auth_20261008": {
+    "base_sha": "b38ef8e2ff524d27085cafaf29ec7ec73ecf3cda",
+    "frozen_time": "2026-10-08T12:00:00Z",
+    "capture_test": "tests/Pest.php::websiteAuthCapture, real HTTP tests TwoFactorTokenApiTest, WebsiteTokenSecurityTest, PasswordConfirmationApiTest, PublicAuthApiTest",
+    "capture_command": "./worktree-lifecycle.sh run-tests website-registration-cms-integration -- tests/Feature/Api/TwoFactorTokenApiTest.php tests/Feature/Api/WebsiteTokenSecurityTest.php tests/Feature/Api/PasswordConfirmationApiTest.php tests/Feature/Api/PublicAuthApiTest.php tests/Feature/Api/LoginTest.php tests/Unit/WebsiteAuthStateMigrationTest.php tests/Unit/AuthSecretRedactionTest.php --update-snapshots --compact --stop-on-failure",
+    "capture_exit": 0,
+    "capture_result": "72 passed, 704 assertions",
+    "canonicalization": {
+      "/data/access_token": "Verify actual numeric id|random alphanumeric secret (at least 40 characters), then replace one JSON scalar with 1|contract-token.",
+      "/challenge": "Verify actual 64 lowercase hex characters, then replace one JSON scalar with 64 lowercase a characters.",
+      "byte_rule": "Replace the single JSON-encoded scalar value only; assert it occurs exactly once. No decode/re-encode, ID/time/hash/email/text/order/whitespace normalization of response bytes. Binary response bytes are unmodified."
+    },
+    "changed_http_captures": [
+      "auth/token.json",
+      "auth/two-factor-required.json"
+    ],
+    "new_http_captures": [
+      "auth/token-remember.json",
+      "auth/two-factor-token.json",
+      "auth/two-factor-invalid.json",
+      "auth/two-factor-challenge-invalid.json",
+      "me/password-confirmed.json",
+      "me/errors/password-confirmation-required.json"
+    ],
+    "note": "Independent auth/self-service extension; the original registration-only excluded scope remains historical. No registration response bytes recaptured for this package."
+  },
+  "management_login_20261009": {
+    "base_sha": "b38ef8e2ff524d27085cafaf29ec7ec73ecf3cda",
+    "frozen_time": "2026-10-09T12:00:00Z",
+    "capture_command": "./worktree-lifecycle.sh run-tests website-registration-cms-integration -- tests/Feature/Api/ManagementLoginTicketTest.php --filter=\"captures a real management ticket\" --update-snapshots --compact",
+    "capture_exit": 0,
+    "capture_result": "1 passed, 14 assertions",
+    "canonicalization": {
+      "/data/url": "Verify absolute http://localhost/management-login/ followed by exactly 64 lowercase hex characters. Verify JSON-encoded URL scalar occurs exactly once; replace that scalar only with the same URL prefix and 64 lowercase a characters. Keep every other HTTP response byte unchanged."
+    },
+    "new_http_captures": [
+      "me/management-login.json"
+    ]
   }
 }

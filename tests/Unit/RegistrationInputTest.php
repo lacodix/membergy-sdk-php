@@ -127,3 +127,15 @@ it('rejects invalid UTF-8 person values before JSON transport without retaining 
     $values['people'][0]['attributes']['firstname'] = "\xff";
     expect(fn () => RegistrationSubmission::fromArray($values))->toThrow(InvalidArgumentException::class, 'Invalid registration submission input.');
 });
+
+it('preserves valid optional joining dates and rejects invalid transport shapes', function (?string $value) {
+    $values = Data::object(Fixtures::wire('submitted-adult'), 'request');
+    $values['desired_joining_date'] = $value;
+    expect(RegistrationSubmission::fromArray($values)->toArray()['desired_joining_date'])->toBe($value);
+})->with(['2026-10-01', '2025-01-01', null, '']);
+
+it('rejects malformed joining dates before sending a request', function (mixed $value) {
+    $values = Data::object(Fixtures::wire('submitted-adult'), 'request');
+    $values['desired_joining_date'] = $value;
+    expect(fn () => RegistrationSubmission::fromArray($values))->toThrow(InvalidArgumentException::class);
+})->with(['2026-10-02', '2026-13-01', '2026-1-01', [['2026-10-01']], 20261001]);

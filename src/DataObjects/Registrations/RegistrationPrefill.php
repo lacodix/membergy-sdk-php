@@ -19,6 +19,7 @@ final readonly class RegistrationPrefill
         public array $lockedFields,
         public bool $addressIsFixed,
         public bool $isFollowUp,
+        public ?string $desiredJoiningDate = null,
     ) {}
 
     /** @param array<string, mixed> $data */
@@ -29,6 +30,7 @@ final readonly class RegistrationPrefill
             array_map(RegistrationContact::fromArray(...), Data::objectList($data, 'contacts')),
             Data::stringList($data, 'locked_fields'),
             Data::bool($data, 'address_is_fixed'), Data::bool($data, 'is_follow_up'),
+            Data::nullableString($data, 'desired_joining_date'),
         );
     }
 

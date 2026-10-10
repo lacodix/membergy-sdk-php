@@ -9,7 +9,10 @@ use Lacodix\MembergySdk\Support\Data;
 
 final readonly class PersonProfile
 {
-    /** @param array<string, mixed> $extra */
+    /**
+     * @param  array<string, mixed>  $extra
+     * @param  list<ContactDetail>  $contactDetails
+     */
     public function __construct(
         public string $firstname,
         public string $lastname,
@@ -28,11 +31,18 @@ final readonly class PersonProfile
         public ?string $dateOfWedding,
         public ?DateTimeImmutable $updatedAt,
         public array $extra = [],
+        public ?BankDetails $bankDetails = null,
+        public array $contactDetails = [],
     ) {}
 
     /** @param array<string, mixed> $data */
     public static function fromArray(array $data): self
     {
+        $contacts = [];
+        foreach (Data::object($data + ['contact_details' => []], 'contact_details') as $key => $row) {
+            $contacts[] = ContactDetail::fromArray((string) $key, Data::object(['row' => $row], 'row'));
+        }
+
         return new self(
             firstname: Data::string($data, 'firstname'),
             lastname: Data::string($data, 'lastname'),
@@ -50,11 +60,13 @@ final readonly class PersonProfile
             nameAtBirth: Data::nullableString($data, 'name_at_birth'),
             dateOfWedding: Data::nullableString($data, 'date_of_wedding'),
             updatedAt: Data::nullableDate($data, 'updated_at'),
+            bankDetails: isset($data['bank_details']) ? BankDetails::fromArray(Data::object($data, 'bank_details')) : null,
+            contactDetails: $contacts,
             extra: Data::extra($data, [
                 'firstname', 'lastname', 'salutation', 'title', 'gender', 'email',
                 'address_addition', 'address_street', 'address_zip', 'address_city',
                 'country', 'date_of_birth', 'date_of_birth_sharing_scope',
-                'name_at_birth', 'date_of_wedding', 'updated_at',
+                'name_at_birth', 'date_of_wedding', 'updated_at', 'bank_details', 'contact_details',
             ]),
         );
     }

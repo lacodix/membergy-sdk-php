@@ -7,6 +7,7 @@ namespace Lacodix\MembergySdk\Requests\Auth;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Traits\Body\HasJsonBody;
+use SensitiveParameter;
 
 final class CreateTokenRequest extends AbstractAuthRequest implements HasBody
 {
@@ -16,8 +17,9 @@ final class CreateTokenRequest extends AbstractAuthRequest implements HasBody
 
     public function __construct(
         private string $email,
-        private string $password,
+        #[SensitiveParameter] private string $password,
         private string $deviceName,
+        private bool $remember = false,
     ) {}
 
     public function resolveEndpoint(): string
@@ -25,13 +27,14 @@ final class CreateTokenRequest extends AbstractAuthRequest implements HasBody
         return '/token';
     }
 
-    /** @return array<string, string> */
+    /** @return array<string, string|bool> */
     public function defaultBody(): array
     {
         return [
             'email' => $this->email,
             'password' => $this->password,
             'device_name' => $this->deviceName,
+            'remember' => $this->remember,
         ];
     }
 }

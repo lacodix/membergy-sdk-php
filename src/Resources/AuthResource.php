@@ -6,21 +6,34 @@ namespace Lacodix\MembergySdk\Resources;
 
 use Lacodix\MembergySdk\DataObjects\AccessToken;
 use Lacodix\MembergySdk\DataObjects\AuthResult;
+use Lacodix\MembergySdk\Requests\Auth\CompleteTwoFactorRequest;
 use Lacodix\MembergySdk\Requests\Auth\CreateTokenRequest;
 use Lacodix\MembergySdk\Requests\Auth\RequestPasswordResetLinkRequest;
 use Lacodix\MembergySdk\Requests\Auth\ResetPasswordRequest;
 use Lacodix\MembergySdk\Requests\Auth\RevokeCurrentTokenRequest;
 use Lacodix\MembergySdk\Support\Payload;
+use SensitiveParameter;
 
 final class AuthResource extends AbstractResource
 {
     public function tokenFromCredentials(
         string $email,
-        string $password,
+        #[SensitiveParameter] string $password,
         string $deviceName,
+        bool $remember = false,
     ): AccessToken {
         $resource = $this->withoutUserToken();
-        $response = $resource->send(new CreateTokenRequest($email, $password, $deviceName));
+        $response = $resource->send(new CreateTokenRequest($email, $password, $deviceName, $remember));
+
+        return AccessToken::fromArray(Payload::data(Payload::fromResponse($response)));
+    }
+
+    public function completeTwoFactor(
+        #[SensitiveParameter] string $challenge,
+        #[SensitiveParameter] ?string $code = null,
+        #[SensitiveParameter] ?string $recoveryCode = null,
+    ): AccessToken {
+        $response = $this->withoutUserToken()->send(new CompleteTwoFactorRequest($challenge, $code, $recoveryCode));
 
         return AccessToken::fromArray(Payload::data(Payload::fromResponse($response)));
     }
@@ -41,10 +54,10 @@ final class AuthResource extends AbstractResource
     }
 
     public function resetPassword(
-        string $token,
+        #[SensitiveParameter] string $token,
         string $email,
-        string $password,
-        string $passwordConfirmation,
+        #[SensitiveParameter] string $password,
+        #[SensitiveParameter] string $passwordConfirmation,
     ): AuthResult {
         $resource = $this->withoutUserToken();
         $response = $resource->send(new ResetPasswordRequest(

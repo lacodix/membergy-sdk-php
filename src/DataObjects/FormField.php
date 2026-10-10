@@ -9,6 +9,7 @@ use Lacodix\MembergySdk\Support\Data;
 final readonly class FormField
 {
     /**
+     * @param  list<FormField>  $fields
      * @param  list<FormOption>  $options
      * @param  array<string, mixed>  $extra
      */
@@ -23,6 +24,8 @@ final readonly class FormField
         public ?string $help,
         public array $options,
         public array $extra = [],
+        public array $fields = [],
+        public ?int $max = null,
     ) {}
 
     /** @param array<string, mixed> $data */
@@ -38,9 +41,11 @@ final readonly class FormField
             default: Data::value($data, 'default'),
             help: Data::nullableString($data, 'help'),
             options: array_map(FormOption::fromArray(...), Data::objectList($data, 'options')),
+            fields: array_key_exists('fields', $data) ? array_map(self::fromArray(...), Data::objectList($data, 'fields')) : [],
+            max: Data::nullableInt($data, 'max'),
             extra: Data::extra($data, [
                 'name', 'label', 'type', 'required', 'nullable', 'multiple',
-                'default', 'help', 'options',
+                'default', 'help', 'options', 'fields', 'max',
             ]),
         );
     }

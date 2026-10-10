@@ -32,8 +32,8 @@ final class PagesResource extends AbstractPaginatedResource
                 $slug,
                 $includeDynamic ? ['include' => 'dynamic'] : [],
             ));
-        } catch (ResourceNotFoundException $exception) {
-            throw new ResourceNotFoundException("Page with slug '{$slug}' not found.", previous: $exception);
+        } catch (ResourceNotFoundException) {
+            throw new ResourceNotFoundException("Page with slug '{$slug}' not found.");
         }
 
         $payload = Payload::fromResponse($response);

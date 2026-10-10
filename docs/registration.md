@@ -1,6 +1,6 @@
 # Provisional registration-v1
 
-This implementation follows the current backend OpenAPI, JSON schema and 41 captured
+This implementation follows the current backend OpenAPI, JSON schema and 43 captured
 HTTP/binary response files. The backend's independent review and exclusive serial test
 gate are pending. Contract changes from those gates must be incorporated before this
 surface can be considered integrated or released. The existing compatibility matrix
@@ -132,8 +132,8 @@ Tenant password-reset routing is outside this provisional contract. Existing
 
 ## Fixture gates
 
-The CMS gate keeps its original source and 49 responses plus BlockRegistry. The
-registration gate independently checks all 41 real response files, exact binary
+The CMS gate keeps its original source and 58 responses plus BlockRegistry. The
+registration gate independently checks all 43 real response files, exact binary
 bytes, request/status/header metadata, schema, OpenAPI and provenance. Both gates
 fail when their checkout is missing; neither can be skipped:
 
@@ -142,3 +142,18 @@ MEMBERGY_BACKEND_ROOT=/path/to/cms-source \
 MEMBERGY_REGISTRATION_BACKEND_ROOT=/path/to/registration-source \
 vendor/bin/pest tests/Unit/ContractFixtureSyncTest.php tests/Unit/RegistrationFixtureSyncTest.php
 ```
+
+
+The server supplies joining-date options; consumers must not calculate their own windows:
+
+```php
+$joining = $offer->version->joiningDate;
+// Render $joining?->options (value/label), select $joining?->default.
+$values['desired_joining_date'] = '2026-10-01'; // only when $joining is non-null
+$submission = RegistrationSubmission::fromArray($values);
+$client->registrationApplications()->submit('membership', $submission);
+```
+
+Store the originally shown choices with the opaque form ticket when refetching an offer on
+submission: calendar changes do not change the immutable version. A choice from the valid
+24-hour ticket's issue-time window stays acceptable across a month/year boundary.

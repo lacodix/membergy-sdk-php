@@ -1,4 +1,1 @@
-{
-  "message": "Two-factor authentication is required for this account.",
-  "code": "auth_two_factor_required"
-}
+{"message":"Two-factor authentication is required for this account.","code":"auth_two_factor_required","challenge":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","expires_at":"2026-10-08T12:05:00.000000Z"}

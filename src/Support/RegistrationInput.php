@@ -37,6 +37,18 @@ final class RegistrationInput
         }
     }
 
+    /** The offer and ticket determine the allowed calendar window on the server. */
+    public static function joiningDate(#[SensitiveParameter] ?string $value): void
+    {
+        if ($value === null || $value === '') {
+            return;
+        }
+        if (preg_match('/\A([0-9]{4})-([0-9]{2})-01\z/D', $value, $parts) !== 1
+            || ! checkdate((int) $parts[2], 1, (int) $parts[1])) {
+            throw new InvalidArgumentException('Invalid registration joining date.');
+        }
+    }
+
     public static function token(#[SensitiveParameter] string $value, bool $landing = false): void
     {
         if (($landing && preg_match('/^[a-fA-F0-9]{64}$/D', $value) !== 1) || (! $landing && ($value === '' || self::length($value) > 128))) {

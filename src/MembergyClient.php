@@ -113,7 +113,7 @@ class MembergyClient
         return new MeResource($this->connector);
     }
 
-    public function withUserToken(string $token): self
+    public function withUserToken(#[\SensitiveParameter] string $token): self
     {
         return self::fromConnector($this->connector->withUserToken($token));
     }

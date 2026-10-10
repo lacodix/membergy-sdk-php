@@ -4,7 +4,7 @@
   "info": {
     "title": "Membergy registration-v1",
     "version": "1.0.0",
-    "description": "Executable current-base registration transport only. Existing /token supplies User Bearer; its Auth response is excluded. Canonical immutable tenant public_slug; existing numeric caller alias remains accepted but no numeric website URLs are generated. No public listing, payment block, me, Auth-v1/reset or CMS endpoints."
+    "description": "Executable current-base registration transport. version.joining_date is null (off) or the server-provided month/year definition with default and value/label options. Optional desired_joining_date is one wish for all participants; omission/null/empty in enabled modes uses the submission-time current period. Off refuses presence including null. The valid 24-hour encrypted ticket preserves its issue-time choices across calendar boundaries. Existing /token supplies User Bearer; its Auth response is excluded. Canonical immutable tenant public_slug; existing numeric caller alias remains accepted but no numeric website URLs are generated. No public listing, payment block, me, Auth-v1/reset or CMS endpoints."
   },
   "servers": [
     {

@@ -7,6 +7,7 @@ namespace Lacodix\MembergySdk\Requests\Auth;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Traits\Body\HasJsonBody;
+use SensitiveParameter;
 
 final class ResetPasswordRequest extends AbstractAuthRequest implements HasBody
 {
@@ -15,10 +16,10 @@ final class ResetPasswordRequest extends AbstractAuthRequest implements HasBody
     protected Method $method = Method::POST;
 
     public function __construct(
-        private string $token,
+        #[SensitiveParameter] private string $token,
         private string $email,
-        private string $password,
-        private string $passwordConfirmation,
+        #[SensitiveParameter] private string $password,
+        #[SensitiveParameter] private string $passwordConfirmation,
     ) {}
 
     public function resolveEndpoint(): string

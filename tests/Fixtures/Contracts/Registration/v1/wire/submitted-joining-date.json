@@ -1,0 +1,71 @@
+{
+    "method": "POST",
+    "path": "\/api\/v1\/tenant\/contract-club\/registration-offers\/membership\/applications",
+    "request": {
+        "submission_key": "10000000-0000-4000-8000-000000000001",
+        "submission_ticket": "synthetic-opaque-submission-ticket",
+        "offer_version_id": 70001,
+        "email": "joining.qa@example.test",
+        "people": [
+            {
+                "attributes": {
+                    "firstname": "Bernd-Qa",
+                    "lastname": "Wintersturm-Qa",
+                    "date_of_birth": "1985-02-03",
+                    "address_city": "Musterstadt-Qa",
+                    "salutation": "mr",
+                    "gender": "male"
+                },
+                "contacts": []
+            },
+            {
+                "attributes": {
+                    "firstname": "Clara-Qa",
+                    "lastname": "Wintersturm-Qa",
+                    "date_of_birth": "2017-10-01",
+                    "address_city": "Musterstadt-Qa",
+                    "salutation": "mr",
+                    "gender": "male"
+                },
+                "contacts": []
+            }
+        ],
+        "participants": [
+            {
+                "person_index": 1,
+                "option_ids": [
+                    70001
+                ]
+            }
+        ],
+        "proofs": [
+            {
+                "participant_index": 0,
+                "requirement_id": 70001,
+                "shown_content_hash": "be9ae0f2435f8262cd72f19a1a97cc99f81a8d50cd3de41f3761b57323d512a3"
+            },
+            {
+                "participant_index": 0,
+                "requirement_id": 70002,
+                "shown_content_hash": "843b8e6693b162295ad1509aa5228475028405f00aabd56ff3564aebb0f56c37"
+            }
+        ],
+        "website": "",
+        "remark": "Synthetic applicant remark.",
+        "desired_joining_date": "2026-09-01"
+    },
+    "request_headers": {
+        "Accept": "application\/json",
+        "Content-Type": "application\/json"
+    },
+    "request_schema": "SubmissionRequest",
+    "request_valid": true,
+    "status": 201,
+    "response_schema": "SubmissionResponse",
+    "response_headers": {
+        "Content-Type": "application\/json",
+        "Cache-Control": "no-store, private",
+        "Referrer-Policy": "no-referrer",
+        "X-Content-Type-Options": "nosniff"
+    }
+}

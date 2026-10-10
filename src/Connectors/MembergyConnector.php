@@ -10,17 +10,27 @@ use Lacodix\MembergySdk\Cache\ResponseCacheMiddleware;
 use Lacodix\MembergySdk\Compatibility;
 use Lacodix\MembergySdk\Exceptions\MembergyException;
 use Lacodix\MembergySdk\Exceptions\RegistrationIdentityException;
+use Lacodix\MembergySdk\Requests\Auth\AbstractAuthRequest;
+use Lacodix\MembergySdk\Requests\Content\ConfirmNewsletterSubscriptionRequest;
+use Lacodix\MembergySdk\Requests\Content\UnsubscribeAllNewsletterRequest;
+use Lacodix\MembergySdk\Requests\Me\ConfirmPasswordRequest;
+use Lacodix\MembergySdk\Requests\Me\IssueManagementLoginRequest;
+use Lacodix\MembergySdk\Requests\Me\UpdatePasswordRequest;
 use Lacodix\MembergySdk\Requests\Registrations\AbstractRegistrationRequest;
 use Lacodix\MembergySdk\Requests\Registrations\ShowRegistrationOfferRequest;
 use Lacodix\MembergySdk\Requests\Registrations\SubmitRegistrationApplicationRequest;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Saloon\Enums\Method;
 use Saloon\Enums\PipeOrder;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
+use Saloon\Helpers\Debugger;
 use Saloon\Http\Auth\TokenAuthenticator;
 use Saloon\Http\Connector;
 use Saloon\Http\PendingRequest;
 use Saloon\Http\Request;
+use Saloon\Http\Response;
 use Saloon\Traits\Plugins\HasTimeout;
 use SensitiveParameter;
 
@@ -32,9 +42,10 @@ use SensitiveParameter;
  *
  * Authentication modes:
  *  - Public (no token): only public content endpoints under
- *    /api/tenant/{tenant}/content/...
- *  - User token (sanctum, obtained via POST /api/token): unlocks
- *    internal content, resources, feature flags, permissions.
+ *    /api/v1/tenant/{tenant}/content/...
+ *  - Website token (Sanctum, obtained via POST /api/v1/token): unlocks
+ *    member CMS, own-data self-service and account-bound registration.
+ *    Generic administration APIs remain unavailable to these tokens.
  *
  * The connector is immutable in its base URL and tenant. Token state
  * is toggled via ->withUserToken() which returns a NEW instance.
@@ -54,7 +65,7 @@ final class MembergyConnector extends Connector
     public function __construct(
         string $baseUrl,
         protected string $tenant,
-        protected ?string $userToken = null,
+        #[SensitiveParameter] protected ?string $userToken = null,
         protected string $apiVersion = 'v1',
         protected ?ResponseCache $responseCache = null,
         float $connectTimeout = 5.0,
@@ -118,6 +129,45 @@ final class MembergyConnector extends Connector
             ->onResponse($middleware->handleResponse(...), 'membergyResponseCache', PipeOrder::LAST);
     }
 
+    /** @param callable(PendingRequest, RequestInterface): void|null $onRequest */
+    public function debugRequest(?callable $onRequest = null, bool $die = false): static
+    {
+        $hasUserToken = $this->userToken !== null;
+        $debugger = $onRequest ?? Debugger::symfonyRequestDebugger(...);
+
+        return parent::debugRequest(static function (PendingRequest $pending, RequestInterface $message) use ($debugger, $hasUserToken): void {
+            if (! $hasUserToken && ! self::sensitive($pending->getRequest())) {
+                $debugger($pending, $message);
+            }
+        }, $die);
+    }
+
+    /** @param callable(Response, ResponseInterface): void|null $onResponse */
+    public function debugResponse(?callable $onResponse = null, bool $die = false): static
+    {
+        $hasUserToken = $this->userToken !== null;
+        $debugger = $onResponse ?? Debugger::symfonyResponseDebugger(...);
+
+        return parent::debugResponse(static function (Response $response, ResponseInterface $message) use ($debugger, $hasUserToken): void {
+            if (! $hasUserToken && ! self::sensitive($response->getPendingRequest()->getRequest())) {
+                $debugger($response, $message);
+            }
+        }, $die);
+    }
+
+    public function __debugInfo(): array
+    {
+        return ['base_url' => $this->baseUrl, 'tenant' => $this->tenant, 'has_user_token' => $this->userToken !== null];
+    }
+
+    private static function sensitive(Request $request): bool
+    {
+        return $request instanceof AbstractAuthRequest || $request instanceof ConfirmPasswordRequest
+            || $request instanceof UpdatePasswordRequest || $request instanceof IssueManagementLoginRequest
+            || $request instanceof AbstractRegistrationRequest || $request instanceof ConfirmNewsletterSubscriptionRequest
+            || $request instanceof UnsubscribeAllNewsletterRequest;
+    }
+
     public function handleRetry(
         FatalRequestException|RequestException $exception,
         Request $request,
@@ -140,7 +190,7 @@ final class MembergyConnector extends Connector
      * user bearer token. Safe to use per-request without mutating
      * shared state.
      */
-    public function withUserToken(string $token): self
+    public function withUserToken(#[SensitiveParameter] string $token): self
     {
         return $this->copyWithUserToken($token);
     }
@@ -159,7 +209,7 @@ final class MembergyConnector extends Connector
         return $this->copyWithUserToken(null);
     }
 
-    private function copyWithUserToken(?string $token): self
+    private function copyWithUserToken(#[SensitiveParameter] ?string $token): self
     {
         $connector = new self(
             baseUrl: $this->baseUrl,

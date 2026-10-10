@@ -11,7 +11,7 @@ class RegistrationException extends MembergyException
 {
     private const INPUT_FIELDS = [
         'submission_key', 'offer_version_id', 'submission_ticket', 'website', 'email',
-        'remark', 'people', 'participants', 'proofs', 'token', 'public_id',
+        'remark', 'desired_joining_date', 'people', 'participants', 'proofs', 'token', 'public_id',
     ];
 
     private const PERSON_ATTRIBUTES = [

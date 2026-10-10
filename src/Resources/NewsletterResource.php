@@ -13,6 +13,7 @@ use Lacodix\MembergySdk\Requests\Content\RequestNewsletterUnsubscribeLinkRequest
 use Lacodix\MembergySdk\Requests\Content\SubscribeNewsletterRequest;
 use Lacodix\MembergySdk\Requests\Content\UnsubscribeAllNewsletterRequest;
 use Lacodix\MembergySdk\Support\Payload;
+use SensitiveParameter;
 
 final class NewsletterResource extends AbstractResource
 {
@@ -55,7 +56,7 @@ final class NewsletterResource extends AbstractResource
         return NewsletterRequestResult::fromArray(Payload::fromResponse($response));
     }
 
-    public function confirm(string $token): NewsletterRequestResult
+    public function confirm(#[SensitiveParameter] string $token): NewsletterRequestResult
     {
         $this->assertOpaqueToken($token, 'confirmation');
 
@@ -67,7 +68,7 @@ final class NewsletterResource extends AbstractResource
         return NewsletterRequestResult::fromArray(Payload::fromResponse($response));
     }
 
-    public function unsubscribeAll(string $token): NewsletterRequestResult
+    public function unsubscribeAll(#[SensitiveParameter] string $token): NewsletterRequestResult
     {
         $this->assertOpaqueToken($token, 'unsubscribe');
 
@@ -100,7 +101,7 @@ final class NewsletterResource extends AbstractResource
         }
     }
 
-    private function assertOpaqueToken(string $token, string $purpose): void
+    private function assertOpaqueToken(#[SensitiveParameter] string $token, string $purpose): void
     {
         $hasOuterWhitespace = preg_match('/(?:\A\s|\s\z)/u', $token);
 

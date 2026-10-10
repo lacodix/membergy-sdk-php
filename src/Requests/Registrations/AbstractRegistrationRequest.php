@@ -7,6 +7,7 @@ namespace Lacodix\MembergySdk\Requests\Registrations;
 use Lacodix\MembergySdk\DataObjects\Registrations\RegistrationResume;
 use Lacodix\MembergySdk\Exceptions\RegistrationException;
 use Lacodix\MembergySdk\Exceptions\RegistrationIdentityException;
+use Lacodix\MembergySdk\Requests\RedactsSensitivePayload;
 use Saloon\Http\PendingRequest;
 use Saloon\Http\Request;
 use Saloon\Http\Response;
@@ -15,6 +16,8 @@ use Throwable;
 
 abstract class AbstractRegistrationRequest extends Request
 {
+    use RedactsSensitivePayload;
+
     public const RESUME_HEADER = 'X-Membergy-Registration-Resume';
 
     public const MEDIA_TYPE = 'application/vnd.membergy.registration-v1+json';

@@ -6,6 +6,7 @@ use Lacodix\MembergySdk\Cache\CacheOptions;
 use Lacodix\MembergySdk\Connectors\MembergyConnector;
 use Lacodix\MembergySdk\DataObjects\RegistrationApplication;
 use Lacodix\MembergySdk\DataObjects\RegistrationOffer;
+use Lacodix\MembergySdk\DataObjects\Registrations\RegistrationJoiningDate;
 use Lacodix\MembergySdk\DataObjects\Registrations\RegistrationResume;
 use Lacodix\MembergySdk\DataObjects\Registrations\RegistrationSubmission;
 use Lacodix\MembergySdk\Exceptions\RegistrationAuthenticationException;
@@ -105,6 +106,7 @@ it('submits exact captured people, participants, proofs, UUID keys and honeypot 
     ['submitted-adult', false, false], ['submitted-child', false, false],
     ['submitted-account', true, false], ['submitted-account-follow-up', true, false],
     ['submitted-resumed', false, true], ['suppressed', false, false],
+    ['submitted-joining-date', false, false],
 ]);
 
 it('returns the original receipt when the caller explicitly replays the same resumed submission', function () {
@@ -432,4 +434,16 @@ it('maps the captured landing rate limit without retrying or consuming a token',
     expect(fn () => registrationV1Client($mock)->registrationApplications()->verificationLanding(str_repeat('0', 64)))->toThrow(RegistrationRateLimitException::class);
     assertRegistrationWire($mock, 'rate-limited');
     $mock->assertSentCount(1);
+});
+
+it('hydrates the server joining-date choices without calculating a consumer calendar', function () {
+    $mock = new MockClient([Fixtures::response('offer-month')]);
+    $offer = registrationV1Client($mock)->registrationOffers()->find('membership');
+    expect($offer->version->joiningDate)->toBeInstanceOf(RegistrationJoiningDate::class)
+        ->and($offer->version->joiningDate->mode)->toBe('month')
+        ->and($offer->version->joiningDate->default)->toBe('2026-10-01')
+        ->and($offer->version->joiningDate->options)->toHaveCount(13)
+        ->and($offer->version->joiningDate->options[0]->value)->toBe('2026-09-01')
+        ->and($offer->version->joiningDate->options[0]->label)->toBe('09/2026');
+    assertRegistrationWire($mock, 'offer-month');
 });

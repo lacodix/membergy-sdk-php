@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Lacodix\MembergySdk\Resources;
 
+use Lacodix\MembergySdk\DataObjects\ContactDetail;
 use Lacodix\MembergySdk\DataObjects\FormDefinition;
+use Lacodix\MembergySdk\DataObjects\FormRow;
 use Lacodix\MembergySdk\DataObjects\PersonProfile;
 use Lacodix\MembergySdk\Requests\Me\ShowPersonFormRequest;
 use Lacodix\MembergySdk\Requests\Me\ShowPersonRequest;
 use Lacodix\MembergySdk\Requests\Me\UpdatePersonRequest;
 use Lacodix\MembergySdk\Support\Payload;
+use SensitiveParameter;
 
 final class PersonResource extends AbstractResource
 {
@@ -32,8 +35,22 @@ final class PersonResource extends AbstractResource
     }
 
     /** @param array<string, mixed> $values */
-    public function update(array $values): PersonProfile
+    public function update(#[SensitiveParameter] array $values): PersonProfile
     {
+        if (is_array($values['contact_details'] ?? null)) {
+            $rows = [];
+            foreach ($values['contact_details'] as $key => $row) {
+                if ($row instanceof ContactDetail) {
+                    $rows[$row->key] = $row->toArray();
+                } elseif ($row instanceof FormRow) {
+                    $rows[$row->key] = $row->values;
+                } else {
+                    $rows[$key] = $row;
+                }
+            }
+            $values['contact_details'] = (object) $rows;
+        }
+
         $payload = Payload::fromResponse($this->send(
             new UpdatePersonRequest($this->connector->tenant(), $values),
         ));

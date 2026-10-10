@@ -106,8 +106,8 @@ final class EventsResource extends AbstractResource
     {
         try {
             $response = $this->send(new ShowEventRequest($this->connector->tenant(), $uuid));
-        } catch (ResourceNotFoundException $exception) {
-            throw new ResourceNotFoundException("Event with UUID '{$uuid}' not found.", previous: $exception);
+        } catch (ResourceNotFoundException) {
+            throw new ResourceNotFoundException("Event with UUID '{$uuid}' not found.");
         }
 
         return Event::fromArray(Payload::data(Payload::fromResponse($response)));

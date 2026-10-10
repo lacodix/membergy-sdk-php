@@ -26,8 +26,8 @@ final class BoilerplatesResource extends AbstractPaginatedResource
     {
         try {
             $response = $this->send(new ShowBoilerplateRequest($this->connector->tenant(), $slug));
-        } catch (ResourceNotFoundException $exception) {
-            throw new ResourceNotFoundException("Boilerplate with slug '{$slug}' not found.", previous: $exception);
+        } catch (ResourceNotFoundException) {
+            throw new ResourceNotFoundException("Boilerplate with slug '{$slug}' not found.");
         }
 
         return Boilerplate::fromArray(Payload::data(Payload::fromResponse($response)));

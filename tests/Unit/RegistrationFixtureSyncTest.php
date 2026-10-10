@@ -117,13 +117,13 @@ it('rejects drift in private combined fixture trees without hiding registration 
         }
     });
 })->with([
-    'unknown backend CMS path' => ['cms', 'backend', 'tests/Fixtures/Contracts/Cms/v1/obsolete.json', 'extra', '49 response fixtures'],
-    'backend registration prefix lookalike' => ['cms', 'backend', 'tests/Fixtures/Contracts/Cms/v1/registration.json', 'extra', '49 response fixtures'],
+    'unknown backend CMS path' => ['cms', 'backend', 'tests/Fixtures/Contracts/Cms/v1/obsolete.json', 'extra', '58 response fixtures'],
+    'backend registration prefix lookalike' => ['cms', 'backend', 'tests/Fixtures/Contracts/Cms/v1/registration.json', 'extra', '58 response fixtures'],
     'registration subtree in SDK CMS' => ['cms', 'sdk', 'registration/obsolete.json', 'extra', 'no missing or extra files'],
     'missing SDK registration response' => ['registration', 'sdk', 'responses/offer-guest.json', 'missing', 'Registration response paths must match'],
     'extra SDK registration response' => ['registration', 'sdk', 'responses/obsolete.json', 'extra', 'Registration response paths must match'],
-    'missing backend registration response' => ['registration', 'backend', 'tests/Fixtures/Contracts/Cms/v1/registration/offer-guest.json', 'missing', '41 response files'],
-    'extra backend registration response' => ['registration', 'backend', 'tests/Fixtures/Contracts/Cms/v1/registration/obsolete.json', 'extra', '41 response files'],
+    'missing backend registration response' => ['registration', 'backend', 'tests/Fixtures/Contracts/Cms/v1/registration/offer-guest.json', 'missing', '43 response files'],
+    'extra backend registration response' => ['registration', 'backend', 'tests/Fixtures/Contracts/Cms/v1/registration/obsolete.json', 'extra', '43 response files'],
     'same count different registration paths' => ['registration', 'backend', 'tests/Fixtures/Contracts/Cms/v1/registration/offer-guest.json', 'renamed', 'Registration response paths must match'],
     'changed binary document bytes' => ['registration', 'backend', 'tests/Fixtures/Contracts/Cms/v1/registration/document.pdf', 'bytes', "Registration response 'document.pdf' must be byte-identical"],
     'extra SDK wire metadata' => ['registration', 'sdk', 'wire/obsolete.json', 'extra', 'SDK registration wire paths must match'],

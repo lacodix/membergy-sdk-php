@@ -29,8 +29,8 @@ final class ImagesResource extends AbstractPaginatedResource
     {
         try {
             $response = $this->send(new ShowImageRequest($this->connector->tenant(), $uuid));
-        } catch (ResourceNotFoundException $exception) {
-            throw new ResourceNotFoundException("Image with UUID '{$uuid}' not found.", previous: $exception);
+        } catch (ResourceNotFoundException) {
+            throw new ResourceNotFoundException("Image with UUID '{$uuid}' not found.");
         }
 
         return (new MediaFactory)->imageFromArray(Payload::data(Payload::fromResponse($response)));

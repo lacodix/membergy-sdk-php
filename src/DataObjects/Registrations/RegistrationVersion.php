@@ -25,6 +25,7 @@ final readonly class RegistrationVersion
         public bool $allowsMinorParticipants,
         public string $guardianParticipation,
         public bool $guardianParticipationPreselected,
+        public ?RegistrationJoiningDate $joiningDate = null,
     ) {}
 
     /** @param array<string, mixed> $data */
@@ -45,6 +46,8 @@ final readonly class RegistrationVersion
             allowsMinorParticipants: Data::bool($data, 'allows_minor_participants'),
             guardianParticipation: Data::string($data, 'guardian_participation'),
             guardianParticipationPreselected: Data::bool($data, 'guardian_participation_preselected'),
+            joiningDate: ($data['joining_date'] ?? null) === null
+                ? null : RegistrationJoiningDate::fromArray(Data::object($data, 'joining_date')),
         );
     }
 

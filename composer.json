@@ -10,7 +10,7 @@
         "cms",
         "saloon"
     ],
-    "homepage": "https://github.com/lacodix/membergy-sdk-php",
+    "homepage": "https://gitlab.lacodix.de/lacodix/membergy-sdk",
     "license": "MIT",
     "authors": [
         {

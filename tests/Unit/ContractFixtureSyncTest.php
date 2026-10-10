@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Lacodix\MembergySdk\Tests\Support\ContractFixtureSync;
 use PHPUnit\Framework\AssertionFailedError;
 
-it('keeps all 49 SDK response fixtures and the separate BlockRegistry byte-identical to the backend source of truth', function () {
+it('keeps all 58 SDK response fixtures and the separate BlockRegistry byte-identical to the backend source of truth', function () {
     $backendRoot = getenv('MEMBERGY_BACKEND_ROOT');
 
     if (! is_string($backendRoot) || $backendRoot === '') {
@@ -80,8 +80,8 @@ it('rejects contract fixture drift in either repository', function (string $drif
     'missing SDK response' => ['sdk missing', 'no missing or extra files'],
     'additional SDK response' => ['sdk extra', 'no missing or extra files'],
     'same count but different SDK paths' => ['sdk renamed', 'no missing or extra files'],
-    'missing backend response' => ['backend missing', '49 response fixtures'],
-    'additional backend response' => ['backend extra', '49 response fixtures'],
+    'missing backend response' => ['backend missing', '58 response fixtures'],
+    'additional backend response' => ['backend extra', '58 response fixtures'],
     'changed response bytes' => ['response bytes', "Response fixture 'pages/show.json' must be byte-identical"],
     'changed registry bytes' => ['registry bytes', 'BlockRegistry must be byte-identical'],
     'missing SDK registry' => ['sdk registry missing', 'no missing or extra files'],

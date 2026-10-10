@@ -285,6 +285,14 @@
         },
         "is_follow_up": {
           "type": "boolean"
+        },
+        "desired_joining_date": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-01$"
         }
       },
       "required": [
@@ -292,7 +300,8 @@
         "contacts",
         "locked_fields",
         "address_is_fixed",
-        "is_follow_up"
+        "is_follow_up",
+        "desired_joining_date"
       ],
       "additionalProperties": false
     },
@@ -405,6 +414,9 @@
         },
         "guardian_participation_preselected": {
           "type": "boolean"
+        },
+        "joining_date": {
+          "$ref": "#/definitions/JoiningDate"
         }
       },
       "required": [
@@ -421,7 +433,8 @@
         "option_selection_label",
         "allows_minor_participants",
         "guardian_participation",
-        "guardian_participation_preselected"
+        "guardian_participation_preselected",
+        "joining_date"
       ],
       "additionalProperties": false
     },
@@ -1221,6 +1234,14 @@
             "$ref": "#/definitions/Proof"
           },
           "maxItems": 100
+        },
+        "desired_joining_date": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^$|^[0-9]{4}-[0-9]{2}-01$",
+          "description": "Only when joining_date is offered. Must be an offered date; same wish stored on every participant. Null/empty/omitted selects submission-time current period. Off rejects even null."
         }
       },
       "required": [
@@ -1232,6 +1253,55 @@
       ],
       "additionalProperties": false,
       "description": "Public validated fields only. Guest email is required by identity validation. Required person fields, choices, role rules and proofs derive from the current published offer. Verified account core values override client values. No payment block."
+    },
+    "JoiningDate": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "month",
+            "year"
+          ]
+        },
+        "default": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-01$"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "format": "date",
+                "pattern": "^[0-9]{4}-[0-9]{2}-01$"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "value",
+              "label"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 3,
+          "maxItems": 13
+        }
+      },
+      "required": [
+        "mode",
+        "default",
+        "options"
+      ],
+      "additionalProperties": false,
+      "description": "Server calendar choices: 13 months (-1..+11) or three years (-1..+1). One date for all participants; optional; omitted/null/empty enabled selection uses current submission-time period. Off is null and refuses any submitted key. Valid ticket issue-time choices remain valid for its 24-hour lifetime."
     }
   },
   "oneOf": [

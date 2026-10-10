@@ -151,10 +151,11 @@ it('never writes an unsubscribe token or response into the response cache', func
     $token = 'sensitive-opaque-unsubscribe-token';
     $publicStore = new ArrayCache;
     $memberStore = new ArrayCache;
+    $options = new CacheOptions(prefix: 'membergy-test');
     $responseCache = new ResponseCache(
         publicStore: $publicStore,
         memberStore: $memberStore,
-        options: new CacheOptions(prefix: 'membergy-test'),
+        options: $options,
         clock: new MutableCacheClock,
     );
     $mock = new MockClient([
@@ -174,11 +175,10 @@ it('never writes an unsubscribe token or response into the response cache', func
     MembergyClient::fromConnector($connector)->newsletter()->unsubscribeAll($token);
 
     $cacheSnapshot = serialize([$publicStore->values, $memberStore->values]);
+    $generationKey = hash('sha256', $options->prefix.'|generation|resource:newsletter');
 
-    expect(array_keys($publicStore->values))->toBe([
-        'membergy-test:generation:resource:newsletter',
-    ])->and(array_keys($memberStore->values))->toBe([
-        'membergy-test:generation:resource:newsletter',
-    ])->and(str_contains($cacheSnapshot, $token))->toBeFalse()
+    expect(array_keys($publicStore->values))->toBe([$generationKey])
+        ->and(array_keys($memberStore->values))->toBe([$generationKey])
+        ->and(str_contains($cacheSnapshot, $token))->toBeFalse()
         ->and(str_contains($cacheSnapshot, 'unsubscribe_processed'))->toBeFalse();
 });

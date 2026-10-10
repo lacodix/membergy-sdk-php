@@ -23,7 +23,7 @@ website-ready scope are implemented:
 - [x] `newsletter()` (UUID categories, DOI subscribe / headless confirmation / signed unsubscribe request)
 - [x] Typed BlockDocument v1 DTOs, `UnknownBlock`, `UnknownMenuTarget`
 - [x] Configurable `MenuUrlResolver` foundation
-- [x] `auth()` (credentials token, current-token revocation, password reset)
+- [x] `auth()` (credentials and two-factor token, current-token revocation, password reset)
 - [x] `me()->access()` (tenant access proof independent of person self-service)
 - [x] `me()->person()` (profile, dynamic form, updates)
 - [x] `me()->newsletter()` (member-owned category subscriptions)
@@ -127,6 +127,7 @@ $token = $client->auth()->tokenFromCredentials(
     'member@example.org',
     'secret-password',
     'Club website',
+    remember: false, // true: absolute 30 days; false: sliding two hours
 );
 $authed = $client->withUserToken($token->accessToken);
 
@@ -152,11 +153,46 @@ $authed->auth()->revokeCurrentToken();
 ```
 
 The tenant access proof accepts direct single-/multi-tenant membership or global landlord
-access and does not require a person record. The token DTO exposes `emailVerified`; protected
-Membergy endpoints still enforce their normal verification middleware. Accounts with confirmed two-factor authentication throw
-`TwoFactorRequiredException`, because auth-v1 intentionally does not bypass an interactive
-second factor. Invalid credentials, revoked tokens and validation failures map to dedicated
-SDK exceptions.
+access and does not require a person record. `AccessToken` exposes `emailVerified`, `remember`
+and `loginEmail`; protected endpoints still enforce verification and tenant permissions.
+Tokens issued by auth-v1 have website scope: anonymous functions, member-visible CMS/search,
+`me()` self-service, account-bound registration and self-revocation. Generic administration
+APIs are refused even for admin/landlord accounts. Pre-deploy unmarked tokens return 401.
+Normal tokens expire two hours after their last backend use; remembered tokens expire
+absolutely 30 days after login. For normal tokens `expiresAt` is the issuance-time idle
+horizon, not an immutable future deadline. The backend remains authoritative.
+
+Confirmed two-factor authentication throws `TwoFactorRequiredException` with a random
+`challenge` and `expiresAt`. Store only the challenge on the server until the second request:
+
+```php
+// From a caught TwoFactorRequiredException; the challenge expires after five minutes.
+$token = $client->auth()->completeTwoFactor($challenge, code: $totpCode);
+// Alternatively, exactly one factor:
+$token = $client->auth()->completeTwoFactor($challenge, recoveryCode: $recoveryCode);
+```
+
+Five wrong attempts kill a challenge; success is single-use. Recovery codes are replaced and
+TOTP replay is refused. Wrong and dead challenges expose stable `RequestValidationException::errorCode`
+values; 429 maps to `RateLimitException::retryAfterSeconds`. The SDK clears any user bearer
+for credential and two-factor issuance. The legacy raw response cannot bypass 2FA.
+
+Own person reads, form and updates require password confirmation newer than three hours.
+Catch `PasswordConfirmationRequiredException`, ask for the password on your website, then:
+
+```php
+$result = $authed->me()->password()->confirm($password); // AuthResult::status = password_confirmed
+```
+
+Login after the full second factor and successful password changes refresh the token timestamp.
+Access, newsletter and password change do not require a separate fresh confirmation.
+Keep interrupted non-secret form values server-side and ask the user to save again afterward.
+All credential, challenge, code, recovery-code and confirmation parameters are sensitive;
+Connector-level Saloon request/response hooks stay silent when a user token is configured;
+request-level hooks also stay silent on bearer-authenticated sends. Sensitive operations
+suppress both levels even without a bearer. Anonymous non-sensitive debugging remains
+available, and object debugging redacts token/secret values. Never log request bodies or
+serialize secret objects.
 
 Password reset reuses Membergy's existing Fortify password policy and notifications:
 
@@ -197,7 +233,8 @@ Only successful JSON GET/HEAD responses with explicit compatible `Cache-Control`
 directives are stored. Fresh entries avoid a request; stale entries revalidate with both
 `If-None-Match` and `If-Modified-Since`, and a `304` restores the cached body.
 Server `no-store` always wins. Public and member keys use separate stores/scopes;
-member keys contain a one-way token fingerprint, never a bearer token. Laravel leaves
+response keys are opaque hashes of the namespace and request identity, never raw URLs
+or bearer tokens. Laravel leaves
 member caching disabled by default.
 
 Registration resources bypass SDK caching entirely, including private offers,
@@ -209,6 +246,28 @@ backoff. Writes are never replayed. Exhausted 429 responses become
 `RateLimitException` with an optional `retryAfterSeconds` value.
 Registration requests make one attempt and use separate, sanitized
 `RegistrationException` types, including `RegistrationRateLimitException`.
+
+High-level non-registration resources convert Saloon HTTP and transport failures into
+`Lacodix\MembergySdk\Exceptions\MembergyException` subtypes. Unmapped HTTP errors,
+including exhausted 5xx reads and failed writes, throw `HttpRequestException` with a
+numeric `status` and a fixed message. `TransportException` has a fixed message and no
+response or HTTP status. These failures and the existing mapped exceptions have no
+previous exception; they never chain Saloon/Guzzle request or response objects.
+
+Existing authentication, two-factor, self-service, validation and rate-limit exception
+types remain available. `RequestValidationException::errors` / `errorCode` and
+`TwoFactorRequiredException::challenge` / `expiresAt` retain their documented values;
+validation fields and challenges are redacted in PHP's native `var_dump` output.
+Their public typed values can still appear in Symfony VarDumper, Laravel `dump` / `dd`,
+`var_export` or serializers. Handle them explicitly; never log or serialize them.
+Only parameters marked `#[SensitiveParameter]` (including Request objects, profile
+value arrays and opaque newsletter tokens) are masked in default exception traces.
+
+This replaces the earlier high-level Saloon exception behavior, including
+`ServiceUnavailableException`; update consumer catches to the SDK exceptions.
+Direct `$client->connector()->send()` is deliberately outside this boundary and keeps
+raw Saloon exceptions, which can expose request headers, bodies and response data.
+Do not dump those exceptions. Registration's separate exception boundary is unchanged.
 
 ### Menus and consumer URLs
 
@@ -308,14 +367,14 @@ Unit tests run locally. Integration tests use Saloon's `MockClient`
 to simulate HTTP responses — no running Membergy instance required. Both source
 checkouts are required for the separate fixture gates.
 
-The copied API fixtures under `tests/Fixtures/Contracts/Cms/v1` contain exactly 49
+The copied API fixtures under `tests/Fixtures/Contracts/Cms/v1` contain exactly 58
 backend response fixtures plus the separate `block-registry.json`. The cross-repo
 gate requires `MEMBERGY_BACKEND_ROOT` to point to the authoritative backend checkout;
 a missing checkout fails the gate and is never skipped. It checks missing and extra
 files in both repositories and byte-identical responses and BlockRegistry.
 
 Registration fixtures live separately under `tests/Fixtures/Contracts/Registration/v1`:
-41 captured backend responses (including the exact PDF bytes), their request/status/header
+43 captured backend responses (including the exact PDF bytes), their request/status/header
 metadata, OpenAPI, JSON schema and provenance. `MEMBERGY_REGISTRATION_BACKEND_ROOT`
 selects that source checkout. Its independent gate rejects missing or extra SDK files
 and any byte difference; it never skips or changes the CMS gate's source.
@@ -323,3 +382,63 @@ and any byte difference; it never skips or changes the CMS gate's source.
 ## License
 
 MIT — see LICENSE.md.
+
+### Own contact rows and bank details
+
+`me()->person()->form()` exposes `repeater` fields with typed child `fields` and `max`.
+`$form->repeaterRows('contact_details')` returns `FormRow` objects (`key`, `values`).
+The raw keyed values remain available unchanged. `PersonProfile` exposes typed `contactDetails`
+and `bankDetails`; the authorized owner receives their full own IBAN. Never cache it across users.
+
+```php
+use Lacodix\MembergySdk\DataObjects\ContactDetail;
+
+$client->me()->person()->update([
+    // Include the other required values from the current form.
+    'contact_details' => [
+        new ContactDetail('78001', 'private_email', 'member@example.test', 'club'),
+        new ContactDetail($clientUuid, 'private_phone', '+513512345678', 'private'),
+    ],
+    'bank_iban' => 'DE89370400440532013000',
+]);
+```
+
+Existing keys are opaque IDs of the owner's rows; new keys must be client-generated UUIDs.
+Submitting the repeater replaces all rows (missing existing rows are deleted). An empty array
+submits an empty object and clears contacts; omitting the repeater preserves them. Foreign IDs,
+unknown row fields and invalid contact data are rejected atomically. Contact emails never change
+the login email. `RequestValidationException::errors` retains dotted row paths.
+
+
+### Authenticated password change and management access
+
+```php
+$result = $client->me()->password()->update($currentPassword, $password, $confirmation);
+// PasswordUpdateResult::status === 'password_updated'
+$managementUrl = $client->me()->access()->get()->managementUrl; // string|null
+```
+
+Password parameters carry `#[SensitiveParameter]`; the password request suppresses both
+request and connector Saloon debugging and redacts object debug output. Do not log or dump
+request bodies. Validation maps to `RequestValidationException::errors`, and throttling to
+`RateLimitException::retryAfterSeconds`. All tokens/sessions remain valid after a change;
+Membergy sends no mail. The new endpoint requires the additive self-service-v1 backend.
+Only real management rights in the URL tenant yield a management URL. The destination
+enters Membergy through its own login and permission checks.
+
+
+## One-time management login (package E, 2026-10-09)
+
+`$client->me()->managementLogin()` returns `ManagementLogin` with a sensitive `url` and typed
+`expiresAt`. Its URL and payload parameters are SensitiveParameter and its __debugInfo redacts
+the URL. The request uses self-service-v1; 403/401/429 map to the existing forbidden/auth/rate
+exceptions. This method needs the additive backend management-login route and ticket migration.
+58 CMS response fixtures plus the BlockRegistry and the independent registration provenance
+are synced byte-for-byte. Capture and canonicalization remain backend-owned.
+
+The server enforces a 60-second single-use ticket bound to user, club and issuing website token.
+Real management rights, token lifetime and confirmed 2FA activation are checked again on redeem.
+The new web session inherits the token confirmation time, preserving the three-hour password
+gate. It replaces any existing Membergy session, including impersonation, and has one fixed club
+management target. Website and Membergy logouts stay independent. Treat the URL as a credential;
+never print it or enable raw response debugging. Configure upstream access logs to mask ticket paths.

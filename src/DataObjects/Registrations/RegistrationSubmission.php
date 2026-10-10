@@ -14,7 +14,7 @@ final readonly class RegistrationSubmission
 {
     private const FIELDS = [
         'submission_key', 'offer_version_id', 'submission_ticket', 'website', 'email',
-        'remark', 'people', 'participants', 'proofs',
+        'remark', 'desired_joining_date', 'people', 'participants', 'proofs',
     ];
 
     private const STRING_ATTRIBUTES = [
@@ -59,6 +59,8 @@ final readonly class RegistrationSubmission
         if (($values['email'] ?? null) !== null) {
             RegistrationInput::email(Data::string($values, 'email'));
         }
+
+        RegistrationInput::joiningDate(Data::nullableString($values, 'desired_joining_date'));
 
         $people = Data::objectList($values, 'people');
         $participants = Data::objectList($values, 'participants');

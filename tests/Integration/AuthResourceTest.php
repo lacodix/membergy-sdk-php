@@ -47,7 +47,7 @@ it('hydrates credentials tokens through the auth-v1 media type without leaking a
     expect($token)->toBeInstanceOf(AccessToken::class)
         ->and($token->accessToken)->toBe('1|contract-token')
         ->and($token->tokenType)->toBe('Bearer')
-        ->and($token->expiresAt)->toBeNull()
+        ->and($token->expiresAt?->format('c'))->toBe('2026-10-08T14:00:00+00:00')
         ->and($token->emailVerified)->toBeTrue();
 
     $mock->assertSent(function (CreateTokenRequest $request, Response $response): bool {
@@ -58,6 +58,7 @@ it('hydrates credentials tokens through the auth-v1 media type without leaking a
                 'email' => 'member@example.test',
                 'password' => 'Secret-456-Ok',
                 'device_name' => 'Club website',
+                'remember' => false,
             ]
             && $pending->headers()->get('Accept') === AbstractAuthRequest::MEDIA_TYPE
             && $pending->headers()->get('Authorization') === null;

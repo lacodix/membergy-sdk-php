@@ -21,6 +21,18 @@ final readonly class FormDefinition
         public array $extra = [],
     ) {}
 
+    /** @return list<FormRow> */
+    public function repeaterRows(string $name): array
+    {
+        $rows = Data::object($this->values, $name);
+        $result = [];
+        foreach ($rows as $key => $row) {
+            $result[] = new FormRow((string) $key, Data::object(['row' => $row], 'row'));
+        }
+
+        return $result;
+    }
+
     /** @param array<string, mixed> $data */
     public static function fromArray(array $data): self
     {

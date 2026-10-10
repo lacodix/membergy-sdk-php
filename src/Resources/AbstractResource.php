@@ -7,21 +7,23 @@ namespace Lacodix\MembergySdk\Resources;
 use Lacodix\MembergySdk\Connectors\MembergyConnector;
 use Lacodix\MembergySdk\DataObjects\PaginatedResult;
 use Lacodix\MembergySdk\Exceptions\AuthenticationException;
+use Lacodix\MembergySdk\Exceptions\HttpRequestException;
 use Lacodix\MembergySdk\Exceptions\InvalidCredentialsException;
+use Lacodix\MembergySdk\Exceptions\PasswordConfirmationRequiredException;
 use Lacodix\MembergySdk\Exceptions\RateLimitException;
 use Lacodix\MembergySdk\Exceptions\RequestValidationException;
 use Lacodix\MembergySdk\Exceptions\ResourceNotFoundException;
 use Lacodix\MembergySdk\Exceptions\SelfServiceForbiddenException;
+use Lacodix\MembergySdk\Exceptions\TransportException;
 use Lacodix\MembergySdk\Exceptions\TwoFactorRequiredException;
 use Lacodix\MembergySdk\Support\Data;
 use Lacodix\MembergySdk\Support\Payload;
-use Saloon\Exceptions\Request\ClientException;
-use Saloon\Exceptions\Request\Statuses\NotFoundException as SaloonNotFoundException;
-use Saloon\Exceptions\Request\Statuses\TooManyRequestsException;
-use Saloon\Exceptions\Request\Statuses\UnauthorizedException;
-use Saloon\Exceptions\Request\Statuses\UnprocessableEntityException;
+use Saloon\Exceptions\Request\FatalRequestException;
+use Saloon\Exceptions\Request\RequestException;
 use Saloon\Http\Request;
 use Saloon\Http\Response;
+use SensitiveParameter;
+use Throwable;
 
 /** @phpstan-consistent-constructor */
 abstract class AbstractResource
@@ -38,7 +40,7 @@ abstract class AbstractResource
      * @param  callable(array<string, mixed>): T  $hydrate
      * @return PaginatedResult<T>
      */
-    protected function paginate(Request $request, callable $hydrate): PaginatedResult
+    protected function paginate(#[SensitiveParameter] Request $request, callable $hydrate): PaginatedResult
     {
         $payload = Payload::fromResponse($this->send($request));
 
@@ -55,72 +57,86 @@ abstract class AbstractResource
         return new static($this->connector, [...$this->query, ...$query]);
     }
 
-    protected function send(Request $request): Response
+    protected function send(#[SensitiveParameter] Request $request): Response
     {
         try {
             return $this->connector->send($request)->throw();
-        } catch (UnauthorizedException $exception) {
-            if ($this->errorCode($exception->getResponse()->json()) === 'auth_invalid_credentials') {
-                throw new InvalidCredentialsException(
-                    'The Membergy API rejected the supplied credentials.',
-                    previous: $exception,
-                );
+        } catch (FatalRequestException) {
+            throw new TransportException;
+        } catch (RequestException $exception) {
+            $response = $exception->getResponse();
+            $status = $response->status();
+
+            if ($status < 400 || $status >= 500) {
+                throw new HttpRequestException($status);
             }
 
-            throw new AuthenticationException(
-                'The Membergy API rejected the supplied user token.',
-                previous: $exception,
-            );
-        } catch (UnprocessableEntityException $exception) {
-            throw new RequestValidationException(
-                $this->validationErrors($exception->getResponse()->json()),
-                previous: $exception,
-            );
-        } catch (ClientException $exception) {
-            $code = $this->errorCode($exception->getResponse()->json());
-
-            if ($exception instanceof TooManyRequestsException) {
+            if ($status === 429) {
                 throw new RateLimitException(
-                    retryAfterSeconds: $this->retryAfterSeconds(
-                        $exception->getResponse()->header('Retry-After'),
-                    ),
-                    previous: $exception,
+                    retryAfterSeconds: $this->retryAfterSeconds($response->header('Retry-After')),
                 );
             }
 
-            if ($code === 'auth_two_factor_required') {
+            $payload = $this->errorPayload($response);
+            $code = $this->errorCode($payload);
+
+            if ($status === 401) {
+                if ($code === 'auth_invalid_credentials') {
+                    throw new InvalidCredentialsException('The Membergy API rejected the supplied credentials.');
+                }
+
+                throw new AuthenticationException('The Membergy API rejected the supplied user token.');
+            }
+
+            if ($status === 422) {
+                throw new RequestValidationException($this->validationErrors($payload), errorCode: $code);
+            }
+
+            if ($code === 'auth_two_factor_required' && is_array($payload)) {
+                try {
+                    $challenge = Data::nullableString($payload, 'challenge');
+                    $expiresAt = Data::nullableDate($payload, 'expires_at');
+                } catch (Throwable) {
+                    throw new HttpRequestException($status);
+                }
+
                 throw new TwoFactorRequiredException(
-                    'The Membergy account requires interactive two-factor authentication.',
-                    previous: $exception,
+                    'The Membergy account requires two-factor authentication.',
+                    challenge: $challenge,
+                    expiresAt: $expiresAt,
                 );
+            }
+
+            if ($code === 'self_service_password_confirmation_required') {
+                throw new PasswordConfirmationRequiredException('Please confirm the Membergy account password.');
             }
 
             if ($code === 'self_service_forbidden') {
-                throw new SelfServiceForbiddenException(
-                    'The Membergy API rejected the requested self-service operation.',
-                    previous: $exception,
-                );
+                throw new SelfServiceForbiddenException('The Membergy API rejected the requested self-service operation.');
             }
 
             if ($code === 'self_service_not_found') {
-                throw new ResourceNotFoundException(
-                    'The requested Membergy self-service resource was not found.',
-                    previous: $exception,
-                );
+                throw new ResourceNotFoundException('The requested Membergy self-service resource was not found.');
             }
 
-            if ($exception instanceof SaloonNotFoundException) {
-                throw new ResourceNotFoundException(
-                    'The requested Membergy resource was not found.',
-                    previous: $exception,
-                );
+            if ($status === 404) {
+                throw new ResourceNotFoundException('The requested Membergy resource was not found.');
             }
 
-            throw $exception;
+            throw new HttpRequestException($status);
         }
     }
 
-    private function errorCode(mixed $payload): ?string
+    private function errorPayload(#[SensitiveParameter] Response $response): mixed
+    {
+        try {
+            return $response->json();
+        } catch (Throwable) {
+            return null;
+        }
+    }
+
+    private function errorCode(#[SensitiveParameter] mixed $payload): ?string
     {
         if (! is_array($payload)) {
             return null;
@@ -134,7 +150,7 @@ abstract class AbstractResource
     /**
      * @return array<string, list<string>>
      */
-    private function validationErrors(mixed $payload): array
+    private function validationErrors(#[SensitiveParameter] mixed $payload): array
     {
         if (! is_array($payload) || ! is_array($payload['errors'] ?? null)) {
             return [];

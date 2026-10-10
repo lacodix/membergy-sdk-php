@@ -28,10 +28,9 @@ final class PostCategoriesResource extends AbstractPaginatedResource
             $response = $this->send(
                 new ShowPostCategoryRequest($this->connector->tenant(), $slug),
             );
-        } catch (ResourceNotFoundException $exception) {
+        } catch (ResourceNotFoundException) {
             throw new ResourceNotFoundException(
                 "Post category with slug '{$slug}' not found.",
-                previous: $exception,
             );
         }
 

@@ -417,7 +417,7 @@ final class LaravelIntegrationTest extends TestCase
         ]));
 
         $store = $this->app->make(CacheFactory::class)->store();
-        $generation = $store->get('membergy-sdk:generation:resource:posts');
+        $generation = $store->get(hash('sha256', 'membergy-sdk|generation|resource:posts'));
 
         self::assertIsString($generation);
         self::assertNotSame('1', $generation);

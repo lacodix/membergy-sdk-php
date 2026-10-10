@@ -17,7 +17,7 @@ final class RegistrationFixtureSync
         $source = $backendRoot.'/tests/Fixtures/Contracts/Cms/v1/registration';
         Assert::assertDirectoryExists($source);
         $expected = self::paths($source);
-        Assert::assertCount(41, $expected, 'The registration contract contains 41 response files.');
+        Assert::assertCount(43, $expected, 'The registration contract contains 43 response files.');
         Assert::assertSame($expected, self::paths($sdkFixtures.'/responses'), 'Registration response paths must match with no missing or extra files.');
         $wireNames = [];
         foreach ($expected as $relative) {
