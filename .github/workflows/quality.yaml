@@ -54,8 +54,6 @@ jobs:
           key: composer-${{ runner.os }}-${{ matrix.php }}-${{ matrix.dependencies }}-${{ hashFiles('composer.json') }}
       - name: Validate Composer manifest
         run: composer validate --strict
-      - name: Offline backend gate checks
-        run: python3 .github/tests/backend_gate_test.py
       - name: Resolve dependencies without changing the manifest
         env:
           TESTBENCH: ${{ matrix.testbench }}
@@ -85,5 +83,3 @@ jobs:
       contents: write
       pull-requests: read
     uses: ./.github/workflows/release.yaml
-    secrets:
-      MEMBERGY_BACKEND_READ_TOKEN: ${{ secrets.MEMBERGY_BACKEND_READ_TOKEN }}

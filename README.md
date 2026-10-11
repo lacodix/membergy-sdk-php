@@ -115,7 +115,9 @@ offer and application endpoints. The SDK now provides provisional, typed
 `registrationOffers()` and `registrationApplications()` resources against the captured
 registration-v1 contract. See [registration usage and limits](docs/registration.md).
 Backend review and an exclusive serial backend test gate are still pending; this
-implementation is not yet an integrated or released compatibility guarantee.
+contract is not yet integrated or guaranteed for consumers. Early `0.x` package
+releases may include this provisional implementation; they do not establish backend
+acceptance. See [package release policy](docs/compatibility.md#ci-and-automatic-releases).
 
 ### Authenticated per-user access
 

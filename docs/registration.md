@@ -3,8 +3,10 @@
 This implementation follows the current backend OpenAPI, JSON schema and 43 captured
 HTTP/binary response files. The backend's independent review and exclusive serial test
 gate are pending. Contract changes from those gates must be incorporated before this
-surface can be considered integrated or released. The existing compatibility matrix
-and the removal of `forms/register` remain unchanged.
+contract can be considered integrated or guaranteed for consumers. Early `0.x`
+package releases may include this provisional implementation; package publication
+does not establish backend acceptance. The existing compatibility matrix and the
+removal of `forms/register` remain unchanged.
 
 Configure `MembergyClient` with the canonical tenant public slug and the backend base
 URL. Offer and document requests use that configured origin and tenant; document
@@ -135,7 +137,8 @@ Tenant password-reset routing is outside this provisional contract. Existing
 The CMS gate keeps its original source and 58 responses plus BlockRegistry. The
 registration gate independently checks all 43 real response files, exact binary
 bytes, request/status/header metadata, schema, OpenAPI and provenance. Both gates
-fail when their checkout is missing; neither can be skipped:
+fail when their checkout is missing. They run separately from secretless package CI
+and do not gate package releases:
 
 ```bash
 MEMBERGY_BACKEND_ROOT=/path/to/cms-source \

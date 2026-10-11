@@ -18,8 +18,10 @@ uses a separately captured registration-v1 OpenAPI/schema and 43 real response f
 It is outside the integrated compatibility matrix above and does not add a machine-readable
 matrix key. Registration DTOs expose the captured fields without retaining raw response
 bags. Backend review and an exclusive serial backend test gate remain pending; any
-resulting contract corrections must be incorporated before an integration or release
-claim. See [registration usage](registration.md) for the provisional surface and gates.
+resulting contract corrections must be incorporated before this contract is considered
+integrated or guaranteed for consumers. Early `0.x` package publication does not
+establish backend acceptance. See [registration usage](registration.md) for the
+provisional surface and integration gates.
 
 The machine-readable equivalent is returned by:
 
@@ -36,8 +38,8 @@ Compatibility rules:
   version;
 - BlockDocument schema changes are independent from the URL API and require a new
   schema number plus renderer support;
-- the copied backend fixtures and BlockRegistry must pass the cross-repository
-  byte-for-byte gate before a release.
+- the copied backend fixtures and BlockRegistry remain subject to separate
+  cross-repository byte-for-byte checks for backend integration acceptance.
 
 ## CI and automatic releases
 
@@ -49,77 +51,32 @@ only the two real cross-repository sync tests are excluded (currently 445 of 447
 tests run); all synthetic drift tests remain. `composer test` without that filter
 still requires both backend roots and fails if either is unavailable.
 
-Only a successful complete secretless matrix on a push to `main` starts the reusable
-backend workflow. Independent backend contract review and exclusive serial backend
-tests remain pending. Complete both at the selected backend SHA and incorporate
-accepted corrections **before the first release**. The provisional registration
-surface remains outside the supported compatibility guarantee. Configure these
-repository settings under Settings → Secrets and variables → Actions after review
-and serial tests pass:
+Only a successful complete package quality matrix on a push to `main` starts the
+reusable release workflow. Package releases require no private backend credentials,
+checkout or attestation. Independent backend contract review and exclusive serial
+backend tests remain pending for provisional registration-v1; accepted corrections
+must be incorporated before that contract is integrated or guaranteed for consumers.
+The two real fixture-sync tests remain available separately with authoritative
+backend checkouts. Passing fixture sync does not replace backend review or runtime
+acceptance. Package `0.1.0` is early development and is not a DSTG launch.
 
-- Secret `MEMBERGY_BACKEND_READ_TOKEN`: a GitLab project access token for
-  `https://gitlab.lacodix.de/lacodix/membergy.git`, with the **Reporter** role and only
-  the `read_repository` scope.
-- Repository variable `MEMBERGY_BACKEND_SHA`: the exact lowercase 40-character
-  backend commit SHA that passed those gates; never a branch or tag name.
-- Non-secret repository variable `MEMBERGY_BACKEND_GATE_ATTESTATION`: JSON in this
-  shape, with the same actual SHA and references to both completed gate results:
-
-  ```json
-  {"sha":"<same 40-character backend SHA>","review":"passed","serial_tests":"passed","evidence":"<independent review reference; exclusive serial backend test results reference>"}
-  ```
-
-Missing configuration, incomplete evidence or a SHA mismatch fails closed. This
-human attestation does not execute or replace backend runtime tests. Changing the
-pinned SHA requires completed review and exclusive serial tests at the new SHA.
-A configuration job captures SHA/attestation once for all four backend matrix lanes
-and the release job. After checking attestation and current SDK main, only this job
-receives the GitLab token, fetches the exact backend SHA and checks checkout identity.
-It archives only these backend-relative paths, preserving their nested layout:
-
-- `tests/Fixtures/Contracts/Cms/v1/` (including registration responses);
-- `tests/Fixtures/Registrations/Contracts/provenance.json`;
-- only the 43 wire JSON files in `tests/Fixtures/Registrations/Contracts/` whose
-  basenames match the tracked SDK `tests/Fixtures/Contracts/Registration/v1/wire/*.json`
-  files (metadata for the mirrored registration responses, not the entire backend directory);
-- `docs/features/website-cms/contracts/v1/block-registry.json`;
-- `docs/features/website-cms/contracts/v1/registration.openapi.json`;
-- `docs/features/website-cms/contracts/v1/schemas/registration.schema.json`.
-
-These allowlisted inputs are byte-identical to their public SDK mirrors **when synchronized**.
-Upload happens before the PHP suite compares bytes, so drifted inputs can be included
-in the artifact before validation fails. The SHA-named fixture artifact has one-day
-retention and is replaced when all jobs in the same run are rerun. Each validation
-lane downloads it from the same workflow run and extracts it
-into a private runner temporary root. Both backend-root variables point there for all
-447 SDK tests, including byte-identical CMS/BlockRegistry and separate registration
-fixture gates. Validation lanes receive no GitLab token and make no GitLab clone;
-Composer validation and PHPStan also run, and stable lanes run Pint. Only the
-configuration runner must reach private GitLab over trusted HTTPS. Its token is
-passed through temporary Git askpass without persisted credentials. Unavailable
-backend source, missing required paths or a missing/invalid archive fails the gate.
-The artifact carries the configured, attested full SHA through its name; it does not
-replace independent backend acceptance. The PHP 8.4 / Testbench 11 lanes still require
-hosted CI confirmation. Every SDK test invocation checks that the runner is nonroot
-and PHP has `intl` first.
-
-After both matrices succeed, one release job runs
+The release job runs
 [`rymndhng/release-on-push-action` v0.28.0](https://github.com/rymndhng/release-on-push-action/tree/aebba2bbce07a9474bf95e8710e5ee8a9e922fe2),
 pinned to `aebba2bbce07a9474bf95e8710e5ee8a9e922fe2`, with
 `bump_version_scheme: minor` and `use_github_release_notes: true`, matching
 laravel-model-filter's versioning behavior. It uses GitHub's `releases/latest`:
-with no existing release, the default first version is **`v0.1.0`**, then **`v0.2.0`**
-on the next eligible minor bump. Associated PR labels `release:major`, `release:minor`
-and `release:patch` override the default (in that priority order). **`[norelease]`
-in the tip commit title** or a **`norelease` label on an associated PR** suppresses
-publication while validation still runs. GitHub generates the release notes.
+with no existing release or tags, the default first version is **`v0.1.0`**, then
+**`v0.2.0`** on the next eligible minor bump. Associated PR labels `release:major`,
+`release:minor` and `release:patch` override the default (in that priority order).
+**`[norelease]` in the tip commit title** or a **`norelease` label on an associated PR**
+suppresses publication while validation still runs. GitHub generates the release
+notes; no PHP package version string is maintained.
 
-Only the release job has `contents: write` and `pull-requests: read`; quality and
-backend validation have read access. Main runs and publication are serialized;
-superseded PR checks may be cancelled. Failed or cancelled matrix lanes prevent
-publication. The final guard rechecks attestation and that main still matches the
-validated SDK SHA; the action targets that exact commit even if main advances
-afterward. GitHub may replace pending runs with newer pushes. If publication is
+Only publication has `contents: write` and `pull-requests: read`; package quality
+has read access. Main runs and publication are serialized; superseded PR checks may
+be cancelled. Failed or cancelled matrix lanes prevent publication. PRs never
+release, and there is no manual release trigger. The action targets the validated
+push SHA. Re-runs retain the original push SHA, so only re-run the latest main run; older re-runs could publish older code as the next version. GitHub may replace pending runs with newer pushes. If publication is
 interrupted, inspect provider state before retrying. No backend deployment occurs.
 
 ## Safe high-level HTTP and transport exceptions
