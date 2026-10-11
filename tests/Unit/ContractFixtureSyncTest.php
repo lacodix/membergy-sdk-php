@@ -18,7 +18,7 @@ it('keeps all 58 SDK response fixtures and the separate BlockRegistry byte-ident
         $backendRoot.'/tests/Fixtures/Contracts/Cms/v1',
         $backendRoot.'/docs/features/website-cms/contracts/v1/block-registry.json',
     );
-});
+})->group('backend-fixture-sync');
 
 it('rejects contract fixture drift in either repository', function (string $drift, string $message) {
     // Mutate private copies of existing SDK fixtures, never either repository's contract source.

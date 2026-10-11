@@ -1,0 +1,198 @@
+name: Gated automatic SDK release
+
+on:
+  # Called only after the entire secretless quality matrix succeeds.
+  workflow_call:
+    secrets:
+      MEMBERGY_BACKEND_READ_TOKEN:
+        required: false # Missing configuration must fail the gate, not skip it.
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  SDK_SHA: ${{ github.sha }}
+
+jobs:
+  configure:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      BACKEND_SHA: ${{ vars.MEMBERGY_BACKEND_SHA }}
+      BACKEND_GATE_ATTESTATION: ${{ vars.MEMBERGY_BACKEND_GATE_ATTESTATION }}
+    outputs:
+      backend_sha: ${{ steps.backend.outputs.backend_sha }}
+      backend_attestation: ${{ steps.backend.outputs.backend_attestation }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Require backend configuration and capture it once for every lane
+        id: backend
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          bash .github/scripts/release-guards.sh
+          python3 .github/scripts/backend-gate.py snapshot
+      - name: Obtain exact read-only backend source
+        env:
+          BACKEND_SHA: ${{ steps.backend.outputs.backend_sha }}
+          MEMBERGY_BACKEND_READ_TOKEN: ${{ secrets.MEMBERGY_BACKEND_READ_TOKEN }}
+        run: bash .github/scripts/checkout-backend.sh
+      - name: Archive only the backend fixture gate inputs
+        run: |
+          umask 077
+          backend_root="$RUNNER_TEMP/membergy-backend"
+          paths=(
+            tests/Fixtures/Contracts/Cms/v1/
+            tests/Fixtures/Registrations/Contracts/provenance.json
+            docs/features/website-cms/contracts/v1/block-registry.json
+            docs/features/website-cms/contracts/v1/registration.openapi.json
+            docs/features/website-cms/contracts/v1/schemas/registration.schema.json
+          )
+          mapfile -d '' -t wire_files < <(git ls-files -z -- 'tests/Fixtures/Contracts/Registration/v1/wire/*.json')
+          test "${#wire_files[@]}" -eq 43
+          for wire_file in "${wire_files[@]}"; do
+            test -f "$wire_file"
+            paths+=("tests/Fixtures/Registrations/Contracts/${wire_file##*/}")
+          done
+          for path in "${paths[@]}"; do
+            if [[ "$path" == */ ]]; then
+              test -d "$backend_root/$path"
+            else
+              test -f "$backend_root/$path"
+            fi
+          done
+          tar -C "$backend_root" -czf "$RUNNER_TEMP/membergy-backend-fixtures.tar.gz" -- "${paths[@]}"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: backend-fixtures-${{ steps.backend.outputs.backend_sha }}
+          path: ${{ runner.temp }}/membergy-backend-fixtures.tar.gz
+          retention-days: 1
+          if-no-files-found: error
+          overwrite: true
+
+  validate:
+    needs: configure
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      BACKEND_SHA: ${{ needs.configure.outputs.backend_sha }}
+      BACKEND_GATE_ATTESTATION: ${{ needs.configure.outputs.backend_attestation }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php: '8.3'
+            testbench: '^10.0'
+            dependencies: prefer-lowest
+          - php: '8.3'
+            testbench: '^10.0'
+            dependencies: prefer-stable
+          - php: '8.4'
+            testbench: '^11.0'
+            dependencies: prefer-lowest
+          - php: '8.4'
+            testbench: '^11.0'
+            dependencies: prefer-stable
+    name: PHP ${{ matrix.php }} / Testbench ${{ matrix.testbench }} / ${{ matrix.dependencies }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Validate backend attestation and current main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/release-guards.sh
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: backend-fixtures-${{ needs.configure.outputs.backend_sha }}
+          path: ${{ runner.temp }}/membergy-backend-fixture-artifact
+      - name: Extract the required fixture gate inputs into a private root
+        run: |
+          umask 077
+          archive="$RUNNER_TEMP/membergy-backend-fixture-artifact/membergy-backend-fixtures.tar.gz"
+          backend_root="$RUNNER_TEMP/membergy-backend"
+          test -s "$archive"
+          mkdir "$backend_root"
+          tar -xzf "$archive" -C "$backend_root" --no-same-owner --no-same-permissions
+          test -d "$backend_root/tests/Fixtures/Contracts/Cms/v1"
+          test -d "$backend_root/tests/Fixtures/Registrations/Contracts"
+          test -f "$backend_root/docs/features/website-cms/contracts/v1/block-registry.json"
+          test -f "$backend_root/docs/features/website-cms/contracts/v1/registration.openapi.json"
+          test -f "$backend_root/docs/features/website-cms/contracts/v1/schemas/registration.schema.json"
+      - uses: shivammathur/setup-php@d52fc211a0436f8839a587b3b5b8efddab4744ea # v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: intl, mbstring, dom, pdo_sqlite
+          coverage: none
+          tools: composer:v2
+      - name: Validate Composer manifest
+        run: composer validate --strict
+      - name: Resolve release validation dependencies
+        env:
+          TESTBENCH: ${{ matrix.testbench }}
+          DEPENDENCIES: ${{ matrix.dependencies }}
+        run: |
+          flags=(--prefer-stable)
+          if [[ "$DEPENDENCIES" == prefer-lowest ]]; then
+            flags+=(--prefer-lowest)
+          fi
+          composer update --no-interaction --prefer-dist --with "orchestra/testbench:$TESTBENCH" "${flags[@]}"
+      - name: Full suite including both real backend fixture gates
+        env:
+          MEMBERGY_BACKEND_ROOT: ${{ runner.temp }}/membergy-backend
+          MEMBERGY_REGISTRATION_BACKEND_ROOT: ${{ runner.temp }}/membergy-backend
+        run: |
+          test "$(id -u)" -ne 0
+          php -r 'exit(extension_loaded("intl") ? 0 : 1);'
+          composer test
+      - name: Static analysis
+        run: composer analyse -- --debug
+      - name: Formatting validation
+        # Lowest resolves Pint 1.0.0; enforce the current formatter on stable jobs.
+        if: matrix.dependencies == 'prefer-stable'
+        run: composer format -- --test
+
+  release:
+    needs: [configure, validate]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      BACKEND_SHA: ${{ needs.configure.outputs.backend_sha }}
+      BACKEND_GATE_ATTESTATION: ${{ needs.configure.outputs.backend_attestation }}
+    permissions:
+      contents: write
+      pull-requests: read
+    concurrency:
+      group: sdk-automatic-release
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Recheck current main and backend attestation
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/release-guards.sh
+      - name: Create release with the model-filter versioning behavior
+        uses: rymndhng/release-on-push-action@aebba2bbce07a9474bf95e8710e5ee8a9e922fe2 # v0.28.0
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          bump_version_scheme: minor
+          use_github_release_notes: true

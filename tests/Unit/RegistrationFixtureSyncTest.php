@@ -13,7 +13,7 @@ it('keeps the separate provisional registration-v1 fixtures, schema and provenan
         throw new RuntimeException('Set MEMBERGY_REGISTRATION_BACKEND_ROOT to execute the separate registration-v1 fixture gate.');
     }
     RegistrationFixtureSync::assertSynchronized(RegistrationFixtures::root(), rtrim($backend, '/'));
-});
+})->group('backend-fixture-sync');
 
 /** @param callable(string, string, string): void $assert */
 function withTemporaryCombinedFixtures(callable $assert): void

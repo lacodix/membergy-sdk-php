@@ -39,6 +39,89 @@ Compatibility rules:
 - the copied backend fixtures and BlockRegistry must pass the cross-repository
   byte-for-byte gate before a release.
 
+## CI and automatic releases
+
+PRs and pushes to `main` run Composer validation, Pest, PHPStan and Pint in test
+mode on PHP 8.3 / Testbench 10 and PHP 8.4 / Testbench 11, with lowest and stable
+dependency resolution; Pint uses stable jobs to enforce the current formatter.
+Secretless CI uses `composer test -- --exclude-group=backend-fixture-sync`:
+only the two real cross-repository sync tests are excluded (currently 445 of 447
+tests run); all synthetic drift tests remain. `composer test` without that filter
+still requires both backend roots and fails if either is unavailable.
+
+Only a successful complete secretless matrix on a push to `main` starts the reusable
+backend workflow. Independent backend contract review and exclusive serial backend
+tests remain pending. Complete both at the selected backend SHA and incorporate
+accepted corrections **before the first release**. The provisional registration
+surface remains outside the supported compatibility guarantee. Configure these
+repository settings under Settings → Secrets and variables → Actions after review
+and serial tests pass:
+
+- Secret `MEMBERGY_BACKEND_READ_TOKEN`: a GitLab project access token for
+  `https://gitlab.lacodix.de/lacodix/membergy.git`, with the **Reporter** role and only
+  the `read_repository` scope.
+- Repository variable `MEMBERGY_BACKEND_SHA`: the exact lowercase 40-character
+  backend commit SHA that passed those gates; never a branch or tag name.
+- Non-secret repository variable `MEMBERGY_BACKEND_GATE_ATTESTATION`: JSON in this
+  shape, with the same actual SHA and references to both completed gate results:
+
+  ```json
+  {"sha":"<same 40-character backend SHA>","review":"passed","serial_tests":"passed","evidence":"<independent review reference; exclusive serial backend test results reference>"}
+  ```
+
+Missing configuration, incomplete evidence or a SHA mismatch fails closed. This
+human attestation does not execute or replace backend runtime tests. Changing the
+pinned SHA requires completed review and exclusive serial tests at the new SHA.
+A configuration job captures SHA/attestation once for all four backend matrix lanes
+and the release job. After checking attestation and current SDK main, only this job
+receives the GitLab token, fetches the exact backend SHA and checks checkout identity.
+It archives only these backend-relative paths, preserving their nested layout:
+
+- `tests/Fixtures/Contracts/Cms/v1/` (including registration responses);
+- `tests/Fixtures/Registrations/Contracts/provenance.json`;
+- only the 43 wire JSON files in `tests/Fixtures/Registrations/Contracts/` whose
+  basenames match the tracked SDK `tests/Fixtures/Contracts/Registration/v1/wire/*.json`
+  files (metadata for the mirrored registration responses, not the entire backend directory);
+- `docs/features/website-cms/contracts/v1/block-registry.json`;
+- `docs/features/website-cms/contracts/v1/registration.openapi.json`;
+- `docs/features/website-cms/contracts/v1/schemas/registration.schema.json`.
+
+These allowlisted inputs are byte-identical to their public SDK mirrors **when synchronized**.
+Upload happens before the PHP suite compares bytes, so drifted inputs can be included
+in the artifact before validation fails. The SHA-named fixture artifact has one-day
+retention and is replaced when all jobs in the same run are rerun. Each validation
+lane downloads it from the same workflow run and extracts it
+into a private runner temporary root. Both backend-root variables point there for all
+447 SDK tests, including byte-identical CMS/BlockRegistry and separate registration
+fixture gates. Validation lanes receive no GitLab token and make no GitLab clone;
+Composer validation and PHPStan also run, and stable lanes run Pint. Only the
+configuration runner must reach private GitLab over trusted HTTPS. Its token is
+passed through temporary Git askpass without persisted credentials. Unavailable
+backend source, missing required paths or a missing/invalid archive fails the gate.
+The artifact carries the configured, attested full SHA through its name; it does not
+replace independent backend acceptance. The PHP 8.4 / Testbench 11 lanes still require
+hosted CI confirmation. Every SDK test invocation checks that the runner is nonroot
+and PHP has `intl` first.
+
+After both matrices succeed, one release job runs
+[`rymndhng/release-on-push-action` v0.28.0](https://github.com/rymndhng/release-on-push-action/tree/aebba2bbce07a9474bf95e8710e5ee8a9e922fe2),
+pinned to `aebba2bbce07a9474bf95e8710e5ee8a9e922fe2`, with
+`bump_version_scheme: minor` and `use_github_release_notes: true`, matching
+laravel-model-filter's versioning behavior. It uses GitHub's `releases/latest`:
+with no existing release, the default first version is **`v0.1.0`**, then **`v0.2.0`**
+on the next eligible minor bump. Associated PR labels `release:major`, `release:minor`
+and `release:patch` override the default (in that priority order). **`[norelease]`
+in the tip commit title** or a **`norelease` label on an associated PR** suppresses
+publication while validation still runs. GitHub generates the release notes.
+
+Only the release job has `contents: write` and `pull-requests: read`; quality and
+backend validation have read access. Main runs and publication are serialized;
+superseded PR checks may be cancelled. Failed or cancelled matrix lanes prevent
+publication. The final guard rechecks attestation and that main still matches the
+validated SDK SHA; the action targets that exact commit even if main advances
+afterward. GitHub may replace pending runs with newer pushes. If publication is
+interrupted, inspect provider state before retrying. No backend deployment occurs.
+
 ## Safe high-level HTTP and transport exceptions
 
 Non-registration Resource operations now expose only SDK `MembergyException` subtypes
