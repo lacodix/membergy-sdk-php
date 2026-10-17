@@ -16,7 +16,7 @@ final readonly class TextImageBlock extends AbstractBlock
         BlockSettings $settings,
         public ?string $title,
         public RichText $body,
-        public BlockMediaReference $image,
+        public ?BlockMediaReference $image,
         public string $position,
         public string $width,
         public array $dataExtra = [],

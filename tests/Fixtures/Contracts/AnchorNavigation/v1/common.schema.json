@@ -1,0 +1,421 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://membergy.app/schemas/cms/v1/common.schema.json",
+  "title": "Membergy CMS v1 shared definitions",
+  "definitions": {
+    "uuid": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "visibility": {
+      "type": "string",
+      "enum": [
+        "public",
+        "members"
+      ]
+    },
+    "nullableString": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "nullableDateTime": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "richText": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "format",
+        "value"
+      ],
+      "properties": {
+        "format": {
+          "const": "html"
+        },
+        "value": {
+          "type": "string",
+          "maxLength": 200000
+        }
+      }
+    },
+    "nullableRichText": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/richText"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "mediaUuidReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "uuid",
+        "alt"
+      ],
+      "properties": {
+        "uuid": {
+          "$ref": "#/definitions/uuid"
+        },
+        "alt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 500
+        }
+      }
+    },
+    "uuidReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "uuid"
+      ],
+      "properties": {
+        "uuid": {
+          "$ref": "#/definitions/uuid"
+        }
+      }
+    },
+    "safeUrl": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2048,
+      "pattern": "^(?!//)(?!(?:javascript|data|vbscript):).+$"
+    },
+    "safeLink": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "url",
+        "open_in_new_tab",
+        "rel"
+      ],
+      "properties": {
+        "url": {
+          "$ref": "#/definitions/safeUrl"
+        },
+        "label": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 255
+        },
+        "open_in_new_tab": {
+          "type": "boolean"
+        },
+        "rel": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "noopener",
+              "noreferrer",
+              "nofollow",
+              "sponsored",
+              "ugc"
+            ]
+          }
+        }
+      }
+    },
+    "nullableSafeLink": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/safeLink"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "publicMediaReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "uuid",
+        "kind",
+        "title",
+        "alt",
+        "mime_type",
+        "url"
+      ],
+      "properties": {
+        "uuid": {
+          "$ref": "#/definitions/uuid"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "image",
+            "file",
+            "video"
+          ]
+        },
+        "title": {
+          "$ref": "#/definitions/nullableString"
+        },
+        "alt": {
+          "$ref": "#/definitions/nullableString"
+        },
+        "mime_type": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "nullablePublicMediaReference": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/publicMediaReference"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "heroImage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "media",
+        "alt",
+        "link",
+        "title_position"
+      ],
+      "properties": {
+        "media": {
+          "$ref": "#/definitions/publicMediaReference"
+        },
+        "alt": {
+          "$ref": "#/definitions/nullableString"
+        },
+        "link": {
+          "$ref": "#/definitions/nullableSafeLink"
+        },
+        "title_position": {
+          "type": "string",
+          "enum": [
+            "hidden",
+            "top_left",
+            "top_center",
+            "top_right",
+            "center_left",
+            "center",
+            "center_right",
+            "bottom_left",
+            "bottom_center",
+            "bottom_right"
+          ]
+        }
+      }
+    },
+    "hero": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "images",
+        "video"
+      ],
+      "properties": {
+        "images": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/definitions/heroImage"
+          }
+        },
+        "video": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "media",
+                "poster"
+              ],
+              "properties": {
+                "media": {
+                  "$ref": "#/definitions/publicMediaReference"
+                },
+                "poster": {
+                  "$ref": "#/definitions/nullablePublicMediaReference"
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "seo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "description",
+        "image",
+        "canonical_url",
+        "robots"
+      ],
+      "properties": {
+        "title": {
+          "$ref": "#/definitions/nullableString"
+        },
+        "description": {
+          "$ref": "#/definitions/nullableString"
+        },
+        "image": {
+          "$ref": "#/definitions/nullablePublicMediaReference"
+        },
+        "canonical_url": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "uri"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "robots": {
+          "type": "string",
+          "enum": [
+            "index_follow",
+            "noindex_follow",
+            "noindex_nofollow"
+          ]
+        }
+      }
+    },
+    "presentation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "color"
+      ],
+      "properties": {
+        "color": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+        }
+      }
+    },
+    "paginationMeta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "current_page",
+        "per_page",
+        "total",
+        "last_page"
+      ],
+      "properties": {
+        "current_page": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "per_page": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "last_page": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "paginationLinks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "first",
+        "last",
+        "prev",
+        "next"
+      ],
+      "properties": {
+        "first": {
+          "type": "string",
+          "format": "uri"
+        },
+        "last": {
+          "type": "string",
+          "format": "uri"
+        },
+        "prev": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        },
+        "next": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        }
+      }
+    },
+    "errorResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "message",
+        "code"
+      ],
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string",
+          "enum": [
+            "cms_unauthenticated",
+            "cms_not_found",
+            "cms_rate_limited",
+            "cms_validation_failed"
+          ]
+        },
+        "errors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

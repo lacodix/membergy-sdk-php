@@ -15,7 +15,7 @@ final readonly class VideoBlock extends AbstractBlock
         int $version,
         BlockSettings $settings,
         public ?string $title,
-        public UuidReference $video,
+        public ?UuidReference $video,
         public ?BlockMediaReference $poster,
         public ?string $caption,
         public array $dataExtra = [],

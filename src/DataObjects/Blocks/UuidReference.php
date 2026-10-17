@@ -22,4 +22,10 @@ final readonly class UuidReference
             extra: Data::extra($data, ['uuid']),
         );
     }
+
+    /** @param array<string, mixed>|null $data */
+    public static function fromNullableArray(?array $data): ?self
+    {
+        return $data === null ? null : self::fromArray($data);
+    }
 }

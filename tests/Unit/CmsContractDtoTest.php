@@ -190,8 +190,7 @@ it('hydrates every remaining v1 block into its concrete DTO', function (
         'include_teaser' => true,
     ]],
     'contact form' => ['contact_form', ContactFormBlock::class, [
-        'form_handle' => 'contact',
-        'topics' => [['key' => 'general', 'label' => 'Allgemein']],
+        'form_uuid' => '11111111-1111-4111-8111-111111111111',
     ]],
     'anchor navigation' => ['anchor_navigation', AnchorNavigationBlock::class, [
         'levels' => [2, 3],

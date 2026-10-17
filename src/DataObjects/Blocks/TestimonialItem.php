@@ -13,6 +13,7 @@ final readonly class TestimonialItem
         public RichText $text,
         public string $name,
         public array $extra = [],
+        public ?string $description = null,
     ) {}
 
     /** @param array<string, mixed> $data */
@@ -21,7 +22,8 @@ final readonly class TestimonialItem
         return new self(
             text: RichText::fromArray(Data::object($data, 'text')),
             name: Data::string($data, 'name'),
-            extra: Data::extra($data, ['text', 'name']),
+            extra: Data::extra($data, ['text', 'name', 'description']),
+            description: Data::nullableString($data, 'description'),
         );
     }
 }

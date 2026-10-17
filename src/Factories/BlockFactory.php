@@ -13,7 +13,6 @@ use Lacodix\MembergySdk\DataObjects\Blocks\BlockMediaReference;
 use Lacodix\MembergySdk\DataObjects\Blocks\BlockSettings;
 use Lacodix\MembergySdk\DataObjects\Blocks\ColumnsBlock;
 use Lacodix\MembergySdk\DataObjects\Blocks\ContactFormBlock;
-use Lacodix\MembergySdk\DataObjects\Blocks\ContactTopic;
 use Lacodix\MembergySdk\DataObjects\Blocks\DownloadItem;
 use Lacodix\MembergySdk\DataObjects\Blocks\DownloadsBlock;
 use Lacodix\MembergySdk\DataObjects\Blocks\GalleryBlock;
@@ -101,7 +100,7 @@ final class BlockFactory
                 $settings,
                 Data::nullableString($data, 'title'),
                 RichText::fromArray(Data::object($data, 'body')),
-                BlockMediaReference::fromArray(Data::object($data, 'image')),
+                BlockMediaReference::fromNullableArray(Data::nullableObject($data, 'image')),
                 Data::string($data, 'position'),
                 Data::string($data, 'width'),
                 Data::extra($data, ['title', 'body', 'image', 'position', 'width']),
@@ -173,7 +172,7 @@ final class BlockFactory
                 $id,
                 $version,
                 $settings,
-                Data::string($data, 'category_uuid'),
+                Data::nullableString($data, 'category_uuid'),
                 Data::int($data, 'limit'),
                 Data::string($data, 'order'),
                 Data::bool($data, 'include_teaser'),
@@ -184,18 +183,18 @@ final class BlockFactory
                 $id,
                 $version,
                 $settings,
-                Data::string($data, 'form_handle'),
-                array_map(ContactTopic::fromArray(...), Data::objectList($data, 'topics')),
-                Data::extra($data, ['form_handle', 'topics']),
+                Data::value($data, 'form_uuid') === null ? null : Data::string($data, 'form_uuid'),
+                Data::extra($data, ['form_uuid']),
                 $extra,
             ),
             'anchor_navigation' => new AnchorNavigationBlock(
                 $id,
                 $version,
                 $settings,
-                Data::intList($data, 'levels'),
-                Data::extra($data, ['levels']),
+                array_key_exists('levels', $data) ? Data::intList($data, 'levels') : null,
+                Data::extra($data, ['levels', 'scope']),
                 $extra,
+                array_key_exists('scope', $data) ? Data::string($data, 'scope') : 'page',
             ),
             default => new UnknownBlock($id, $type, $version, $settings, $data, $payload, $extra),
         };
@@ -219,7 +218,7 @@ final class BlockFactory
             $version,
             $settings,
             Data::nullableString($data, 'title'),
-            BlockMediaReference::fromArray(Data::object($data, 'image')),
+            BlockMediaReference::fromNullableArray(Data::nullableObject($data, 'image')),
             Data::nullableString($data, 'caption'),
             $link === null ? null : Link::fromArray($link),
             Data::extra($data, ['title', 'image', 'caption', 'link']),
@@ -280,7 +279,7 @@ final class BlockFactory
             $version,
             $settings,
             Data::nullableString($data, 'title'),
-            UuidReference::fromArray(Data::object($data, 'video')),
+            UuidReference::fromNullableArray(Data::nullableObject($data, 'video')),
             $poster === null ? null : BlockMediaReference::fromArray($poster),
             Data::nullableString($data, 'caption'),
             Data::extra($data, ['title', 'video', 'poster', 'caption']),

@@ -13,7 +13,7 @@ final readonly class Link
      * @param  array<string, mixed>  $extra
      */
     public function __construct(
-        public string $url,
+        public ?string $url,
         public ?string $label,
         public bool $openInNewTab,
         public array $rel,
@@ -24,7 +24,7 @@ final readonly class Link
     public static function fromArray(array $data): self
     {
         return new self(
-            url: Data::string($data, 'url'),
+            url: Data::nullableString($data, 'url'),
             label: Data::nullableString($data, 'label'),
             openInNewTab: Data::bool($data, 'open_in_new_tab'),
             rel: Data::stringList($data, 'rel'),

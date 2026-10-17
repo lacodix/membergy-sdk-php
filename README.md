@@ -354,6 +354,80 @@ The SDK provides semantic `membergy-*` classes but deliberately no fixed theme.
 Renderer views trust only the backend-sanitized rich-text/raw-HTML contract; unknown raw
 payloads are never rendered.
 
+Each `anchor_navigation` v1 block can set `data.scope` to `page` (all supported
+blocks with a nonblank common `settings.anchor`, except this marker) or `following`
+(strictly after this marker until strictly before the next navigation marker, or
+document end). Omitted scope defaults to `page`. Every marker ends the preceding
+following range, irrespective of scope. Ordering is container-first, left-to-right,
+depth-first through columns, including the columns container itself. Other markers'
+anchors are eligible in page scope. Original anchor identities and duplicates are
+preserved; rich-text HTML IDs are not collected. Optional supplied `levels` remain
+typed inert metadata; absence does not manufacture levels. Empty ranges render an
+empty menu. Labels use existing plain heading/title text when nonblank, otherwise
+the anchor; Blade escapes labels and anchor attributes. No entries/count wire API
+is introduced. `AnchorNavigationBlock::dataToArray()` exports scope, supplied levels
+and additive data fields.
+
+`render(document)` supplies the full document context. Existing three-argument
+`renderBlocks()` / `renderBlock()` calls remain supported: page menus use the
+caller-supplied anchors; `renderBlocks()` derives following ranges from its supplied
+block list. A standalone `renderBlock()` cannot infer surrounding document order,
+so its supplied anchors are treated as the caller's selected range. The optional
+fourth navigation-range map carries full context through recursive columns. Use
+`render(document)` for whole-document selection and own-marker exclusion.
+
+`contact_form` v1 now requires `data.form_uuid` (UUID string or explicit `null`).
+`ContactFormBlock::formUuid` replaces inline `formHandle`/`topics`; old inline-only
+payloads fail hydration. The default view renders a non-actionable
+`data-membergy-form-uuid` hook for a selection and no hook for `null`. It does not
+retrieve definitions, render fields or submit answers. The backend has no retrieval
+or submit capability for these DB-backed CMS Forms yet; `/forms/{form}` belongs to
+PHP Form classes/account workflows and is not a resolver for these UUIDs.
+
+Testimonials retain `items[].name` and expose optional `description:string|null`,
+escaped separately from the backend-sanitized rich text. Missing media/file
+selections in unfinished blocks hydrate as `null`; views omit missing media and
+file links. Unselected post categories retain `null` or the empty string.
+
+These pre-release v1 contract replacements align with the frozen CMS checkpoint
+`e918dded0811b71b5ca9956b0899691784237f3f` and require paired backend/SDK deployment.
+They introduce no new contract version, migration or endpoint. Exact schema and
+synthetic examples live outside the captured HTTP fixture namespace. The existing
+real fixture-sync gate remains separately open; these mirrors do not establish a
+released/deployed consumer integration.
+
+Upgrading an application with published/custom Blade views requires manual
+reconciliation: files under `resources/views/vendor/membergy/blocks/` override the
+package's `vendor/lacodix/membergy-sdk-php/resources/views/blocks/` files, so a Composer
+upgrade alone leaves old overrides active. Back up/version your overrides, compare
+each affected file with the new package view, then merge the following changes into
+your custom markup:
+
+- `anchor-navigation.blade.php`: consume the renderer-selected `$anchors` directly;
+  remove the old `levels` filter and keep escaped link labels/attributes.
+- `columns.blade.php`: pass `$navigationAnchors ?? null` as the fourth argument to
+  `$renderer->renderBlocks($column->blocks, $included, $anchors, ...)` so nested
+  markers keep the whole-document ranges.
+- `contact-form.blade.php`: replace `formHandle`/`topics` access with nullable
+  `formUuid`; render only a non-actionable `data-membergy-form-uuid` reference hook
+  when nonnull. Do not retain an inline submission form or infer a submit endpoint.
+- `image.blade.php`, `text-image.blade.php`, `gallery.blade.php`,
+  `logo-cloud.blade.php`, `video.blade.php`, `downloads.blade.php`: guard nullable
+  image/video/file references before accessing their UUID or building URLs; retain
+  text independently where applicable. In image/gallery/logo-cloud and
+  `agenda.blade.php`, guard nullable/empty link URLs before rendering an anchor.
+- `testimonials.blade.php`: retain `name` and sanitized quote output, and render the
+  optional description with escaped Blade output only when nonnull.
+
+For an uncustomized override, compare it first and deliberately replace that one
+file with the matching package view. Publishing with `--tag=membergy-views` without
+`--force` can add missing files but does not upgrade existing overrides. Do not
+blindly force-republish the directory or overwrite custom views. After merging,
+clear compiled views with `php artisan view:clear` in the consumer's normal deployment
+workflow. Smoke-test page/following menus across columns, empty media selections,
+Form UUID/null hooks and testimonial escaping in that consumer. These instructions
+do not claim execution against any published/custom consumer installation.
+
 See [the compatibility matrix](docs/compatibility.md) for the supported API and contract
 versions.
 
@@ -374,6 +448,12 @@ backend response fixtures plus the separate `block-registry.json`. The cross-rep
 gate requires `MEMBERGY_BACKEND_ROOT` to point to the authoritative backend checkout;
 a missing checkout fails the gate and is never skipped. It checks missing and extra
 files in both repositories and byte-identical responses and BlockRegistry.
+The corrected SDK BlockRegistry now matches backend checkpoint
+`e918dded0811b71b5ca9956b0899691784237f3f` byte-for-byte: columns no longer lists
+columns in `allowed_children`. The older candidate registry was stale, so earlier
+blanket registry/fixture parity claims are superseded. The independent full gate
+still fails on the backend's extra unfinished authoring input (59 versus58); the
+58 HTTP captures and count guard remain unchanged.
 
 Registration fixtures live separately under `tests/Fixtures/Contracts/Registration/v1`:
 43 captured backend responses (including the exact PDF bytes), their request/status/header

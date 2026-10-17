@@ -29,6 +29,35 @@ The machine-readable equivalent is returned by:
 $matrix = $client->compatibility();
 ```
 
+The pre-release CMS v1 replacement is aligned in source with backend checkpoint
+`e918dded0811b71b5ca9956b0899691784237f3f`. It requires paired backend/SDK deployment:
+`contact_form.data.form_uuid` (required UUID|null) replaces inline handle/topics;
+anchor scopes select common anchors on all supported blocks and optional `levels`
+are inert metadata; testimonial `name` stays unchanged with optional typed
+`description`; unfinished media/file references admit null. This explicitly
+authorized replacement uses block/document version 1 without a migration or a new
+public endpoint. It is an exception during pre-release development to the versioned
+compatibility rules below, not a promise that later breaking changes remain v1.
+
+The Form view is only a UUID hook. Definition retrieval, field rendering and
+submission for DB-backed CMS Forms remain missing backend capabilities. Existing
+account/PHP-class Forms endpoints do not supply them. Schema/example mirrors in
+`tests/Fixtures/Contracts/AnchorNavigation/v1` and the exact backend authoring example
+in `tests/Fixtures/Contracts/BlockWire/v1` are separate from captured HTTP evidence.
+The unchanged real CMS fixture-sync gate still reports 59 backend files versus its
+frozen 58 expectation; no capture/count was rewritten to claim whole-backend parity.
+The SDK's separate `block-registry.json` descriptor is now corrected to the exact
+backend bytes: `columns.allowed_children` excludes nested columns. The older
+candidate registry did not match; earlier blanket registry/fixture parity claims
+are superseded. This descriptor correction does not make the 59/58 gate green.
+
+Consumers with published/custom `membergy::blocks.*` overrides must reconcile them
+with the new package views before using these DTOs/renderer semantics. A Composer
+upgrade does not replace existing published views. Follow the [view upgrade steps
+in the README](../README.md#usage-laravel): merge the anchor selection/column context,
+Form UUID, nullable media/link and testimonial changes while preserving custom
+markup; do not blindly force-republish. Consumer execution remains a separate gate.
+
 Compatibility rules:
 
 - a new URL API version requires a new compatible SDK line;

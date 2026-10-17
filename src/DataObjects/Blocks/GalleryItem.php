@@ -10,7 +10,7 @@ final readonly class GalleryItem
 {
     /** @param array<string, mixed> $extra */
     public function __construct(
-        public BlockMediaReference $image,
+        public ?BlockMediaReference $image,
         public ?string $caption,
         public ?string $overlayText,
         public ?Link $link,
@@ -23,7 +23,7 @@ final readonly class GalleryItem
         $link = Data::nullableObject($data, 'link');
 
         return new self(
-            image: BlockMediaReference::fromArray(Data::object($data, 'image')),
+            image: BlockMediaReference::fromNullableArray(Data::nullableObject($data, 'image')),
             caption: Data::nullableString($data, 'caption'),
             overlayText: Data::nullableString($data, 'overlay_text'),
             link: $link === null ? null : Link::fromArray($link),

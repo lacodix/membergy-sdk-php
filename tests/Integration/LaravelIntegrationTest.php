@@ -228,8 +228,7 @@ final class LaravelIntegrationTest extends TestCase
                     'type' => 'contact_form',
                     'version' => 1,
                     'data' => [
-                        'form_handle' => 'contact',
-                        'topics' => [['key' => 'general', 'label' => 'General']],
+                        'form_uuid' => '11111111-1111-4111-8111-111111111111',
                     ],
                     'settings' => [],
                 ],
@@ -261,7 +260,7 @@ final class LaravelIntegrationTest extends TestCase
             'Concert film',
             'Excellent.',
             'Erfolg beim Wertungsspiel',
-            'General',
+            'data-membergy-form-uuid="11111111-1111-4111-8111-111111111111"',
             'href="#linked-section"',
         ] as $expected) {
             self::assertStringContainsString($expected, $html);

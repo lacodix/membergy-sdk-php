@@ -10,7 +10,7 @@ final readonly class LogoItem
 {
     /** @param array<string, mixed> $extra */
     public function __construct(
-        public BlockMediaReference $image,
+        public ?BlockMediaReference $image,
         public ?Link $link,
         public array $extra = [],
     ) {}
@@ -21,7 +21,7 @@ final readonly class LogoItem
         $link = Data::nullableObject($data, 'link');
 
         return new self(
-            image: BlockMediaReference::fromArray(Data::object($data, 'image')),
+            image: BlockMediaReference::fromNullableArray(Data::nullableObject($data, 'image')),
             link: $link === null ? null : Link::fromArray($link),
             extra: Data::extra($data, ['image', 'link']),
         );
