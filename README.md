@@ -99,6 +99,53 @@ $client->newsletter()->requestUnsubscribe('guest@example.org');
 $client->withoutUserToken()->newsletter()->unsubscribeAll($opaqueUnsubscribeToken);
 ```
 
+Posts use offset pagination by default; `page(2)->perPage(10)` keeps that behavior.
+For newest-first cursor pagination (publication date, then ID, descending), opt in
+explicitly, including on the first page:
+
+```php
+$posts = $client->content()->posts()->category('news')->cursor()->perPage(10);
+$first = $posts->get();
+
+if ($first->hasMorePages()) {
+    $next = $posts->cursor($first->nextCursor())->get();
+    if ($next->previousCursor() !== null) {
+        $previous = $posts->cursor($next->previousCursor())->get();
+    }
+}
+```
+
+`cursor()` and `cursor(null)` select the initial cursor page and clear any previous
+cursor or page number. Non-null blank cursors are rejected; other cursors are opaque
+and sent unchanged. Keep the same category and page size when following cursors.
+Each chained call returns a new resource. Calling `page(n)` selects offset pagination
+again and clears cursor settings.
+
+Select multiple categories or exclude categories on the server before pagination:
+
+```php
+$posts = $client->content()->posts()
+    ->categories('news', 'reports')
+    ->excludeCategories('archive')
+    ->cursor()
+    ->perPage(10);
+$first = $posts->get();
+```
+
+`categories(string ...$slugs)` uses OR inclusion. `excludeCategories(string ...$slugs)`
+can accompany either inclusion method; exclusions win overlap. Exclusions alone retain
+uncategorized posts. Each method requires 1–100 nonblank strings of at most 255 Unicode
+characters and rejects named argument keys. Values are sent unchanged. Combining
+`category()` with `categories()` throws `InvalidArgumentException` in either order;
+empty lists and invalid bounds also fail locally before any request. Filters survive
+`page()`, `cursor()` and `cursor(null)` chaining without mutating the base resource.
+
+Cursor results contain the same `PostSummary` items. Use `nextCursor()`,
+`previousCursor()` and `hasMorePages()` to navigate. `meta` contains `per_page`, `path`,
+`next_cursor` and `prev_cursor`; `links` contains `prev`/`next` URLs and null
+`first`/`last`. Offset totals and page numbers are unavailable in cursor mode:
+`currentPage()`, `lastPage()` and `total()` return null.
+
 The public subscribe and unsubscribe-request calls return a neutral status and never
 expose whether the email address or subscription exists. By default, expiring signed
 links sent by Membergy open its scanner-safe browser landing. A tenant-configured,
