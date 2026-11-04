@@ -22,7 +22,7 @@ use Saloon\Http\Response;
 
 function hardenedLoginClient(MockClient $mock): MembergyClient
 {
-    $connector = new MembergyConnector('https://membergy.test', 'demo', 'old-website-token');
+    $connector = new MembergyConnector('https://membergy.test', 'demo', 'old-website-token', cmsToken: testCmsToken());
     $connector->withMockClient($mock);
 
     return MembergyClient::fromConnector($connector);
@@ -107,7 +107,7 @@ it('keeps credentials challenges codes confirmations and token values out of req
     ];
     foreach ($requests as $request) {
         $mock = new MockClient([$request::class => MockResponse::make(['data' => ['access_token' => 'SecretTokenValue']])]);
-        $connector = new MembergyConnector('https://membergy.test', 'demo', 'SecretBearerValue');
+        $connector = new MembergyConnector('https://membergy.test', 'demo', 'SecretBearerValue', cmsToken: testCmsToken());
         $connector->withMockClient($mock);
         $called = false;
         $debugger = function () use (&$called): void {

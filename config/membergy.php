@@ -30,6 +30,10 @@ return [
     */
     'tenant' => env('MEMBERGY_TENANT'),
 
+    // Required server-only Tenant CMS credential; independent of the visitor bearer.
+    // Never publish this value into URLs, browser configuration, markup or logs.
+    'cms_token' => env('MEMBERGY_CMS_TOKEN'),
+
     /*
     |---------------------------------------------------------------------------
     | User Token (optional)

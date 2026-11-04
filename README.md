@@ -52,6 +52,7 @@ use Lacodix\MembergySdk\MembergyClient;
 $client = new MembergyClient(
     baseUrl: 'https://membergy.app',
     tenant:  'my-club',
+    cmsToken: $serverCmsToken, // Load from your server-side secret store.
 );
 
 $page = $client->content()->pages()->find('willkommen');
@@ -235,6 +236,9 @@ Only successful JSON GET/HEAD responses with explicit compatible `Cache-Control`
 directives are stored. Fresh entries avoid a request; stale entries revalidate with both
 `If-None-Match` and `If-Modified-Since`, and a `304` restores the cached body.
 Server `no-store` always wins. Public and member keys use separate stores/scopes;
+both partitions also include a fingerprint of the Tenant CMS credential, so credentials
+cannot share cached content. No raw credential is stored in cache keys or tags. Existing
+cache entries become cold after this authentication change or a CMS credential rotation.
 response keys are opaque hashes of the namespace and request identity, never raw URLs
 or bearer tokens. Laravel leaves
 member caching disabled by default.
@@ -308,11 +312,47 @@ Add to `.env`:
 ```
 MEMBERGY_URL=https://membergy.app
 MEMBERGY_TENANT=my-club
+MEMBERGY_CMS_TOKEN=<tenant-cms-credential-from-secret-store>
 ```
 
 `MEMBERGY_URL` defaults to `https://membergy.app`. Point it at the reachable
 local or review instance when developing a consumer application, for example
 `MEMBERGY_URL=http://membergy.test`.
+
+`MEMBERGY_CMS_TOKEN` is required for every SDK transport call, including guest login,
+password, newsletter, contact and registration calls. It is a Tenant-owned credential
+with fixed `cms` scope, carried in `X-Membergy-Cms-Token`; it is independent of the
+optional visitor `Authorization` bearer and survives `withoutUserToken()` and all client
+copies. Missing or blank configuration throws `CmsAuthenticationException` locally before
+network or response-cache access. Existing positional constructor arguments keep their
+positions; append the named `cmsToken` argument. `fromConnector()` uses that connector's
+credential; supplying another `cmsToken` alongside an injected connector is rejected.
+HTTP 401 with top-level code `cms_client_unauthenticated` also throws
+`CmsAuthenticationException`, independently of visitor authentication. Existing visitor
+401 codes, including `cms_unauthenticated`, keep their authentication exceptions; a rejected
+CMS credential must not expire an otherwise valid visitor session.
+Set visitor identity through the constructor or immutable user-token copy methods.
+Replacing `Authorization` through inherited Saloon authenticators/headers or PSR hooks
+is rejected, so a request cannot reuse another visitor's private cache partition.
+
+Keep the CMS credential server-side. Never place it in browser configuration, media URLs,
+HTML or logs. The exact browser binary image/file routes remain key-exempt with their
+existing visibility/revision checks; JSON metadata calls require the key. URL builders
+perform no transport and remain usable without a key. No media proxy is introduced.
+
+SDK transport accepts only the configured trusted HTTP(S) origin, with redirects and raw
+sender diagnostics disabled. SDK debug callbacks are suppressed for all requests while
+their existing `die` stop timing is retained. Client serialization is rejected. CMS
+headers are applied only to the outgoing PSR request and removed from retained response
+request metadata; reflected credentials are redacted from responses before errors/cache.
+The SDK uses its own Guzzle sender instead of global Laravel event/telemetry senders;
+raw `debug`, `on_stats` and `on_headers` sender callbacks are disabled. Do not log low-level
+transport objects or manually inspect/send credential-bearing outgoing PSR requests.
+
+The current credential-gated backend returns content data/actions `private, no-store`
+without validators. The SDK honors that directive. Its conditional cache machinery stays
+available for compatible responses; a fresh cached entry cannot detect server-side
+revocation until revalidation/expiry, and authoritative 401/403 always replace stale data.
 
 Then resolve the client from the container or use the facade:
 

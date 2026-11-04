@@ -43,7 +43,7 @@ it('builds tenant-scoped public media URLs and rejects unsafe identifiers', func
 });
 
 it('exposes and enforces the SDK to API compatibility matrix', function () {
-    $client = new MembergyClient('https://members.example.org', 'demo');
+    $client = new MembergyClient('https://members.example.org', 'demo', cmsToken: testCmsToken());
 
     expect($client->compatibility())->toBe(Compatibility::matrix())
         ->and($client->compatibility())->toBe([
@@ -60,5 +60,5 @@ it('exposes and enforces the SDK to API compatibility matrix', function () {
             'https://members.example.org',
             'demo',
             apiVersion: 'v2',
-        ))->toThrow(UnsupportedApiVersionException::class);
+            cmsToken: testCmsToken(), ))->toThrow(UnsupportedApiVersionException::class);
 });

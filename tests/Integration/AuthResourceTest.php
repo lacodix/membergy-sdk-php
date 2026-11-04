@@ -27,7 +27,7 @@ function authClient(MockClient $mock, ?string $token = null): MembergyClient
         baseUrl: 'https://api.membergy.test',
         tenant: 'demo',
         userToken: $token,
-    );
+        cmsToken: testCmsToken(), );
     $connector->withMockClient($mock);
 
     return MembergyClient::fromConnector($connector);

@@ -14,7 +14,7 @@ use Saloon\Http\Faking\MockResponse;
 
 it('issues the typed sensitive management login through the self-service contract', function () {
     $mock = new MockClient([IssueManagementLoginRequest::class => MockResponse::make(contractFixture('me/management-login.json'))]);
-    $connector = new MembergyConnector(baseUrl: 'https://api.membergy.test', tenant: 'club', userToken: 'member-token');
+    $connector = new MembergyConnector(baseUrl: 'https://api.membergy.test', tenant: 'club', userToken: 'member-token', cmsToken: testCmsToken());
     $connector->withMockClient($mock);
     $login = MembergyClient::fromConnector($connector)->me()->managementLogin();
     expect($login)->toBeInstanceOf(ManagementLogin::class);
@@ -30,7 +30,7 @@ it('issues the typed sensitive management login through the self-service contrac
 
 it('maps management login failures through the existing self-service exceptions', function (int $status, string $fixture, string $exception) {
     $mock = new MockClient([IssueManagementLoginRequest::class => MockResponse::make(contractFixture($fixture), $status)]);
-    $connector = new MembergyConnector(baseUrl: 'https://api.membergy.test', tenant: 'club', userToken: 'member-token');
+    $connector = new MembergyConnector(baseUrl: 'https://api.membergy.test', tenant: 'club', userToken: 'member-token', cmsToken: testCmsToken());
     $connector->withMockClient($mock);
     expect(fn () => MembergyClient::fromConnector($connector)->me()->managementLogin())->toThrow($exception);
 })->with([
@@ -51,7 +51,7 @@ it('suppresses connector request and response debug callbacks for management tic
         baseUrl: 'https://api.membergy.test',
         tenant: 'club',
         userToken: $authenticated ? 'member-token' : null,
-    );
+        cmsToken: testCmsToken(), );
     $connector->withMockClient($mock);
     $requestCalls = 0;
     $responseCalls = 0;
@@ -71,7 +71,7 @@ it('suppresses connector request and response debug callbacks for management tic
 
 it('suppresses direct request debug hooks and masks management login payloads', function (bool $callbacks) {
     $mock = new MockClient([IssueManagementLoginRequest::class => MockResponse::make(contractFixture('me/management-login.json'))]);
-    $connector = new MembergyConnector(baseUrl: 'https://api.membergy.test', tenant: 'club', userToken: 'member-token');
+    $connector = new MembergyConnector(baseUrl: 'https://api.membergy.test', tenant: 'club', userToken: 'member-token', cmsToken: testCmsToken());
     $connector->withMockClient($mock);
     $request = new IssueManagementLoginRequest('club');
     $requestCalls = 0;

@@ -95,6 +95,7 @@ class MembergyServiceProvider extends ServiceProvider
                 baseUrl: (string) $config['base_url'],
                 tenant: (string) $config['tenant'],
                 userToken: is_string($token) && $token !== '' ? $token : null,
+                cmsToken: is_string($config['cms_token'] ?? null) ? $config['cms_token'] : null,
                 apiVersion: (string) ($config['api_version'] ?? 'v1'),
                 responseCache: (bool) ($config['cache']['enabled'] ?? true)
                     ? $app->make(ResponseCache::class)

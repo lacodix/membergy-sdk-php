@@ -28,7 +28,7 @@ it('consumes a complete website snapshot through the public SDK surface', functi
         ShowImageRequest::class => MockResponse::make(contractFixture('media/image-show.json')),
         ShowFileRequest::class => MockResponse::make(contractFixture('media/file-show.json')),
     ]);
-    $connector = new MembergyConnector('https://api.membergy.test', 'demo');
+    $connector = new MembergyConnector('https://api.membergy.test', 'demo', cmsToken: testCmsToken());
     $connector->withMockClient($mock);
     $client = MembergyClient::fromConnector($connector);
 

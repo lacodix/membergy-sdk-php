@@ -27,6 +27,7 @@ use Psr\SimpleCache\CacheInterface;
  *   $client = new MembergyClient(
  *       baseUrl: 'https://membergy.app',
  *       tenant:  'my-club',
+ *       cmsToken: $serverCmsToken,
  *   );
  *
  *   $posts = $client->content()->posts()->get();
@@ -50,7 +51,7 @@ class MembergyClient
     public function __construct(
         string $baseUrl,
         string $tenant,
-        ?string $userToken = null,
+        #[\SensitiveParameter] ?string $userToken = null,
         string $apiVersion = 'v1',
         ?MembergyConnector $connector = null,
         ?ResponseCache $responseCache = null,
@@ -58,7 +59,11 @@ class MembergyClient
         float $requestTimeout = 15.0,
         int $tries = 3,
         int $retryInterval = 200,
+        #[\SensitiveParameter] ?string $cmsToken = null,
     ) {
+        if ($connector !== null && $cmsToken !== null) {
+            throw new \InvalidArgumentException('Configure the CMS credential on the injected connector only.');
+        }
         $this->connector = $connector ?? new MembergyConnector(
             baseUrl: $baseUrl,
             tenant: $tenant,
@@ -69,6 +74,7 @@ class MembergyClient
             requestTimeout: $requestTimeout,
             tries: $tries,
             retryInterval: $retryInterval,
+            cmsToken: $cmsToken,
         );
     }
 
@@ -163,5 +169,11 @@ class MembergyClient
     public function connector(): MembergyConnector
     {
         return $this->connector;
+    }
+
+    /** @return array<never, never> */
+    public function __serialize(): array
+    {
+        throw new \LogicException('Membergy clients cannot be serialized.');
     }
 }

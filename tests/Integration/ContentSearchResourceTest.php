@@ -37,7 +37,7 @@ function contentSearchClient(
         responseCache: $cache,
         tries: 1,
         retryInterval: 0,
-    );
+        cmsToken: testCmsToken(), );
     $connector->withMockClient($mock);
 
     return MembergyClient::fromConnector($connector);

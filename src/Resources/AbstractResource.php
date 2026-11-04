@@ -7,6 +7,7 @@ namespace Lacodix\MembergySdk\Resources;
 use Lacodix\MembergySdk\Connectors\MembergyConnector;
 use Lacodix\MembergySdk\DataObjects\PaginatedResult;
 use Lacodix\MembergySdk\Exceptions\AuthenticationException;
+use Lacodix\MembergySdk\Exceptions\CmsAuthenticationException;
 use Lacodix\MembergySdk\Exceptions\HttpRequestException;
 use Lacodix\MembergySdk\Exceptions\InvalidCredentialsException;
 use Lacodix\MembergySdk\Exceptions\PasswordConfirmationRequiredException;
@@ -81,6 +82,10 @@ abstract class AbstractResource
             $code = $this->errorCode($payload);
 
             if ($status === 401) {
+                if ($code === 'cms_client_unauthenticated') {
+                    throw new CmsAuthenticationException;
+                }
+
                 if ($code === 'auth_invalid_credentials') {
                     throw new InvalidCredentialsException('The Membergy API rejected the supplied credentials.');
                 }
@@ -127,7 +132,7 @@ abstract class AbstractResource
         }
     }
 
-    private function errorPayload(#[SensitiveParameter] Response $response): mixed
+    protected function errorPayload(#[SensitiveParameter] Response $response): mixed
     {
         try {
             return $response->json();
@@ -136,7 +141,7 @@ abstract class AbstractResource
         }
     }
 
-    private function errorCode(#[SensitiveParameter] mixed $payload): ?string
+    protected function errorCode(#[SensitiveParameter] mixed $payload): ?string
     {
         if (! is_array($payload)) {
             return null;
