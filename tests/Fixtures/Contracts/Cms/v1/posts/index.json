@@ -19,6 +19,7 @@
         "url": "https://api.membergy.test/api/v1/tenant/demo/content/image/22222222-2222-4222-8222-222222222222?v=1"
       },
       "visibility": "public",
+      "has_member_continuation": false,
       "published_at": "2026-08-08T10:00:00+00:00",
       "updated_at": "2026-08-08T12:30:00+00:00"
     }

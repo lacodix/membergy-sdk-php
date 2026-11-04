@@ -10,6 +10,7 @@ use Lacodix\MembergySdk\DataObjects\BlockDocument;
 use Lacodix\MembergySdk\DataObjects\Blocks\AnchorNavigationBlock;
 use Lacodix\MembergySdk\DataObjects\Blocks\Block;
 use Lacodix\MembergySdk\DataObjects\Blocks\ColumnsBlock;
+use Lacodix\MembergySdk\DataObjects\Blocks\MemberContinuationBlock;
 use Lacodix\MembergySdk\DataObjects\Blocks\TitleBlock;
 use Lacodix\MembergySdk\DataObjects\Blocks\UnknownBlock;
 use Lacodix\MembergySdk\DataObjects\DynamicIncludes;
@@ -30,15 +31,18 @@ final readonly class BladeContentRenderer implements ContentRenderer
         'post_category' => 'membergy::blocks.post-category',
         'raw_html' => 'membergy::blocks.raw-html',
         'testimonials' => 'membergy::blocks.testimonials',
+        'table' => 'membergy::blocks.table',
         'text' => 'membergy::blocks.text',
         'text_image' => 'membergy::blocks.text-image',
         'title' => 'membergy::blocks.title',
         'video' => 'membergy::blocks.video',
     ];
 
+    /** @param array<string, list<array{id: string, title: string, level?: int}>>|null $navigationContext */
     public function __construct(
         private Factory $views,
         private MediaUrlFactory $mediaUrls,
+        private ?array $navigationContext = null,
     ) {}
 
     public function render(BlockDocument $document, ?DynamicIncludes $included = null): string
@@ -62,10 +66,13 @@ final readonly class BladeContentRenderer implements ContentRenderer
         array $anchors = [],
         ?array $navigationAnchors = null,
     ): string {
-        $navigationAnchors ??= $this->navigationAnchors($blocks);
+        $navigationAnchors ??= $this->navigationContext ?? $this->navigationAnchors($blocks);
+        // An immutable renderer for this render tree keeps published three-argument
+        // column overrides working without request state on the shared service.
+        $renderer = new self($this->views, $this->mediaUrls, $navigationAnchors);
 
         return implode('', array_map(
-            fn (Block $block): string => $this->renderBlock($block, $included, $anchors, $navigationAnchors),
+            fn (Block $block): string => $renderer->renderBlock($block, $included, $anchors, $navigationAnchors),
             $blocks,
         ));
     }
@@ -80,6 +87,8 @@ final readonly class BladeContentRenderer implements ContentRenderer
         array $anchors = [],
         ?array $navigationAnchors = null,
     ): string {
+        $navigationAnchors ??= $this->navigationContext;
+
         if ($block instanceof UnknownBlock) {
             return '';
         }
@@ -156,7 +165,7 @@ final readonly class BladeContentRenderer implements ContentRenderer
     /** @return array{id: string, title: string, level?: int}|null */
     private function anchor(Block $block): ?array
     {
-        if ($block instanceof UnknownBlock || ! property_exists($block, 'settings')) {
+        if ($block instanceof UnknownBlock || $block instanceof MemberContinuationBlock || ! property_exists($block, 'settings')) {
             return null;
         }
         $anchor = $block->settings->anchor;

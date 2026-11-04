@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://membergy.app/schemas/cms/v1/newsletter.schema.json",
+  "title": "Membergy public newsletter contract v1",
+  "oneOf": [
+    { "$ref": "#/definitions/categoriesResponse" },
+    { "$ref": "#/definitions/confirmationRequestedResponse" },
+    { "$ref": "#/definitions/confirmationProcessedResponse" },
+    { "$ref": "#/definitions/unsubscribeLinkRequestedResponse" },
+    { "$ref": "#/definitions/unsubscribeProcessedResponse" }
+  ],
+  "definitions": {
+    "category": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["uuid", "name", "visibility"],
+      "properties": {
+        "uuid": { "$ref": "common.schema.json#/definitions/uuid" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 255 },
+        "visibility": { "$ref": "common.schema.json#/definitions/visibility" }
+      }
+    },
+    "categoriesResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["data"],
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/category" }
+        }
+      }
+    },
+    "confirmationRequestedResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": { "const": "confirmation_requested" }
+      }
+    },
+    "confirmationProcessedResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": { "const": "confirmation_processed" }
+      }
+    },
+    "unsubscribeLinkRequestedResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": { "const": "unsubscribe_link_requested" }
+      }
+    },
+    "unsubscribeProcessedResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": { "const": "unsubscribe_processed" }
+      }
+    }
+  }
+}

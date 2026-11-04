@@ -401,8 +401,11 @@
           "type": "string",
           "enum": [
             "cms_unauthenticated",
+            "cms_client_unauthenticated",
+            "cms_forbidden",
             "cms_not_found",
             "cms_rate_limited",
+            "cms_contact_unavailable",
             "cms_validation_failed"
           ]
         },

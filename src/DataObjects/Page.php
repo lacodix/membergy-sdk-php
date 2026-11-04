@@ -25,6 +25,7 @@ final readonly class Page
         public DateTimeImmutable $updatedAt,
         public ?DynamicIncludes $included = null,
         public array $extra = [],
+        public bool $hasMemberContinuation = false,
     ) {}
 
     /**
@@ -47,6 +48,7 @@ final readonly class Page
             publishedAt: Data::nullableDate($data, 'published_at'),
             updatedAt: Data::date($data, 'updated_at'),
             included: $included === null ? null : DynamicIncludes::fromArray($included),
+            hasMemberContinuation: array_key_exists('has_member_continuation', $data) ? Data::bool($data, 'has_member_continuation') : false,
             extra: Data::extra($data, [
                 'uuid', 'title', 'title_on_page', 'slug', 'is_start', 'visibility',
                 'hero', 'seo', 'presentation', 'content', 'published_at', 'updated_at',

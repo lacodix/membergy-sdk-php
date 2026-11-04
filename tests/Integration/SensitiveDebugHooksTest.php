@@ -86,7 +86,7 @@ dataset('sensitive debug requests', [
 it('suppresses sensitive request and response hooks and object dumps without changing the wire', function (string $kind, string $marker, string $level, string $mode) {
     $request = sensitiveDebugRequest($kind);
     $mock = new MockClient([MockResponse::make(['secret' => 'synthetic-response-secret'], headers: ['X-Debug-Secret' => 'synthetic-response-header'])]);
-    $connector = new MembergyConnector('https://sdk.membergy.test', 'contract-club', tries: 1);
+    $connector = new MembergyConnector('https://sdk.membergy.test', 'contract-club', tries: 1, cmsToken: testCmsToken());
     $connector->withMockClient($mock);
     $owner = $level === 'connector' ? $connector : $request;
     $calls = 0;
@@ -123,9 +123,9 @@ it('suppresses sensitive request and response hooks and object dumps without cha
     $mock->assertSentCount(1);
 })->with('sensitive debug requests')->with(['connector', 'request'])->with(['callback', 'stdout']);
 
-it('preserves ordinary request and response debugging', function (string $level, string $mode) {
+it('suppresses ordinary request and response debugging with the server credential', function (string $level, string $mode) {
     $request = new ShowPageRequest('contract-club', 'ordinary-page');
-    $connector = new MembergyConnector('https://sdk.membergy.test', 'contract-club', tries: 1);
+    $connector = new MembergyConnector('https://sdk.membergy.test', 'contract-club', tries: 1, cmsToken: testCmsToken());
     $connector->withMockClient(new MockClient([MockResponse::make(['title' => 'ordinary-response'])]));
     $owner = $level === 'connector' ? $connector : $request;
     $oldHandler = VarDumper::setHandler(static function (mixed $value): void {
@@ -149,7 +149,7 @@ it('preserves ordinary request and response debugging', function (string $level,
         VarDumper::setHandler($oldHandler);
     }
 
-    expect($output)->toContain('ordinary-page', 'ordinary-response');
+    expect($output)->toBe('');
 })->with(['connector', 'request'])->with(['callback', 'stdout']);
 
 it('keeps the resume exchange and header out of debugging on a subsequent ordinary request', function (string $mode) {
@@ -158,7 +158,7 @@ it('keeps the resume exchange and header out of debugging on a subsequent ordina
         MockResponse::make(['secret' => 'synthetic-registration-response']),
         MockResponse::make(['title' => 'ordinary-response']),
     ]);
-    $connector = new MembergyConnector('https://sdk.membergy.test', 'contract-club', tries: 1);
+    $connector = new MembergyConnector('https://sdk.membergy.test', 'contract-club', tries: 1, cmsToken: testCmsToken());
     $connector->withMockClient($mock);
     $oldHandler = VarDumper::setHandler(static function (mixed $value): void {
         var_dump($value);
@@ -186,7 +186,7 @@ it('keeps the resume exchange and header out of debugging on a subsequent ordina
 
     expect($offer->getPendingRequest()->headers()->get(AbstractRegistrationRequest::RESUME_HEADER))->toBe(str_repeat('c', 64))
         ->and($ordinary->getPendingRequest()->headers()->get(AbstractRegistrationRequest::RESUME_HEADER))->toBeNull()
-        ->and($output)->toContain('ordinary-page', 'ordinary-response')
+        ->and($output)->toBe('')
         ->and($output)->not->toContain('synthetic-exchange-token', str_repeat('c', 64), 'synthetic-registration-response');
     $mock->assertSentCount(3);
 })->with(['callback', 'stdout']);
@@ -197,7 +197,7 @@ it('stops a sensitive POST before transmission when request debugging uses die',
     $submission['email'] = 'synthetic-die@example.test';
     $request = new SubmitRegistrationApplicationRequest('contract-club', 'membership', RegistrationSubmission::fromArray($submission));
     $mock = new MockClient([MockResponse::make(['secret' => 'synthetic-response-secret'])]);
-    $connector = new MembergyConnector('https://sdk.membergy.test', 'contract-club', tries: 1);
+    $connector = new MembergyConnector('https://sdk.membergy.test', 'contract-club', tries: 1, cmsToken: testCmsToken());
     $connector->withMockClient($mock);
     $sentinel = new LogicException('Debugger stopped before transmission.');
     $oldDieHandler = Debugger::$dieHandler;
@@ -244,7 +244,7 @@ it('stops a sensitive POST before transmission when request debugging uses die',
 it('stops after a sensitive POST response when response debugging uses die without dumping secrets', function (string $mode) {
     $request = sensitiveDebugRequest('submission');
     $mock = new MockClient([MockResponse::make(['secret' => 'synthetic-response-secret', 'email' => 'synthetic-die@example.test'])]);
-    $connector = new MembergyConnector('https://sdk.membergy.test', 'contract-club', tries: 1);
+    $connector = new MembergyConnector('https://sdk.membergy.test', 'contract-club', tries: 1, cmsToken: testCmsToken());
     $connector->withMockClient($mock);
     $sentinel = new LogicException('Debugger stopped after receipt.');
     $oldDieHandler = Debugger::$dieHandler;
@@ -289,7 +289,7 @@ it('stops after a sensitive POST response when response debugging uses die witho
 })->with(['callback', 'debug stdout']);
 
 it('preserves die for ordinary request and response debugging', function () {
-    $connector = new MembergyConnector('https://sdk.membergy.test', 'contract-club', tries: 1);
+    $connector = new MembergyConnector('https://sdk.membergy.test', 'contract-club', tries: 1, cmsToken: testCmsToken());
     $connector->withMockClient(new MockClient([MockResponse::make(['title' => 'ordinary-response'])]));
     $dies = 0;
     $oldHandler = Debugger::$dieHandler;
@@ -314,7 +314,7 @@ function assertSafeDebugStop(Request $request, string $owner, string $phase, str
 
         return MockResponse::make(['secret' => 'synthetic-response-secret', 'email' => 'synthetic@example.test']);
     }]);
-    $connector = new MembergyConnector('https://sdk.membergy.test', 'contract-club', $authenticated ? 'synthetic-bearer-marker' : null, tries: 1);
+    $connector = new MembergyConnector('https://sdk.membergy.test', 'contract-club', $authenticated ? 'synthetic-bearer-marker' : null, tries: 1, cmsToken: testCmsToken());
     $connector->withMockClient($mock);
     $sentinel = new LogicException('Safe debugger stop.');
     $oldDieHandler = Debugger::$dieHandler;
@@ -405,7 +405,7 @@ it('checks authentication per send when the same request debug hooks are reused'
         echo $response->body();
     });
     foreach ([false, true, false] as $authenticated) {
-        $connector = new MembergyConnector('https://sdk.membergy.test', 'contract-club', $authenticated ? 'synthetic-bearer-marker' : null, tries: 1);
+        $connector = new MembergyConnector('https://sdk.membergy.test', 'contract-club', $authenticated ? 'synthetic-bearer-marker' : null, tries: 1, cmsToken: testCmsToken());
         $mock = new MockClient([MockResponse::make(['title' => 'ordinary-response'])]);
         $connector->withMockClient($mock);
         ob_start();
@@ -416,11 +416,7 @@ it('checks authentication per send when the same request debug hooks are reused'
             ob_end_clean();
         }
         expect($response->getPsrRequest()->getHeaderLine('Authorization') === ($authenticated ? 'Bearer synthetic-bearer-marker' : ''))->toBeTrue();
-        if ($authenticated) {
-            expect($output)->toBe('');
-        } else {
-            expect($output)->toContain('ordinary-page', 'ordinary-response');
-        }
+        expect($output)->toBe('');
         $mock->assertSentCount(1);
     }
 });

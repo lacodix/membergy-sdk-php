@@ -1,0 +1,113 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://membergy.app/schemas/cms/v1/page.schema.json",
+  "title": "Membergy public page responses v1",
+  "oneOf": [
+    { "$ref": "#/definitions/detailResponse" },
+    { "$ref": "#/definitions/collectionResponse" }
+  ],
+  "definitions": {
+    "pageVisibility": { "$ref": "post.schema.json#/definitions/postVisibility" },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "uuid",
+        "title",
+        "title_on_page",
+        "slug",
+        "is_start",
+        "visibility",
+        "has_member_continuation",
+        "hero_media",
+        "published_at",
+        "updated_at"
+      ],
+      "properties": {
+        "uuid": { "$ref": "common.schema.json#/definitions/uuid" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "title_on_page": { "type": ["string", "null"], "maxLength": 500 },
+        "slug": { "type": "string", "minLength": 1, "maxLength": 255 },
+        "is_start": { "type": "boolean" },
+        "visibility": { "$ref": "#/definitions/pageVisibility" },
+        "has_member_continuation": { "type": "boolean" },
+        "hero_media": { "$ref": "common.schema.json#/definitions/nullablePublicMediaReference" },
+        "published_at": { "$ref": "common.schema.json#/definitions/nullableDateTime" },
+        "updated_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "detail": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "uuid",
+        "title",
+        "title_on_page",
+        "slug",
+        "is_start",
+        "visibility",
+        "has_member_continuation",
+        "hero",
+        "seo",
+        "presentation",
+        "content",
+        "published_at",
+        "updated_at"
+      ],
+      "properties": {
+        "uuid": { "$ref": "common.schema.json#/definitions/uuid" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "title_on_page": { "type": ["string", "null"], "maxLength": 500 },
+        "slug": { "type": "string", "minLength": 1, "maxLength": 255 },
+        "is_start": { "type": "boolean" },
+        "visibility": { "$ref": "#/definitions/pageVisibility" },
+        "has_member_continuation": { "type": "boolean" },
+        "hero": { "$ref": "common.schema.json#/definitions/hero" },
+        "seo": { "$ref": "common.schema.json#/definitions/seo" },
+        "presentation": { "$ref": "common.schema.json#/definitions/presentation" },
+        "content": {
+          "allOf": [
+            { "$ref": "block-document.schema.json" },
+            {
+              "properties": {
+                "blocks": {
+                  "not": {
+                    "contains": {
+                      "type": "object",
+                      "required": ["type"],
+                      "properties": { "type": { "const": "member_continuation" } }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "published_at": { "$ref": "common.schema.json#/definitions/nullableDateTime" },
+        "updated_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "detailResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["data"],
+      "properties": {
+        "data": { "$ref": "#/definitions/detail" },
+        "included": { "$ref": "dynamic-includes.schema.json" }
+      }
+    },
+    "collectionResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["data", "meta", "links"],
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/summary" }
+        },
+        "meta": { "$ref": "common.schema.json#/definitions/paginationMeta" },
+        "links": { "$ref": "common.schema.json#/definitions/paginationLinks" }
+      }
+    }
+  }
+}

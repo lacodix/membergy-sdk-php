@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://membergy.app/schemas/cms/v1/menu.schema.json",
+  "title": "Membergy public menu responses v1",
+  "oneOf": [
+    { "$ref": "#/definitions/detailResponse" },
+    { "$ref": "#/definitions/collectionResponse" }
+  ],
+  "definitions": {
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "uuid",
+        "title",
+        "handle",
+        "visibility",
+        "published_at",
+        "updated_at"
+      ],
+      "properties": {
+        "uuid": { "$ref": "common.schema.json#/definitions/uuid" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "handle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "^[a-z][a-z0-9_-]*$"
+        },
+        "visibility": { "$ref": "common.schema.json#/definitions/visibility" },
+        "published_at": { "$ref": "common.schema.json#/definitions/nullableDateTime" },
+        "updated_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "detail": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "uuid",
+        "title",
+        "handle",
+        "visibility",
+        "items",
+        "published_at",
+        "updated_at"
+      ],
+      "properties": {
+        "uuid": { "$ref": "common.schema.json#/definitions/uuid" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "handle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "^[a-z][a-z0-9_-]*$"
+        },
+        "visibility": { "$ref": "common.schema.json#/definitions/visibility" },
+        "items": {
+          "type": "array",
+          "maxItems": 100,
+          "items": { "$ref": "menu-target.schema.json#/definitions/menuItem" }
+        },
+        "published_at": { "$ref": "common.schema.json#/definitions/nullableDateTime" },
+        "updated_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "detailResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["data"],
+      "properties": {
+        "data": { "$ref": "#/definitions/detail" }
+      }
+    },
+    "collectionResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["data", "meta", "links"],
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/summary" }
+        },
+        "meta": { "$ref": "common.schema.json#/definitions/paginationMeta" },
+        "links": { "$ref": "common.schema.json#/definitions/paginationLinks" }
+      }
+    }
+  }
+}

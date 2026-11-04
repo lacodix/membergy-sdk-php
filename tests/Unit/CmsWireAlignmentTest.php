@@ -41,9 +41,9 @@ it('hydrates the required selected or empty Form identity and retains additive f
     expect($block->dataToArray())->toBe(['form_uuid' => $uuid, 'future' => true]);
 })->with([[null], ['11111111-1111-4111-8111-111111111111']]);
 
-it('rejects missing old inline or invalid Form identities', function (array $data) {
+it('rejects missing or invalid Form identities while retaining main legacy support', function (array $data) {
     expect(fn () => (new BlockFactory)->fromArray(['id' => 'form', 'type' => 'contact_form', 'version' => 1, 'settings' => [], 'data' => $data]))->toThrow(HydrationException::class);
-})->with([[[]], [['form_handle' => 'contact', 'topics' => []]], [['form_uuid' => '']], [['form_uuid' => 'not-a-uuid']], [['form_uuid' => 1]], [['form_uuid' => []]]]);
+})->with([[[]], [['form_uuid' => '']], [['form_uuid' => 'not-a-uuid']], [['form_uuid' => 1]], [['form_uuid' => []]]]);
 
 it('exposes the optional testimonial description without renaming name', function (array $optional) {
     $item = TestimonialItem::fromArray(['text' => ['format' => 'html', 'value' => '<p>Quote</p>'], 'name' => 'Erika', 'future' => 42] + $optional);
@@ -56,7 +56,7 @@ it('rejects a malformed testimonial description', function () {
     expect(fn () => TestimonialItem::fromArray(['text' => ['format' => 'html', 'value' => ''], 'name' => 'Erika', 'description' => []]))->toThrow(HydrationException::class);
 });
 
-it('hydrates the exact backend unfinished example including every nullable reference', function () {
+it('hydrates the retained unfinished authoring example including every nullable reference', function () {
     $payload = json_decode((string) file_get_contents(dirname(__DIR__).'/Fixtures/Contracts/BlockWire/v1/unfinished-block-document.json'), true, flags: JSON_THROW_ON_ERROR);
     $document = BlockDocument::fromArray($payload);
     expect($document->blocks)->toHaveCount(15);

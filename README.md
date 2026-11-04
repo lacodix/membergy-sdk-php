@@ -52,6 +52,7 @@ use Lacodix\MembergySdk\MembergyClient;
 $client = new MembergyClient(
     baseUrl: 'https://membergy.app',
     tenant:  'my-club',
+    cmsToken: $serverCmsToken, // Load from your server-side secret store.
 );
 
 $page = $client->content()->pages()->find('willkommen');
@@ -97,6 +98,53 @@ $client->newsletter()->confirm($opaqueConfirmationToken);
 $client->newsletter()->requestUnsubscribe('guest@example.org');
 $client->withoutUserToken()->newsletter()->unsubscribeAll($opaqueUnsubscribeToken);
 ```
+
+Posts use offset pagination by default; `page(2)->perPage(10)` keeps that behavior.
+For newest-first cursor pagination (publication date, then ID, descending), opt in
+explicitly, including on the first page:
+
+```php
+$posts = $client->content()->posts()->category('news')->cursor()->perPage(10);
+$first = $posts->get();
+
+if ($first->hasMorePages()) {
+    $next = $posts->cursor($first->nextCursor())->get();
+    if ($next->previousCursor() !== null) {
+        $previous = $posts->cursor($next->previousCursor())->get();
+    }
+}
+```
+
+`cursor()` and `cursor(null)` select the initial cursor page and clear any previous
+cursor or page number. Non-null blank cursors are rejected; other cursors are opaque
+and sent unchanged. Keep the same category and page size when following cursors.
+Each chained call returns a new resource. Calling `page(n)` selects offset pagination
+again and clears cursor settings.
+
+Select multiple categories or exclude categories on the server before pagination:
+
+```php
+$posts = $client->content()->posts()
+    ->categories('news', 'reports')
+    ->excludeCategories('archive')
+    ->cursor()
+    ->perPage(10);
+$first = $posts->get();
+```
+
+`categories(string ...$slugs)` uses OR inclusion. `excludeCategories(string ...$slugs)`
+can accompany either inclusion method; exclusions win overlap. Exclusions alone retain
+uncategorized posts. Each method requires 1–100 nonblank strings of at most 255 Unicode
+characters and rejects named argument keys. Values are sent unchanged. Combining
+`category()` with `categories()` throws `InvalidArgumentException` in either order;
+empty lists and invalid bounds also fail locally before any request. Filters survive
+`page()`, `cursor()` and `cursor(null)` chaining without mutating the base resource.
+
+Cursor results contain the same `PostSummary` items. Use `nextCursor()`,
+`previousCursor()` and `hasMorePages()` to navigate. `meta` contains `per_page`, `path`,
+`next_cursor` and `prev_cursor`; `links` contains `prev`/`next` URLs and null
+`first`/`last`. Offset totals and page numbers are unavailable in cursor mode:
+`currentPage()`, `lastPage()` and `total()` return null.
 
 The public subscribe and unsubscribe-request calls return a neutral status and never
 expose whether the email address or subscription exists. By default, expiring signed
@@ -235,6 +283,9 @@ Only successful JSON GET/HEAD responses with explicit compatible `Cache-Control`
 directives are stored. Fresh entries avoid a request; stale entries revalidate with both
 `If-None-Match` and `If-Modified-Since`, and a `304` restores the cached body.
 Server `no-store` always wins. Public and member keys use separate stores/scopes;
+both partitions also include a fingerprint of the Tenant CMS credential, so credentials
+cannot share cached content. No raw credential is stored in cache keys or tags. Existing
+cache entries become cold after this authentication change or a CMS credential rotation.
 response keys are opaque hashes of the namespace and request identity, never raw URLs
 or bearer tokens. Laravel leaves
 member caching disabled by default.
@@ -308,11 +359,47 @@ Add to `.env`:
 ```
 MEMBERGY_URL=https://membergy.app
 MEMBERGY_TENANT=my-club
+MEMBERGY_CMS_TOKEN=<tenant-cms-credential-from-secret-store>
 ```
 
 `MEMBERGY_URL` defaults to `https://membergy.app`. Point it at the reachable
 local or review instance when developing a consumer application, for example
 `MEMBERGY_URL=http://membergy.test`.
+
+`MEMBERGY_CMS_TOKEN` is required for every SDK transport call, including guest login,
+password, newsletter, contact and registration calls. It is a Tenant-owned credential
+with fixed `cms` scope, carried in `X-Membergy-Cms-Token`; it is independent of the
+optional visitor `Authorization` bearer and survives `withoutUserToken()` and all client
+copies. Missing or blank configuration throws `CmsAuthenticationException` locally before
+network or response-cache access. Existing positional constructor arguments keep their
+positions; append the named `cmsToken` argument. `fromConnector()` uses that connector's
+credential; supplying another `cmsToken` alongside an injected connector is rejected.
+HTTP 401 with top-level code `cms_client_unauthenticated` also throws
+`CmsAuthenticationException`, independently of visitor authentication. Existing visitor
+401 codes, including `cms_unauthenticated`, keep their authentication exceptions; a rejected
+CMS credential must not expire an otherwise valid visitor session.
+Set visitor identity through the constructor or immutable user-token copy methods.
+Replacing `Authorization` through inherited Saloon authenticators/headers or PSR hooks
+is rejected, so a request cannot reuse another visitor's private cache partition.
+
+Keep the CMS credential server-side. Never place it in browser configuration, media URLs,
+HTML or logs. The exact browser binary image/file routes remain key-exempt with their
+existing visibility/revision checks; JSON metadata calls require the key. URL builders
+perform no transport and remain usable without a key. No media proxy is introduced.
+
+SDK transport accepts only the configured trusted HTTP(S) origin, with redirects and raw
+sender diagnostics disabled. SDK debug callbacks are suppressed for all requests while
+their existing `die` stop timing is retained. Client serialization is rejected. CMS
+headers are applied only to the outgoing PSR request and removed from retained response
+request metadata; reflected credentials are redacted from responses before errors/cache.
+The SDK uses its own Guzzle sender instead of global Laravel event/telemetry senders;
+raw `debug`, `on_stats` and `on_headers` sender callbacks are disabled. Do not log low-level
+transport objects or manually inspect/send credential-bearing outgoing PSR requests.
+
+The current credential-gated backend returns content data/actions `private, no-store`
+without validators. The SDK honors that directive. Its conditional cache machinery stays
+available for compatible responses; a fresh cached entry cannot detect server-side
+revocation until revalidation/expiry, and authoritative 401/403 always replace stale data.
 
 Then resolve the client from the container or use the facade:
 
@@ -372,29 +459,39 @@ and additive data fields.
 `renderBlocks()` / `renderBlock()` calls remain supported: page menus use the
 caller-supplied anchors; `renderBlocks()` derives following ranges from its supplied
 block list. A standalone `renderBlock()` cannot infer surrounding document order,
-so its supplied anchors are treated as the caller's selected range. The optional
-fourth navigation-range map carries full context through recursive columns. Use
+so its supplied anchors are treated as the caller's selected range. The supplied renderer carries an immutable navigation context through recursive
+columns, including older overrides using three arguments. The optional fourth
+navigation-range map can still select an explicit context. Use
 `render(document)` for whole-document selection and own-marker exclusion.
 
-`contact_form` v1 now requires `data.form_uuid` (UUID string or explicit `null`).
-`ContactFormBlock::formUuid` replaces inline `formHandle`/`topics`; old inline-only
-payloads fail hydration. The default view renders a non-actionable
-`data-membergy-form-uuid` hook for a selection and no hook for `null`. It does not
-retrieve definitions, render fields or submit answers. The backend has no retrieval
-or submit capability for these DB-backed CMS Forms yet; `/forms/{form}` belongs to
-PHP Form classes/account workflows and is not a resolver for these UUIDs.
+`contact_form` v1 carries `data.form_uuid` (UUID string or explicit `null`).
+`ContactFormBlock` retains main's original `formHandle`/`topics` constructor positions
+and legacy hydration, alongside native `formUuid`, `definitionVersion`, `submitLabel`
+and `title`. Invalid supplied UUIDs still fail hydration. The default view is an inert
+UUID hook; applications can fetch native definitions and submit through
+`$client->content()->forms()` as described in [contact forms](docs/contact-forms.md).
+Published application views may render their own native forms.
+
+`table` v1 exposes `title`, plain-text `headers`, rectangular `rows`, and `hasHeader`.
+The optional wire `has_header` must agree with the headers; older responses derive it.
+The default view escapes every cell, preserves empty cells/rows, and emits column
+headers only when present. Tables accept at most 12 columns, 101 logical rows including
+the header, and 2000 characters per cell.
+
+Page/Post, their summaries and search hits expose `hasMemberContinuation` (also retained in `extra['has_member_continuation']` for existing consumers; false when absent on
+older responses). The backend supplies guest/member projections and removes editorial
+`member_continuation` markers. The SDK never fetches or reconstructs private continuation
+content. Markers hydrate to an inert DTO and produce neither markup nor navigation links.
 
 Testimonials retain `items[].name` and expose optional `description:string|null`,
 escaped separately from the backend-sanitized rich text. Missing media/file
 selections in unfinished blocks hydrate as `null`; views omit missing media and
 file links. Unselected post categories retain `null` or the empty string.
 
-These pre-release v1 contract replacements align with the frozen CMS checkpoint
-`e918dded0811b71b5ca9956b0899691784237f3f` and require paired backend/SDK deployment.
-They introduce no new contract version, migration or endpoint. Exact schema and
-synthetic examples live outside the captured HTTP fixture namespace. The existing
-real fixture-sync gate remains separately open; these mirrors do not establish a
-released/deployed consumer integration.
+The current CMS registry has 17 v1 block types. The fixtures and schema mirrors
+are synchronized with the current backend public contract; unknown block versions/types
+and additive fields retain their existing fallback behavior. This source compatibility
+does not establish a released or deployed consumer integration.
 
 Upgrading an application with published/custom Blade views requires manual
 reconciliation: files under `resources/views/vendor/membergy/blocks/` override the
@@ -405,12 +502,12 @@ your custom markup:
 
 - `anchor-navigation.blade.php`: consume the renderer-selected `$anchors` directly;
   remove the old `levels` filter and keep escaped link labels/attributes.
-- `columns.blade.php`: pass `$navigationAnchors ?? null` as the fourth argument to
-  `$renderer->renderBlocks($column->blocks, $included, $anchors, ...)` so nested
-  markers keep the whole-document ranges.
-- `contact-form.blade.php`: replace `formHandle`/`topics` access with nullable
-  `formUuid`; render only a non-actionable `data-membergy-form-uuid` reference hook
-  when nonnull. Do not retain an inline submission form or infer a submit endpoint.
+- `columns.blade.php`: existing three-argument `$renderer->renderBlocks()` calls retain
+  whole-document context automatically when invoked through the supplied renderer.
+  Explicit fourth-argument navigation maps remain supported.
+- `contact-form.blade.php`: use nullable `formUuid` for native forms. Existing
+  `formHandle`/`topics` integrations remain available. Keep browser forms behind the
+  application's own CSRF and server-side native SDK gateway; see the contact guide.
 - `image.blade.php`, `text-image.blade.php`, `gallery.blade.php`,
   `logo-cloud.blade.php`, `video.blade.php`, `downloads.blade.php`: guard nullable
   image/video/file references before accessing their UUID or building URLs; retain
@@ -443,17 +540,13 @@ Unit tests run locally. Integration tests use Saloon's `MockClient`
 to simulate HTTP responses — no running Membergy instance required. Both source
 checkouts are required for the separate fixture gates.
 
-The copied API fixtures under `tests/Fixtures/Contracts/Cms/v1` contain exactly 58
-backend response fixtures plus the separate `block-registry.json`. The cross-repo
-gate requires `MEMBERGY_BACKEND_ROOT` to point to the authoritative backend checkout;
-a missing checkout fails the gate and is never skipped. It checks missing and extra
-files in both repositories and byte-identical responses and BlockRegistry.
-The corrected SDK BlockRegistry now matches backend checkpoint
-`e918dded0811b71b5ca9956b0899691784237f3f` byte-for-byte: columns no longer lists
-columns in `allowed_children`. The older candidate registry was stale, so earlier
-blanket registry/fixture parity claims are superseded. The independent full gate
-still fails on the backend's extra unfinished authoring input (59 versus58); the
-58 HTTP captures and count guard remain unchanged.
+The fixtures under `tests/Fixtures/Contracts/Cms/v1` contain all 64 current backend
+CMS JSON fixtures (responses and document examples), plus `block-registry.json`.
+The gate requires the real `MEMBERGY_BACKEND_ROOT` checkout and compares complete
+path sets and every fixture byte. The schema family is mirrored under the existing
+`tests/Fixtures/Contracts/AnchorNavigation/v1` destination and checked independently
+against backend schema bytes. Local synthetic anchor examples remain distinct from
+backend HTTP captures. Registration fixtures and drift remain independently gated.
 
 Registration fixtures live separately under `tests/Fixtures/Contracts/Registration/v1`:
 43 captured backend responses (including the exact PDF bytes), their request/status/header
@@ -515,7 +608,7 @@ enters Membergy through its own login and permission checks.
 `expiresAt`. Its URL and payload parameters are SensitiveParameter and its __debugInfo redacts
 the URL. The request uses self-service-v1; 403/401/429 map to the existing forbidden/auth/rate
 exceptions. This method needs the additive backend management-login route and ticket migration.
-58 CMS response fixtures plus the BlockRegistry and the independent registration provenance
+64 CMS fixtures plus the BlockRegistry and the independent registration provenance
 are synced byte-for-byte. Capture and canonicalization remain backend-owned.
 
 The server enforces a 60-second single-use ticket bound to user, club and issuing website token.

@@ -13,6 +13,7 @@ use Lacodix\MembergySdk\DataObjects\Blocks\BlockMediaReference;
 use Lacodix\MembergySdk\DataObjects\Blocks\BlockSettings;
 use Lacodix\MembergySdk\DataObjects\Blocks\ColumnsBlock;
 use Lacodix\MembergySdk\DataObjects\Blocks\ContactFormBlock;
+use Lacodix\MembergySdk\DataObjects\Blocks\ContactTopic;
 use Lacodix\MembergySdk\DataObjects\Blocks\DownloadItem;
 use Lacodix\MembergySdk\DataObjects\Blocks\DownloadsBlock;
 use Lacodix\MembergySdk\DataObjects\Blocks\GalleryBlock;
@@ -21,9 +22,11 @@ use Lacodix\MembergySdk\DataObjects\Blocks\ImageBlock;
 use Lacodix\MembergySdk\DataObjects\Blocks\Link;
 use Lacodix\MembergySdk\DataObjects\Blocks\LogoCloudBlock;
 use Lacodix\MembergySdk\DataObjects\Blocks\LogoItem;
+use Lacodix\MembergySdk\DataObjects\Blocks\MemberContinuationBlock;
 use Lacodix\MembergySdk\DataObjects\Blocks\PostCategoryBlock;
 use Lacodix\MembergySdk\DataObjects\Blocks\RawHtmlBlock;
 use Lacodix\MembergySdk\DataObjects\Blocks\RichText;
+use Lacodix\MembergySdk\DataObjects\Blocks\TableBlock;
 use Lacodix\MembergySdk\DataObjects\Blocks\TestimonialItem;
 use Lacodix\MembergySdk\DataObjects\Blocks\TestimonialsBlock;
 use Lacodix\MembergySdk\DataObjects\Blocks\TextBlock;
@@ -57,6 +60,8 @@ final class BlockFactory
             'post_category' => 1,
             'contact_form' => 1,
             'anchor_navigation' => 1,
+            'table' => 1,
+            'member_continuation' => 1,
         ];
     }
 
@@ -74,7 +79,13 @@ final class BlockFactory
             return new UnknownBlock($id, $type, $version, $settings, $data, $payload, $extra);
         }
 
+        if ($type === 'contact_form' && ! array_key_exists('form_handle', $data)) {
+            Data::value($data, 'form_uuid');
+        }
+
         return match ($type) {
+            'member_continuation' => new MemberContinuationBlock($id, $version, $settings, $data, $extra),
+            'table' => TableBlock::fromData($id, $version, $settings, $data, $extra),
             'title' => new TitleBlock(
                 $id,
                 $version,
@@ -183,9 +194,14 @@ final class BlockFactory
                 $id,
                 $version,
                 $settings,
-                Data::value($data, 'form_uuid') === null ? null : Data::string($data, 'form_uuid'),
-                Data::extra($data, ['form_uuid']),
+                Data::nullableString($data, 'form_handle') ?? '',
+                array_map(ContactTopic::fromArray(...), Data::objectList($data + ['topics' => []], 'topics')),
+                Data::extra($data, ['form_handle', 'topics', 'form_uuid', 'definition_version', 'submit_label', 'title']),
                 $extra,
+                formUuid: Data::nullableString($data, 'form_uuid'),
+                definitionVersion: Data::nullableInt($data, 'definition_version'),
+                submitLabel: Data::nullableString($data, 'submit_label'),
+                title: Data::nullableString($data, 'title'),
             ),
             'anchor_navigation' => new AnchorNavigationBlock(
                 $id,

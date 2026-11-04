@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://membergy.app/schemas/cms/v1/post-category.schema.json",
+  "title": "Membergy public post category responses v1",
+  "oneOf": [
+    { "$ref": "#/definitions/detailResponse" },
+    { "$ref": "#/definitions/collectionResponse" }
+  ],
+  "definitions": {
+    "category": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "uuid",
+        "title",
+        "slug",
+        "position",
+        "description",
+        "media",
+        "updated_at"
+      ],
+      "properties": {
+        "uuid": { "$ref": "common.schema.json#/definitions/uuid" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "slug": { "type": "string", "minLength": 1, "maxLength": 255 },
+        "position": { "type": "integer", "minimum": 0 },
+        "description": { "type": ["string", "null"], "maxLength": 10000 },
+        "media": { "$ref": "common.schema.json#/definitions/nullablePublicMediaReference" },
+        "updated_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "detailResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["data"],
+      "properties": {
+        "data": { "$ref": "#/definitions/category" }
+      }
+    },
+    "collectionResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["data", "meta", "links"],
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/category" }
+        },
+        "meta": { "$ref": "common.schema.json#/definitions/paginationMeta" },
+        "links": { "$ref": "common.schema.json#/definitions/paginationLinks" }
+      }
+    }
+  }
+}

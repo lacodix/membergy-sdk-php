@@ -134,7 +134,7 @@ Tenant password-reset routing is outside this provisional contract. Existing
 
 ## Fixture gates
 
-The CMS gate keeps its original source and 58 responses plus BlockRegistry. The
+The CMS gate keeps its original source and 64 CMS fixtures plus BlockRegistry. The
 registration gate independently checks all 43 real response files, exact binary
 bytes, request/status/header metadata, schema, OpenAPI and provenance. Both gates
 fail when their checkout is missing. They run separately from secretless package CI

@@ -23,7 +23,7 @@ function newsletterUnsubscribeClient(MockClient $mock, ?string $userToken = null
         baseUrl: 'https://api.membergy.test',
         tenant: 'demo',
         userToken: $userToken,
-    );
+        cmsToken: testCmsToken(), );
     $connector->withMockClient($mock);
 
     return MembergyClient::fromConnector($connector);
@@ -169,7 +169,7 @@ it('never writes an unsubscribe token or response into the response cache', func
         baseUrl: 'https://api.membergy.test',
         tenant: 'demo',
         responseCache: $responseCache,
-    );
+        cmsToken: testCmsToken(), );
     $connector->withMockClient($mock);
 
     MembergyClient::fromConnector($connector)->newsletter()->unsubscribeAll($token);

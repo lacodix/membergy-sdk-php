@@ -98,6 +98,7 @@
     },
     "block": {
       "oneOf": [
+        { "$ref": "#/definitions/tableBlock" },
         { "$ref": "#/definitions/titleBlock" },
         { "$ref": "#/definitions/textBlock" },
         { "$ref": "#/definitions/imageBlock" },
@@ -112,7 +113,8 @@
         { "$ref": "#/definitions/testimonialsBlock" },
         { "$ref": "#/definitions/postCategoryBlock" },
         { "$ref": "#/definitions/contactFormBlock" },
-        { "$ref": "#/definitions/anchorNavigationBlock" }
+        { "$ref": "#/definitions/anchorNavigationBlock" },
+        { "$ref": "#/definitions/memberContinuationBlock" }
       ]
     },
     "blockBase": {
@@ -361,7 +363,8 @@
           "items": {
             "allOf": [
               { "$ref": "#/definitions/block" },
-              { "not": { "properties": { "type": { "const": "columns" } } } }
+              { "not": { "properties": { "type": { "const": "columns" } } } },
+              { "not": { "properties": { "type": { "const": "member_continuation" } } } }
             ]
           }
         }
@@ -670,6 +673,529 @@
                   "items": { "type": "integer", "minimum": 1, "maximum": 6 }
                 }
               }
+            }
+          }
+        }
+      ]
+    },
+    "tableBlock": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/blockBase"
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "table"
+            },
+            "version": {
+              "const": 1
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "headers",
+                "rows"
+              ],
+              "properties": {
+                "title": {
+                  "$ref": "#/definitions/localBlockTitle"
+                },
+                "headers": {
+                  "type": "array",
+                  "maxItems": 12,
+                  "items": {
+                    "type": "string",
+                    "maxLength": 2000
+                  }
+                },
+                "rows": {
+                  "type": "array",
+                  "maxItems": 101,
+                  "items": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 12,
+                    "items": {
+                      "type": "string",
+                      "maxLength": 2000
+                    }
+                  }
+                },
+                "has_header": {
+                  "type": "boolean",
+                  "readOnly": true,
+                  "description": "Output-only, derived from the nonempty headers array; rejected on writes."
+                }
+              },
+              "oneOf": [
+                {
+                  "properties": {
+                    "headers": {
+                      "maxItems": 0
+                    },
+                    "rows": {
+                      "minItems": 1,
+                      "maxItems": 101,
+                      "items": {
+                        "minItems": 1,
+                        "maxItems": 1
+                      }
+                    },
+                    "has_header": {
+                      "const": false
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "minItems": 1,
+                      "maxItems": 1
+                    },
+                    "rows": {
+                      "minItems": 0,
+                      "maxItems": 100,
+                      "items": {
+                        "minItems": 1,
+                        "maxItems": 1
+                      }
+                    },
+                    "has_header": {
+                      "const": true
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "maxItems": 0
+                    },
+                    "rows": {
+                      "minItems": 1,
+                      "maxItems": 101,
+                      "items": {
+                        "minItems": 2,
+                        "maxItems": 2
+                      }
+                    },
+                    "has_header": {
+                      "const": false
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "minItems": 2,
+                      "maxItems": 2
+                    },
+                    "rows": {
+                      "minItems": 0,
+                      "maxItems": 100,
+                      "items": {
+                        "minItems": 2,
+                        "maxItems": 2
+                      }
+                    },
+                    "has_header": {
+                      "const": true
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "maxItems": 0
+                    },
+                    "rows": {
+                      "minItems": 1,
+                      "maxItems": 101,
+                      "items": {
+                        "minItems": 3,
+                        "maxItems": 3
+                      }
+                    },
+                    "has_header": {
+                      "const": false
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "minItems": 3,
+                      "maxItems": 3
+                    },
+                    "rows": {
+                      "minItems": 0,
+                      "maxItems": 100,
+                      "items": {
+                        "minItems": 3,
+                        "maxItems": 3
+                      }
+                    },
+                    "has_header": {
+                      "const": true
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "maxItems": 0
+                    },
+                    "rows": {
+                      "minItems": 1,
+                      "maxItems": 101,
+                      "items": {
+                        "minItems": 4,
+                        "maxItems": 4
+                      }
+                    },
+                    "has_header": {
+                      "const": false
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "minItems": 4,
+                      "maxItems": 4
+                    },
+                    "rows": {
+                      "minItems": 0,
+                      "maxItems": 100,
+                      "items": {
+                        "minItems": 4,
+                        "maxItems": 4
+                      }
+                    },
+                    "has_header": {
+                      "const": true
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "maxItems": 0
+                    },
+                    "rows": {
+                      "minItems": 1,
+                      "maxItems": 101,
+                      "items": {
+                        "minItems": 5,
+                        "maxItems": 5
+                      }
+                    },
+                    "has_header": {
+                      "const": false
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "minItems": 5,
+                      "maxItems": 5
+                    },
+                    "rows": {
+                      "minItems": 0,
+                      "maxItems": 100,
+                      "items": {
+                        "minItems": 5,
+                        "maxItems": 5
+                      }
+                    },
+                    "has_header": {
+                      "const": true
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "maxItems": 0
+                    },
+                    "rows": {
+                      "minItems": 1,
+                      "maxItems": 101,
+                      "items": {
+                        "minItems": 6,
+                        "maxItems": 6
+                      }
+                    },
+                    "has_header": {
+                      "const": false
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "minItems": 6,
+                      "maxItems": 6
+                    },
+                    "rows": {
+                      "minItems": 0,
+                      "maxItems": 100,
+                      "items": {
+                        "minItems": 6,
+                        "maxItems": 6
+                      }
+                    },
+                    "has_header": {
+                      "const": true
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "maxItems": 0
+                    },
+                    "rows": {
+                      "minItems": 1,
+                      "maxItems": 101,
+                      "items": {
+                        "minItems": 7,
+                        "maxItems": 7
+                      }
+                    },
+                    "has_header": {
+                      "const": false
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "minItems": 7,
+                      "maxItems": 7
+                    },
+                    "rows": {
+                      "minItems": 0,
+                      "maxItems": 100,
+                      "items": {
+                        "minItems": 7,
+                        "maxItems": 7
+                      }
+                    },
+                    "has_header": {
+                      "const": true
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "maxItems": 0
+                    },
+                    "rows": {
+                      "minItems": 1,
+                      "maxItems": 101,
+                      "items": {
+                        "minItems": 8,
+                        "maxItems": 8
+                      }
+                    },
+                    "has_header": {
+                      "const": false
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "minItems": 8,
+                      "maxItems": 8
+                    },
+                    "rows": {
+                      "minItems": 0,
+                      "maxItems": 100,
+                      "items": {
+                        "minItems": 8,
+                        "maxItems": 8
+                      }
+                    },
+                    "has_header": {
+                      "const": true
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "maxItems": 0
+                    },
+                    "rows": {
+                      "minItems": 1,
+                      "maxItems": 101,
+                      "items": {
+                        "minItems": 9,
+                        "maxItems": 9
+                      }
+                    },
+                    "has_header": {
+                      "const": false
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "minItems": 9,
+                      "maxItems": 9
+                    },
+                    "rows": {
+                      "minItems": 0,
+                      "maxItems": 100,
+                      "items": {
+                        "minItems": 9,
+                        "maxItems": 9
+                      }
+                    },
+                    "has_header": {
+                      "const": true
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "maxItems": 0
+                    },
+                    "rows": {
+                      "minItems": 1,
+                      "maxItems": 101,
+                      "items": {
+                        "minItems": 10,
+                        "maxItems": 10
+                      }
+                    },
+                    "has_header": {
+                      "const": false
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "minItems": 10,
+                      "maxItems": 10
+                    },
+                    "rows": {
+                      "minItems": 0,
+                      "maxItems": 100,
+                      "items": {
+                        "minItems": 10,
+                        "maxItems": 10
+                      }
+                    },
+                    "has_header": {
+                      "const": true
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "maxItems": 0
+                    },
+                    "rows": {
+                      "minItems": 1,
+                      "maxItems": 101,
+                      "items": {
+                        "minItems": 11,
+                        "maxItems": 11
+                      }
+                    },
+                    "has_header": {
+                      "const": false
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "minItems": 11,
+                      "maxItems": 11
+                    },
+                    "rows": {
+                      "minItems": 0,
+                      "maxItems": 100,
+                      "items": {
+                        "minItems": 11,
+                        "maxItems": 11
+                      }
+                    },
+                    "has_header": {
+                      "const": true
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "maxItems": 0
+                    },
+                    "rows": {
+                      "minItems": 1,
+                      "maxItems": 101,
+                      "items": {
+                        "minItems": 12,
+                        "maxItems": 12
+                      }
+                    },
+                    "has_header": {
+                      "const": false
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "minItems": 12,
+                      "maxItems": 12
+                    },
+                    "rows": {
+                      "minItems": 0,
+                      "maxItems": 100,
+                      "items": {
+                        "minItems": 12,
+                        "maxItems": 12
+                      }
+                    },
+                    "has_header": {
+                      "const": true
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "memberContinuationBlock": {
+      "allOf": [
+        { "$ref": "#/definitions/blockBase" },
+        {
+          "properties": {
+            "type": { "const": "member_continuation" },
+            "version": { "const": 1 },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "maxProperties": 0
+            },
+            "settings": {
+              "type": "object",
+              "additionalProperties": false,
+              "maxProperties": 0
             }
           }
         }

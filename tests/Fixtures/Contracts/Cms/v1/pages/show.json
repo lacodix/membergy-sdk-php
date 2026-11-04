@@ -6,6 +6,7 @@
     "slug": "willkommen",
     "is_start": true,
     "visibility": "public",
+    "has_member_continuation": false,
     "hero": {
       "images": [
         {

@@ -20,7 +20,7 @@ final class ContractFixtureSync
             self::paths($backendFixtures),
             static fn (string $path): bool => ! str_starts_with($path, 'registration/'),
         ));
-        Assert::assertCount(58, $backendPaths, 'The frozen backend contract contains 58 response fixtures.');
+        Assert::assertCount(64, $backendPaths, 'The frozen backend contract contains 64 CMS fixtures.');
 
         $expectedSdkPaths = [...$backendPaths, 'block-registry.json'];
         sort($expectedSdkPaths);

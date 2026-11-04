@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://membergy.app/schemas/cms/v1/dynamic-includes.schema.json",
+  "title": "Membergy CMS v1 resolved dynamic block includes",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["dynamic"],
+  "properties": {
+    "dynamic": {
+      "type": "array",
+      "maxItems": 250,
+      "items": { "$ref": "#/definitions/dynamicInclude" }
+    }
+  },
+  "definitions": {
+    "dynamicInclude": {
+      "oneOf": [
+        { "$ref": "#/definitions/postCategoryInclude" },
+        { "$ref": "#/definitions/unknownInclude" }
+      ]
+    },
+    "postCategoryInclude": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["block_id", "type", "data"],
+      "properties": {
+        "block_id": { "$ref": "common.schema.json#/definitions/uuid" },
+        "type": { "const": "post_category" },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["posts"],
+          "properties": {
+            "posts": {
+              "type": "array",
+              "maxItems": 100,
+              "items": { "$ref": "post.schema.json#/definitions/summary" }
+            }
+          }
+        }
+      }
+    },
+    "unknownInclude": {
+      "type": "object",
+      "required": ["block_id", "type", "data"],
+      "properties": {
+        "block_id": { "$ref": "common.schema.json#/definitions/uuid" },
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "not": { "enum": ["post_category"] }
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

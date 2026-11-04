@@ -26,7 +26,7 @@ final class ResponseCache
         private readonly CacheClock $clock = new SystemCacheClock,
     ) {}
 
-    public function context(PendingRequest $pendingRequest, string $scope): ?CacheContext
+    public function context(PendingRequest $pendingRequest, string $scope, string $credentialFingerprint = ''): ?CacheContext
     {
         $store = $this->storeForScope($scope);
         if ($store === null) {
@@ -45,6 +45,7 @@ final class ResponseCache
             $generation,
             $resourceGeneration,
             $scope,
+            $credentialFingerprint,
             $pendingRequest->getMethod()->value,
             (string) $pendingRequest->getUri(),
             is_string($accept) ? $accept : 'application/json',

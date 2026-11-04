@@ -11,6 +11,7 @@ use Illuminate\Session\Store;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Lacodix\MembergySdk\Connectors\MembergyConnector;
 use Lacodix\MembergySdk\Contracts\ContentRenderer;
 use Lacodix\MembergySdk\DataObjects\BlockDocument;
 use Lacodix\MembergySdk\DataObjects\DynamicIncludes;
@@ -26,6 +27,7 @@ use Lacodix\MembergySdk\Tests\Support\RegistrationFixtures as Fixtures;
 use Orchestra\Testbench\TestCase;
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
+use Saloon\Http\PendingRequest;
 use Saloon\Http\Request as SaloonRequest;
 use Saloon\Http\Response;
 use SensitiveParameter;
@@ -41,7 +43,75 @@ final class LaravelIntegrationTest extends TestCase
     protected function defineEnvironment($app): void
     {
         $app['config']->set('membergy.tenant', 'demo');
+        $app['config']->set('membergy.cms_token', testCmsToken());
         $app['config']->set('membergy.cache.enabled', false);
+    }
+
+    public function test_the_scoped_provider_keeps_cms_auth_separate_from_visitor_auth(): void
+    {
+        $client = $this->app->make(MembergyClient::class);
+        $mock = new MockClient(['*' => function (PendingRequest $pending): MockResponse {
+            self::assertTrue(hash_equals(testCmsToken(), $pending->createPsrRequest()->getHeaderLine('X-Membergy-Cms-Token')));
+
+            return MockResponse::make(contractFixture('pages/show.json'));
+        }]);
+        $client->connector()->withMockClient($mock);
+        $client->withUserToken('visitor')->withoutUserToken()->content()->pages()->find('willkommen');
+        $mock->assertSentCount(1);
+    }
+
+    public function test_legacy_contact_form_renders_its_handle_and_escaped_topics_without_a_native_uuid(): void
+    {
+        $document = BlockDocument::fromArray(['schema_version' => 1, 'blocks' => [[
+            'id' => 'legacy-contact', 'type' => 'contact_form', 'version' => 1,
+            'data' => ['form_handle' => 'legacy-contact', 'topics' => [
+                ['key' => 'general', 'label' => 'General <Sachsen> & "friends"'],
+            ]], 'settings' => [],
+        ]]]);
+        $html = $this->app->make(ContentRenderer::class)->render($document);
+
+        self::assertStringContainsString('data-membergy-form="legacy-contact"', $html);
+        self::assertStringContainsString('<li data-topic="general">General &lt;Sachsen&gt; &amp; &quot;friends&quot;</li>', $html);
+        self::assertStringNotContainsString('data-membergy-form-uuid', $html);
+    }
+
+    public function test_contact_form_rendering_is_an_inert_overridable_uuid_placeholder(): void
+    {
+        $mock = new MockClient;
+        $this->app->instance(MembergyClient::class, MembergyClient::fromConnector(
+            (new MembergyConnector('https://api.membergy.test', 'demo', cmsToken: testCmsToken()))->withMockClient($mock),
+        ));
+        $uuid = '11111111-1111-4111-8111-111111111111';
+        $document = BlockDocument::fromArray(['schema_version' => 1, 'blocks' => [[
+            'id' => 'native-contact', 'type' => 'contact_form', 'version' => 1,
+            'data' => ['form_uuid' => $uuid], 'settings' => [],
+        ]]]);
+        $renderer = $this->app->make(ContentRenderer::class);
+        $html = $renderer->render($document);
+        self::assertStringContainsString('data-membergy-form="'.$uuid.'"', $html);
+        self::assertStringNotContainsString('<form', $html);
+        self::assertStringNotContainsString('action=', $html);
+        self::assertStringNotContainsString('submission_ticket', $html);
+        self::assertFalse(str_contains($html, testCmsToken()));
+        $mock->assertSentCount(0);
+
+        $views = $this->app['view'];
+        $views->getFinder()->prependNamespace('membergy', $this->app->resourcePath('views/vendor/membergy'));
+        $directory = $this->app->resourcePath('views/vendor/membergy/blocks');
+        if (! is_dir($directory)) {
+            mkdir($directory, 0777, true);
+        }
+        $template = $directory.'/contact-form.blade.php';
+        file_put_contents($template, '<section data-consumer-contact="{{ $block->formUuid }}">Consumer renders contact form</section>');
+        try {
+            $views->getFinder()->flush();
+            $html = $renderer->render($document);
+            self::assertStringContainsString('data-consumer-contact="'.$uuid.'"', $html);
+            self::assertStringContainsString('Consumer renders contact form', $html);
+            $mock->assertSentCount(0);
+        } finally {
+            unlink($template);
+        }
     }
 
     public function test_it_uses_the_production_base_url_by_default_and_accepts_an_explicit_override(): void
@@ -252,8 +322,9 @@ final class LaravelIntegrationTest extends TestCase
             DynamicIncludes::fromArray($includedPayload),
         );
 
+        self::assertStringContainsString('<div class="membergy-raw-html"><p>Sanitized raw HTML</p></div>', $html);
+
         foreach ([
-            'Sanitized raw HTML',
             'Programme',
             'Doors',
             'Partners',
@@ -366,7 +437,7 @@ final class LaravelIntegrationTest extends TestCase
             $mock->assertSentCount(3);
         }
 
-        $explicit = new MembergyClient('https://sdk.membergy.test', 'contract-club', userToken: 'synthetic-constructor-applicant-token');
+        $explicit = new MembergyClient('https://sdk.membergy.test', 'contract-club', userToken: 'synthetic-constructor-applicant-token', cmsToken: testCmsToken());
         $explicitMock = new MockClient([Fixtures::response('offer-account')]);
         $explicit->connector()->withMockClient($explicitMock);
         self::assertSame('account.qa@example.test', $explicit->registrationOffers()->find('membership')->applicant?->email);

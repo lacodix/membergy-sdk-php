@@ -37,7 +37,7 @@ use Saloon\Http\Response;
 
 function registrationV1Client(MockClient $mock, string $tenant = 'contract-club'): MembergyClient
 {
-    $connector = new MembergyConnector('https://sdk.membergy.test', $tenant, retryInterval: 0);
+    $connector = new MembergyConnector('https://sdk.membergy.test', $tenant, retryInterval: 0, cmsToken: testCmsToken());
     $connector->withMockClient($mock);
 
     return MembergyClient::fromConnector($connector);

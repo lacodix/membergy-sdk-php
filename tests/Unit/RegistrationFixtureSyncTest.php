@@ -117,8 +117,8 @@ it('rejects drift in private combined fixture trees without hiding registration 
         }
     });
 })->with([
-    'unknown backend CMS path' => ['cms', 'backend', 'tests/Fixtures/Contracts/Cms/v1/obsolete.json', 'extra', '58 response fixtures'],
-    'backend registration prefix lookalike' => ['cms', 'backend', 'tests/Fixtures/Contracts/Cms/v1/registration.json', 'extra', '58 response fixtures'],
+    'unknown backend CMS path' => ['cms', 'backend', 'tests/Fixtures/Contracts/Cms/v1/obsolete.json', 'extra', '64 CMS fixtures'],
+    'backend registration prefix lookalike' => ['cms', 'backend', 'tests/Fixtures/Contracts/Cms/v1/registration.json', 'extra', '64 CMS fixtures'],
     'registration subtree in SDK CMS' => ['cms', 'sdk', 'registration/obsolete.json', 'extra', 'no missing or extra files'],
     'missing SDK registration response' => ['registration', 'sdk', 'responses/offer-guest.json', 'missing', 'Registration response paths must match'],
     'extra SDK registration response' => ['registration', 'sdk', 'responses/obsolete.json', 'extra', 'Registration response paths must match'],

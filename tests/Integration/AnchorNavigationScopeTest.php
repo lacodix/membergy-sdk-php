@@ -256,6 +256,39 @@ final class AnchorNavigationScopeTest extends TestCase
         self::assertStringContainsString('<img', $html);
     }
 
+    public function test_published_three_argument_columns_overrides_keep_document_context_without_worker_state(): void
+    {
+        $root = sys_get_temp_dir().'/membergy-columns-'.bin2hex(random_bytes(6));
+        mkdir($root.'/blocks', 0700, true);
+        file_put_contents($root.'/blocks/columns.blade.php', '@foreach ($block->columns as $column){!! $renderer->renderBlocks($column->blocks, $included, $anchors) !!}@endforeach');
+        $this->app['view']->prependNamespace('membergy', $root);
+        try {
+            $renderer = $this->app->make(ContentRenderer::class);
+            $document = BlockDocument::fromArray(['schema_version' => 1, 'blocks' => [
+                $this->heading('before-override', 2),
+                $this->menu('outer-following', 'following'),
+                $this->columns('override', [[
+                    $this->menu('nested-page', 'page'),
+                    $this->menu('nested-following', 'following'),
+                    $this->heading('inside-override', 2),
+                ], [$this->heading('sibling-override', 2)]]),
+                $this->heading('after-override', 2),
+            ]]);
+            $html = $renderer->render($document);
+            self::assertSame(['#inside-override|inside-override', '#sibling-override|sibling-override', '#after-override|after-override'], $this->links($html, 'nested-following'));
+            self::assertContains('#before-override|before-override', $this->links($html, 'nested-page'));
+            self::assertContains('#after-override|after-override', $this->links($html, 'nested-page'));
+            self::assertSame([], $this->links($html, 'outer-following'));
+            $next = $renderer->render(BlockDocument::fromArray(['schema_version' => 1, 'blocks' => [$this->menu('fresh-page', 'page'), $this->heading('fresh', 2)]]));
+            self::assertSame(['#fresh|fresh'], $this->links($next, 'fresh-page'));
+            self::assertStringNotContainsString('override', $next);
+        } finally {
+            unlink($root.'/blocks/columns.blade.php');
+            rmdir($root.'/blocks');
+            rmdir($root);
+        }
+    }
+
     /** @return array<string, mixed> */
     private function heading(string $id, int $level): array
     {

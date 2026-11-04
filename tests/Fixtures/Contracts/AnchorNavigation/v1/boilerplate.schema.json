@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://membergy.app/schemas/cms/v1/boilerplate.schema.json",
+  "title": "Membergy public boilerplate contract v1",
+  "oneOf": [
+    { "$ref": "#/definitions/detailResponse" },
+    { "$ref": "#/definitions/collectionResponse" }
+  ],
+  "definitions": {
+    "boilerplate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slug", "description", "content", "visibility", "updated_at"],
+      "properties": {
+        "slug": { "type": "string", "minLength": 1, "maxLength": 255 },
+        "description": { "$ref": "common.schema.json#/definitions/nullableString" },
+        "content": { "type": "string", "maxLength": 200000 },
+        "visibility": {
+          "type": "string",
+          "enum": ["public", "members", "internal"]
+        },
+        "updated_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "collectionResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["data", "meta", "links"],
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/boilerplate" }
+        },
+        "meta": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["current_page", "per_page", "total", "last_page"],
+          "properties": {
+            "current_page": { "type": "integer", "minimum": 1 },
+            "per_page": { "type": "integer", "minimum": 1, "maximum": 100 },
+            "total": { "type": "integer", "minimum": 0 },
+            "last_page": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "links": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["first", "last", "prev", "next"],
+          "properties": {
+            "first": { "type": "string", "format": "uri" },
+            "last": { "type": "string", "format": "uri" },
+            "prev": { "type": ["string", "null"], "format": "uri" },
+            "next": { "type": ["string", "null"], "format": "uri" }
+          }
+        }
+      }
+    },
+    "detailResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["data"],
+      "properties": {
+        "data": { "$ref": "#/definitions/boilerplate" }
+      }
+    }
+  }
+}
