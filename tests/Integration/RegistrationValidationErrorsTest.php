@@ -17,7 +17,7 @@ function mockedRegistrationValidationError(#[SensitiveParameter] array|string $b
 {
     // No captured backend response has nested error keys yet. This is deliberately a mock, not a wire fixture.
     $mock = new MockClient([MockResponse::make($body, 422, ['Content-Type' => 'application/json'])]);
-    $connector = new MembergyConnector('https://sdk.membergy.test', 'contract-club', retryInterval: 0);
+    $connector = new MembergyConnector('https://sdk.membergy.test', 'contract-club', retryInterval: 0, cmsToken: testCmsToken());
     $connector->withMockClient($mock);
     try {
         MembergyClient::fromConnector($connector)->registrationApplications()->submit('membership', Fixtures::submission());

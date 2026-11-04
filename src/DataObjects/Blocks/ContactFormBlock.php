@@ -19,6 +19,10 @@ final readonly class ContactFormBlock extends AbstractBlock
         public array $topics,
         public array $dataExtra = [],
         array $extra = [],
+        public ?string $formUuid = null,
+        public ?int $definitionVersion = null,
+        public ?string $submitLabel = null,
+        public ?string $title = null,
     ) {
         parent::__construct($id, 'contact_form', $version, $settings, $extra);
     }

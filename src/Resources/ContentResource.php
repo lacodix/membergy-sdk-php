@@ -23,6 +23,11 @@ class ContentResource
         private readonly MembergyConnector $connector,
     ) {}
 
+    public function forms(): ContactFormsResource
+    {
+        return new ContactFormsResource($this->connector);
+    }
+
     public function posts(): PostsResource
     {
         return new PostsResource($this->connector);

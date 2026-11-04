@@ -16,7 +16,7 @@ use Saloon\Http\Response;
 
 function postsCursorResource(MockClient $mock): PostsResource
 {
-    $connector = new MembergyConnector('https://api.membergy.test', 'demo');
+    $connector = new MembergyConnector('https://api.membergy.test', 'demo', cmsToken: testCmsToken());
     $connector->withMockClient($mock);
 
     return MembergyClient::fromConnector($connector)->content()->posts();

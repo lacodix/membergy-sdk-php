@@ -39,7 +39,7 @@ function resourceExceptionMarkers(): array
 
 function safeExceptionClient(MockClient $mock): MembergyClient
 {
-    $connector = new MembergyConnector('https://sdk.membergy.test', 'contract-club', 'SYNTHETIC_BEARER_SECRET', retryInterval: 0);
+    $connector = new MembergyConnector('https://sdk.membergy.test', 'contract-club', 'SYNTHETIC_BEARER_SECRET', retryInterval: 0, cmsToken: testCmsToken());
     $connector->withMockClient($mock);
 
     return MembergyClient::fromConnector($connector);

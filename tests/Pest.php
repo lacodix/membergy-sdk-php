@@ -7,6 +7,12 @@ declare(strict_types=1);
 
 uses()->in('Unit', 'Integration');
 
+/** Derived synthetic credential; never a deployed key or a fixture value. */
+function testCmsToken(): string
+{
+    return hash('sha256', 'membergy-sdk-isolated-test-credential');
+}
+
 function contractFixturePath(string $path): string
 {
     return __DIR__.'/Fixtures/Contracts/Cms/v1/'.ltrim($path, '/');

@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Lacodix\MembergySdk\Resources;
 
+use Lacodix\MembergySdk\Exceptions\CmsAuthenticationException;
 use Lacodix\MembergySdk\Exceptions\RegistrationException;
 use Lacodix\MembergySdk\Exceptions\RegistrationIdentityException;
 use Lacodix\MembergySdk\Exceptions\RegistrationPayloadException;
 use Lacodix\MembergySdk\Exceptions\RegistrationTransportException;
+use Lacodix\MembergySdk\Exceptions\UnsafeRequestException;
 use Lacodix\MembergySdk\Requests\Registrations\AbstractRegistrationRequest;
 use Lacodix\MembergySdk\Support\Payload;
 use Saloon\Http\Request;
@@ -24,6 +26,8 @@ abstract class AbstractRegistrationResource extends AbstractResource
         }
         try {
             $response = $this->connector->send($request);
+        } catch (CmsAuthenticationException|UnsafeRequestException $exception) {
+            throw $exception;
         } catch (RegistrationIdentityException) {
             // Detach the trace from Saloon's PendingRequest construction and its credential-bearing arguments.
             throw new RegistrationIdentityException('Invalid registration identity context for this request.');
@@ -31,6 +35,10 @@ abstract class AbstractRegistrationResource extends AbstractResource
             throw new RegistrationTransportException('The registration transport failed.');
         }
         if (! $response->successful()) {
+            if ($response->status() === 401 && $this->errorCode($this->errorPayload($response)) === 'cms_client_unauthenticated') {
+                throw new CmsAuthenticationException;
+            }
+
             throw RegistrationException::fromResponse($response);
         }
 

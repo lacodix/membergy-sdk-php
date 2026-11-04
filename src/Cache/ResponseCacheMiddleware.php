@@ -25,6 +25,7 @@ final class ResponseCacheMiddleware
     public function __construct(
         private readonly ResponseCache $cache,
         private readonly string $scope,
+        private readonly string $credentialFingerprint = '',
     ) {}
 
     public function __invoke(PendingRequest $pendingRequest): PendingRequest|FakeResponse
@@ -37,7 +38,7 @@ final class ResponseCacheMiddleware
         }
 
         try {
-            $this->context = $this->cache->context($pendingRequest, $this->scope);
+            $this->context = $this->cache->context($pendingRequest, $this->scope, $this->credentialFingerprint);
             $this->entry = $this->context?->entry;
         } catch (Throwable) {
             return $pendingRequest;

@@ -39,7 +39,7 @@ function selfServiceClient(MockClient $mock, ?string $token = 'member-token'): M
         baseUrl: 'https://api.membergy.test',
         tenant: 'demo',
         userToken: $token,
-    );
+        cmsToken: testCmsToken(), );
     $connector->withMockClient($mock);
 
     return MembergyClient::fromConnector($connector);
@@ -398,7 +398,7 @@ it('suppresses request and connector password debugging and marks secret paramet
     $mock = new MockClient([
         UpdatePasswordRequest::class => MockResponse::make(['data' => ['status' => 'password_updated']]),
     ]);
-    $connector = new MembergyConnector('https://api.membergy.test', 'demo', 'member-token');
+    $connector = new MembergyConnector('https://api.membergy.test', 'demo', 'member-token', cmsToken: testCmsToken());
     $connector->withMockClient($mock);
     $called = false;
     $connector->debugRequest(function () use (&$called): void {

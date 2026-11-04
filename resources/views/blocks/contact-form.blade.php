@@ -1,4 +1,4 @@
-<div class="membergy-contact-form" data-membergy-form="{{ $block->formHandle }}">
+<div class="membergy-contact-form" data-membergy-form="{{ $block->formUuid ?? $block->formHandle }}">
     @if ($block->topics !== [])
         <ul class="membergy-contact-topics">
             @foreach ($block->topics as $topic)

@@ -53,7 +53,7 @@ function cachedClient(
         responseCache: $cache,
         tries: 3,
         retryInterval: 0,
-    );
+        cmsToken: testCmsToken(), );
     $connector->withMockClient($mock);
 
     return [
@@ -157,7 +157,7 @@ it('forgets stale content after an authoritative denial before a later server er
         MockResponse::make(['message' => 'temporary outage'], 503),
     ]);
     $cache = new ResponseCache($public, $member, new CacheOptions(defaultTtl: 60, staleTtl: 300), $clock);
-    $connector = new MembergyConnector('https://api.membergy.test', 'demo', $token, responseCache: $cache, tries: 1);
+    $connector = new MembergyConnector('https://api.membergy.test', 'demo', $token, responseCache: $cache, tries: 1, cmsToken: testCmsToken());
     $connector->withMockClient($mock);
 
     expect($connector->send(new ShowPageRequest('demo', 'revoked-page'))->status())->toBe(200);
@@ -189,7 +189,7 @@ it('evicts a denied stale response before exhausting the default three server-er
         MockResponse::make(['message' => 'temporary outage'], 503),
     ]);
     $cache = new ResponseCache(new ArrayCache, options: new CacheOptions(defaultTtl: 60, staleTtl: 300), clock: $clock);
-    $connector = new MembergyConnector('https://api.membergy.test', 'demo', responseCache: $cache, retryInterval: 0);
+    $connector = new MembergyConnector('https://api.membergy.test', 'demo', responseCache: $cache, retryInterval: 0, cmsToken: testCmsToken());
     $connector->withMockClient($mock);
     $client = MembergyClient::fromConnector($connector);
 
@@ -236,7 +236,7 @@ it('caches and invalidates with strict PSR-16 stores while preserving namespaces
             MockResponse::make(['title' => 'after-flush'], 200, $headers),
         ]);
         $cache = new ResponseCache($public, $member, new CacheOptions(prefix: $prefix), new MutableCacheClock);
-        $connector = new MembergyConnector('https://api.membergy.test', 'demo', $token, responseCache: $cache, tries: 1);
+        $connector = new MembergyConnector('https://api.membergy.test', 'demo', $token, responseCache: $cache, tries: 1, cmsToken: testCmsToken());
         $connector->withMockClient($mock);
         $client = MembergyClient::fromConnector($connector);
         // Direct sends let these synthetic payloads remain independent of DTO contracts.

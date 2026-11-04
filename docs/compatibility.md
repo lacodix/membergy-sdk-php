@@ -1,5 +1,23 @@
 # API/SDK compatibility
 
+All SDK transport now requires a Tenant-owned CMS credential through the trailing named
+`cmsToken` constructor argument or Laravel `membergy.cms_token` / `MEMBERGY_CMS_TOKEN`.
+It travels only in `X-Membergy-Cms-Token`, independently of the visitor bearer. Missing
+configuration fails locally, including guest auth/registration calls. No existing
+constructor position changes; injected connectors own their credential. All client copies
+retain it. CMS credentials never identify registration applicants or static user tokens.
+HTTP 401 with the exact top-level code `cms_client_unauthenticated` maps to
+`CmsAuthenticationException`, which extends `MembergyException` independently of visitor
+`AuthenticationException`. Visitor 401 codes, including `cms_unauthenticated`, keep their
+existing mappings. A CMS denial must not clear an otherwise valid visitor session.
+Browser binary image/file delivery and credential-free media URL builders are unchanged.
+Redirects/off-origin requests are blocked, debug output is suppressed, and serialization
+of clients is rejected. Low-level fatal transport errors now also use the detached SDK
+`TransportException`. Response metadata omits the CMS request header and sender exception
+chain. Global Laravel event senders/raw Guzzle telemetry are intentionally bypassed.
+Cache identities include a credential fingerprint; old entries are cold. Existing
+contact GET429/POST no-retry and other transport retry policies are unchanged.
+
 The SDK fails fast when configured for an unsupported API URL version. CMS and
 self-service DTOs retain additive response fields through `extra` bags and unknown
 block, dynamic-include and menu-target fallbacks.
