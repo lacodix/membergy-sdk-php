@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://membergy.app/schemas/cms/v1/contact-form.schema.json",
+  "title": "CMS contact form read and accepted responses",
+  "oneOf": [{ "$ref": "#/definitions/read" }, { "$ref": "#/definitions/accepted" }],
+  "definitions": {
+    "field": {
+      "type": "object", "additionalProperties": false,
+      "required": ["key", "type", "label", "required", "enabled", "options"],
+      "properties": {
+        "key": { "enum": ["email", "subject", "message", "contact_reason"] },
+        "type": { "enum": ["email", "text", "textarea", "select"] },
+        "label": { "type": "string", "minLength": 1, "maxLength": 150 },
+        "required": { "type": "boolean" }, "enabled": { "type": "boolean" },
+        "options": { "type": "array", "maxItems": 50, "items": { "type": "string", "maxLength": 100 } }
+      }
+    },
+    "definition": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema_version", "fields", "messages"],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "fields": { "type": "array", "minItems": 4, "maxItems": 4, "items": { "$ref": "#/definitions/field" } },
+        "messages": {
+          "type": "object", "additionalProperties": false, "required": ["success", "error"],
+          "properties": { "success": { "type": "string", "maxLength": 1000 }, "error": { "type": "string", "maxLength": 1000 } }
+        }
+      }
+    },
+    "read": {
+      "type": "object", "additionalProperties": false, "required": ["data"],
+      "properties": {
+        "data": {
+          "type": "object", "additionalProperties": false,
+          "required": ["uuid", "name", "definition", "submission_ticket", "minimum_seconds", "expires_at"],
+          "properties": {
+            "uuid": { "$ref": "common.schema.json#/definitions/uuid" },
+            "name": { "type": "string", "maxLength": 150 },
+            "definition": { "$ref": "#/definitions/definition" },
+            "submission_ticket": { "type": "string", "minLength": 1, "maxLength": 4096 },
+            "minimum_seconds": { "const": 3 },
+            "expires_at": { "type": "string", "format": "date-time" }
+          }
+        }
+      }
+    },
+    "submission": {
+      "description": "Required flags and contact_reason values are enforced against the current form definition. website must be empty. Body at most 20000 bytes.",
+      "type": "object", "additionalProperties": false, "required": ["submission_ticket"],
+      "properties": {
+        "email": { "type": ["string", "null"], "format": "email", "maxLength": 254 },
+        "subject": { "type": ["string", "null"], "maxLength": 200 },
+        "message": { "type": ["string", "null"], "maxLength": 10000 },
+        "contact_reason": { "type": ["string", "null"], "maxLength": 100 },
+        "website": { "type": ["string", "null"], "maxLength": 0 },
+        "submission_ticket": { "type": "string", "minLength": 1, "maxLength": 4096 }
+      }
+    },
+    "accepted": {
+      "type": "object", "additionalProperties": false, "required": ["data"],
+      "properties": {
+        "data": {
+          "type": "object", "additionalProperties": false, "required": ["status", "message"],
+          "properties": {
+            "status": { "const": "accepted" },
+            "message": { "const": "Your message has been accepted for sending." }
+          }
+        }
+      }
+    }
+  }
+}

@@ -23,6 +23,7 @@ final readonly class Post
         public BlockDocument $content,
         public ?DynamicIncludes $included = null,
         public array $extra = [],
+        public bool $hasMemberContinuation = false,
     ) {}
 
     /**
@@ -46,6 +47,7 @@ final readonly class Post
             updatedAt: Data::date($data, 'updated_at'),
             content: BlockDocument::fromArray(Data::object($data, 'content')),
             included: $included === null ? null : DynamicIncludes::fromArray($included),
+            hasMemberContinuation: array_key_exists('has_member_continuation', $data) ? Data::bool($data, 'has_member_continuation') : false,
             extra: Data::extra($data, [
                 'uuid', 'title', 'slug', 'teaser', 'category', 'featured_media',
                 'visibility', 'content', 'published_at', 'updated_at',

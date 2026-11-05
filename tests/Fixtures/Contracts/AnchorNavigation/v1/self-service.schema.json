@@ -1,0 +1,468 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://membergy.app/schemas/self-service/v1/self-service.schema.json",
+  "title": "Membergy authenticated self-service contract v1",
+  "oneOf": [
+    {
+      "$ref": "#/definitions/accessResponse"
+    },
+    {
+      "$ref": "#/definitions/passwordUpdatedResponse"
+    },
+    {
+      "$ref": "#/definitions/passwordConfirmedResponse"
+    },
+    {
+      "$ref": "#/definitions/managementLoginResponse"
+    },
+    {
+      "$ref": "#/definitions/personResponse"
+    },
+    {
+      "$ref": "#/definitions/newsletterResponse"
+    },
+    {
+      "$ref": "https://membergy.app/schemas/forms/v1/form.schema.json#/definitions/definitionResponse"
+    },
+    {
+      "$ref": "#/definitions/selfServiceError"
+    },
+    {
+      "$ref": "#/definitions/validationError"
+    }
+  ],
+  "definitions": {
+    "access": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tenant_slug",
+        "display_name",
+        "management_url"
+      ],
+      "properties": {
+        "tenant_slug": {
+          "type": "string",
+          "minLength": 1
+        },
+        "display_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "management_url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        }
+      }
+    },
+    "accessResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/access"
+        }
+      }
+    },
+    "passwordUpdateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "current_password",
+        "password",
+        "password_confirmation"
+      ],
+      "properties": {
+        "current_password": {
+          "type": "string",
+          "minLength": 1
+        },
+        "password": {
+          "type": "string",
+          "minLength": 8
+        },
+        "password_confirmation": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "passwordUpdatedResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status"
+          ],
+          "properties": {
+            "status": {
+              "type": "string",
+              "const": "password_updated"
+            }
+          }
+        }
+      }
+    },
+    "nullableString": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "contactRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "value",
+        "sharing_scope"
+      ],
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "sharing_scope": {
+          "type": "string",
+          "enum": [
+            "web",
+            "public",
+            "association",
+            "club",
+            "team",
+            "private"
+          ]
+        }
+      }
+    },
+    "person": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "firstname",
+        "lastname",
+        "salutation",
+        "title",
+        "gender",
+        "email",
+        "address_addition",
+        "address_street",
+        "address_zip",
+        "address_city",
+        "country",
+        "date_of_birth",
+        "date_of_birth_sharing_scope",
+        "name_at_birth",
+        "date_of_wedding",
+        "bank_details",
+        "contact_details",
+        "updated_at"
+      ],
+      "properties": {
+        "firstname": {
+          "type": "string"
+        },
+        "lastname": {
+          "type": "string"
+        },
+        "salutation": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "mr",
+            "mrs",
+            "company",
+            "family",
+            null
+          ]
+        },
+        "title": {
+          "$ref": "#/definitions/nullableString"
+        },
+        "gender": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "male",
+            "female",
+            "divers",
+            null
+          ]
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "address_addition": {
+          "$ref": "#/definitions/nullableString"
+        },
+        "address_street": {
+          "$ref": "#/definitions/nullableString"
+        },
+        "address_zip": {
+          "$ref": "#/definitions/nullableString"
+        },
+        "address_city": {
+          "$ref": "#/definitions/nullableString"
+        },
+        "country": {
+          "$ref": "#/definitions/nullableString"
+        },
+        "date_of_birth": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "date_of_birth_sharing_scope": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "club",
+            "team",
+            "private",
+            null
+          ]
+        },
+        "name_at_birth": {
+          "$ref": "#/definitions/nullableString"
+        },
+        "date_of_wedding": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "bank_details": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "iban",
+            "bic",
+            "account_holder"
+          ],
+          "properties": {
+            "name": {
+              "$ref": "#/definitions/nullableString"
+            },
+            "iban": {
+              "$ref": "#/definitions/nullableString"
+            },
+            "bic": {
+              "$ref": "#/definitions/nullableString"
+            },
+            "account_holder": {
+              "$ref": "#/definitions/nullableString"
+            }
+          }
+        },
+        "contact_details": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/contactRow"
+          }
+        },
+        "updated_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      }
+    },
+    "personResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/person"
+        }
+      }
+    },
+    "newsletter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "email",
+        "categories"
+      ],
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "categories": {
+          "type": "array",
+          "maxItems": 100,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      }
+    },
+    "newsletterResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/newsletter"
+        }
+      }
+    },
+    "selfServiceError": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "message",
+        "code"
+      ],
+      "properties": {
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "code": {
+          "type": "string",
+          "enum": [
+            "self_service_unauthenticated",
+            "self_service_forbidden",
+            "self_service_not_found",
+            "self_service_rate_limited",
+            "self_service_password_confirmation_required"
+          ]
+        }
+      }
+    },
+    "validationError": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "message",
+        "code",
+        "errors"
+      ],
+      "properties": {
+        "message": {
+          "type": "string",
+          "const": "The self-service request values are invalid."
+        },
+        "code": {
+          "type": "string",
+          "const": "self_service_validation_failed"
+        },
+        "errors": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "passwordConfirmRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "password"
+      ],
+      "properties": {
+        "password": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        }
+      }
+    },
+    "passwordConfirmedResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status"
+          ],
+          "properties": {
+            "status": {
+              "type": "string",
+              "const": "password_confirmed"
+            }
+          }
+        }
+      }
+    },
+    "managementLoginRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {}
+    },
+    "managementLoginResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "url",
+            "expires_at"
+          ],
+          "properties": {
+            "url": {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https?://[^/]+/management-login/[a-f0-9]{64}$"
+            },
+            "expires_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      }
+    }
+  }
+}

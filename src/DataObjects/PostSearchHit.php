@@ -18,6 +18,7 @@ final readonly class PostSearchHit implements SearchHit
         public string $visibility,
         public DateTimeImmutable $publishedAt,
         public array $extra = [],
+        public bool $hasMemberContinuation = false,
     ) {}
 
     /** @param array<string, mixed> $data */
@@ -30,6 +31,7 @@ final readonly class PostSearchHit implements SearchHit
             excerpt: Data::string($data, 'excerpt'),
             visibility: Data::string($data, 'visibility'),
             publishedAt: Data::date($data, 'published_at'),
+            hasMemberContinuation: array_key_exists('has_member_continuation', $data) ? Data::bool($data, 'has_member_continuation') : false,
             extra: Data::extra($data, [
                 'uuid', 'title', 'slug', 'excerpt', 'visibility', 'published_at',
             ]),

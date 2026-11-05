@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "blocks": [
+    {
+      "id": "99999999-9999-4999-8999-999999999999",
+      "type": "table",
+      "version": 1,
+      "data": {
+        "title": null,
+        "headers": [
+          "Heading",
+          "",
+          ""
+        ],
+        "rows": [
+          [
+            "Literal <b>text</b>",
+            "",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ]
+        ]
+      },
+      "settings": {}
+    }
+  ]
+}

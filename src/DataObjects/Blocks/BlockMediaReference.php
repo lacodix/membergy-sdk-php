@@ -24,4 +24,10 @@ final readonly class BlockMediaReference
             extra: Data::extra($data, ['uuid', 'alt']),
         );
     }
+
+    /** @param array<string, mixed>|null $data */
+    public static function fromNullableArray(?array $data): ?self
+    {
+        return $data === null ? null : self::fromArray($data);
+    }
 }

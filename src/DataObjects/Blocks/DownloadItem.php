@@ -11,7 +11,7 @@ final readonly class DownloadItem
     /** @param array<string, mixed> $extra */
     public function __construct(
         public string $label,
-        public UuidReference $file,
+        public ?UuidReference $file,
         public array $extra = [],
     ) {}
 
@@ -20,7 +20,7 @@ final readonly class DownloadItem
     {
         return new self(
             label: Data::string($data, 'label'),
-            file: UuidReference::fromArray(Data::object($data, 'file')),
+            file: UuidReference::fromNullableArray(Data::nullableObject($data, 'file')),
             extra: Data::extra($data, ['label', 'file']),
         );
     }

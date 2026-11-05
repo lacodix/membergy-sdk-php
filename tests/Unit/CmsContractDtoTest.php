@@ -190,8 +190,7 @@ it('hydrates every remaining v1 block into its concrete DTO', function (
         'include_teaser' => true,
     ]],
     'contact form' => ['contact_form', ContactFormBlock::class, [
-        'form_handle' => 'contact',
-        'topics' => [['key' => 'general', 'label' => 'Allgemein']],
+        'form_uuid' => '11111111-1111-4111-8111-111111111111',
     ]],
     'anchor navigation' => ['anchor_navigation', AnchorNavigationBlock::class, [
         'levels' => [2, 3],
@@ -220,4 +219,24 @@ it('hydrates every menu target recursively and resolves consumer URLs explicitly
         ->toBe('/news/erfolg-beim-wertungsspiel');
     expect($resolver->resolve($menu->items[1]->target))->toBe('https://shop.example.org/noten');
     expect($resolver->resolve($unknown))->toBeNull();
+});
+
+it('exposes every current schema field on the registered block and nested value DTOs', function () {
+    $schema = json_decode((string) file_get_contents(dirname(__DIR__).'/Fixtures/Contracts/AnchorNavigation/v1/block-document.schema.json'), true, flags: JSON_THROW_ON_ERROR);
+    $namespace = 'Lacodix\\MembergySdk\\DataObjects\\Blocks\\';
+    foreach (BlockFactory::knownTypes() as $type => $version) {
+        $class = str_replace(' ', '', ucwords(str_replace('_', ' ', $type))).'Block';
+        $definition = lcfirst($class);
+        $properties = $schema['definitions'][$definition]['allOf'][1]['properties']['data']['properties'] ?? [];
+        foreach (array_keys($properties) as $field) {
+            $property = lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $field))));
+            expect(property_exists($namespace.$class, $property))->toBeTrue($type.'.'.$field.' needs a typed property');
+        }
+    }
+    foreach (['blockSettings' => 'BlockSettings', 'galleryItem' => 'GalleryItem', 'downloadItem' => 'DownloadItem', 'agendaItem' => 'AgendaItem', 'logoItem' => 'LogoItem', 'testimonialItem' => 'TestimonialItem', 'contactTopic' => 'ContactTopic'] as $definition => $class) {
+        foreach (array_keys($schema['definitions'][$definition]['properties']) as $field) {
+            $property = lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $field))));
+            expect(property_exists($namespace.$class, $property))->toBeTrue($definition.'.'.$field.' needs a typed property');
+        }
+    }
 });

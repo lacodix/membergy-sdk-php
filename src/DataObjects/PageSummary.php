@@ -21,6 +21,7 @@ final readonly class PageSummary
         public ?DateTimeImmutable $publishedAt,
         public DateTimeImmutable $updatedAt,
         public array $extra = [],
+        public bool $hasMemberContinuation = false,
     ) {}
 
     /** @param array<string, mixed> $data */
@@ -38,6 +39,7 @@ final readonly class PageSummary
             heroMedia: $heroMedia === null ? null : MediaReference::fromArray($heroMedia),
             publishedAt: Data::nullableDate($data, 'published_at'),
             updatedAt: Data::date($data, 'updated_at'),
+            hasMemberContinuation: array_key_exists('has_member_continuation', $data) ? Data::bool($data, 'has_member_continuation') : false,
             extra: Data::extra($data, [
                 'uuid', 'title', 'title_on_page', 'slug', 'is_start', 'visibility',
                 'hero_media', 'published_at', 'updated_at',

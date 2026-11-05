@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://membergy.app/schemas/cms/v1/media.schema.json",
+  "title": "Membergy public media responses v1",
+  "oneOf": [
+    { "$ref": "#/definitions/detailResponse" },
+    { "$ref": "#/definitions/collectionResponse" }
+  ],
+  "definitions": {
+    "media": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "uuid",
+        "kind",
+        "title",
+        "alt",
+        "description",
+        "filename",
+        "mime_type",
+        "size_bytes",
+        "width",
+        "height",
+        "focus",
+        "visibility",
+        "url",
+        "updated_at"
+      ],
+      "properties": {
+        "uuid": { "$ref": "common.schema.json#/definitions/uuid" },
+        "kind": { "type": "string", "enum": ["image", "file", "video"] },
+        "title": { "$ref": "common.schema.json#/definitions/nullableString" },
+        "alt": { "$ref": "common.schema.json#/definitions/nullableString" },
+        "description": { "$ref": "common.schema.json#/definitions/nullableString" },
+        "filename": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "mime_type": { "type": "string", "minLength": 1, "maxLength": 255 },
+        "size_bytes": { "type": "integer", "minimum": 0 },
+        "width": { "type": ["integer", "null"], "minimum": 1 },
+        "height": { "type": ["integer", "null"], "minimum": 1 },
+        "focus": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["x", "y"],
+              "properties": {
+                "x": { "type": "number", "minimum": 0, "maximum": 1 },
+                "y": { "type": "number", "minimum": 0, "maximum": 1 }
+              }
+            },
+            { "type": "null" }
+          ]
+        },
+        "visibility": { "$ref": "common.schema.json#/definitions/visibility" },
+        "url": { "type": "string", "format": "uri" },
+        "updated_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "detailResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["data"],
+      "properties": {
+        "data": { "$ref": "#/definitions/media" }
+      }
+    },
+    "collectionResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["data", "meta", "links"],
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/media" }
+        },
+        "meta": { "$ref": "common.schema.json#/definitions/paginationMeta" },
+        "links": { "$ref": "common.schema.json#/definitions/paginationLinks" }
+      }
+    }
+  }
+}

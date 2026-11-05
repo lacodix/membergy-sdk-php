@@ -64,7 +64,7 @@ jobs:
             flags+=(--prefer-lowest)
           fi
           composer update --no-interaction --prefer-dist --with "orchestra/testbench:$TESTBENCH" "${flags[@]}"
-      - name: Tests (only two real backend fixture sync tests excluded)
+      - name: Tests (real backend fixture/schema sync gates excluded)
         run: |
           test "$(id -u)" -ne 0
           php -r 'exit(extension_loaded("intl") ? 0 : 1);'

@@ -16,6 +16,7 @@ final readonly class PageSearchHit implements SearchHit
         public string $excerpt,
         public string $visibility,
         public array $extra = [],
+        public bool $hasMemberContinuation = false,
     ) {}
 
     /** @param array<string, mixed> $data */
@@ -27,6 +28,7 @@ final readonly class PageSearchHit implements SearchHit
             slug: Data::string($data, 'slug'),
             excerpt: Data::string($data, 'excerpt'),
             visibility: Data::string($data, 'visibility'),
+            hasMemberContinuation: array_key_exists('has_member_continuation', $data) ? Data::bool($data, 'has_member_continuation') : false,
             extra: Data::extra($data, ['uuid', 'title', 'slug', 'excerpt', 'visibility']),
         );
     }

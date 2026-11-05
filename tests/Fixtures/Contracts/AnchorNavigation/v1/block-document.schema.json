@@ -1,0 +1,1205 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://membergy.app/schemas/cms/v1/block-document.schema.json",
+  "title": "Membergy BlockDocument v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "blocks"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "blocks": {
+      "$ref": "#/definitions/blockList"
+    }
+  },
+  "definitions": {
+    "blockUuid": {
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "blockImageReference": {
+      "allOf": [
+        { "$ref": "common.schema.json#/definitions/mediaUuidReference" },
+        { "properties": { "uuid": { "$ref": "#/definitions/blockUuid" } } }
+      ]
+    },
+    "blockFileReference": {
+      "allOf": [
+        { "$ref": "common.schema.json#/definitions/uuidReference" },
+        { "properties": { "uuid": { "$ref": "#/definitions/blockUuid" } } }
+      ]
+    },
+    "blockLink": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "url",
+            "open_in_new_tab",
+            "rel"
+          ],
+          "properties": {
+            "url": {
+              "oneOf": [
+                {
+                  "$ref": "common.schema.json#/definitions/safeUrl"
+                },
+                {
+                  "const": ""
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "label": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 255
+            },
+            "open_in_new_tab": {
+              "type": "boolean"
+            },
+            "rel": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "enum": [
+                  "noopener",
+                  "noreferrer",
+                  "nofollow",
+                  "sponsored",
+                  "ugc"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "blockList": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "$ref": "#/definitions/block"
+      }
+    },
+    "block": {
+      "oneOf": [
+        { "$ref": "#/definitions/tableBlock" },
+        { "$ref": "#/definitions/titleBlock" },
+        { "$ref": "#/definitions/textBlock" },
+        { "$ref": "#/definitions/imageBlock" },
+        { "$ref": "#/definitions/textImageBlock" },
+        { "$ref": "#/definitions/galleryBlock" },
+        { "$ref": "#/definitions/columnsBlock" },
+        { "$ref": "#/definitions/rawHtmlBlock" },
+        { "$ref": "#/definitions/downloadsBlock" },
+        { "$ref": "#/definitions/agendaBlock" },
+        { "$ref": "#/definitions/logoCloudBlock" },
+        { "$ref": "#/definitions/videoBlock" },
+        { "$ref": "#/definitions/testimonialsBlock" },
+        { "$ref": "#/definitions/postCategoryBlock" },
+        { "$ref": "#/definitions/contactFormBlock" },
+        { "$ref": "#/definitions/anchorNavigationBlock" },
+        { "$ref": "#/definitions/memberContinuationBlock" }
+      ]
+    },
+    "blockBase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "version",
+        "data",
+        "settings"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/blockUuid"
+        },
+        "type": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{0,63}$"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "data": {
+          "type": "object"
+        },
+        "settings": {
+          "$ref": "#/definitions/blockSettings"
+        }
+      }
+    },
+    "blockSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "anchor": {
+          "type": ["string", "null"],
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "color": {
+          "type": ["string", "null"],
+          "maxLength": 7,
+          "pattern": "^#[0-9a-f]{6}$"
+        },
+        "background": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["type", "color", "image"],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["none", "color", "image"]
+                },
+                "color": {
+                  "type": ["string", "null"],
+                  "maxLength": 7,
+                  "pattern": "^#[0-9a-f]{6}$"
+                },
+                "image": {
+                  "oneOf": [
+                    { "$ref": "#/definitions/blockImageReference" },
+                    { "type": "null" }
+                  ]
+                }
+              }
+            },
+            { "type": "null" }
+          ]
+        },
+        "container": {
+          "type": "string",
+          "enum": ["default", "full_width"]
+        },
+        "spacing": {
+          "type": "string",
+          "enum": ["none", "small", "medium", "large"]
+        },
+        "overlap": {
+          "type": "string",
+          "enum": ["none", "top", "bottom", "both"]
+        },
+        "margin": {
+          "type": "string",
+          "enum": ["none", "left", "right", "both"]
+        },
+        "title_position": {
+          "type": "string",
+          "enum": ["left", "center", "right"]
+        }
+      }
+    },
+    "localBlockTitle": {
+      "type": ["string", "null"],
+      "maxLength": 500
+    },
+    "fractionalWidth": {
+      "type": "string",
+      "enum": [
+        "one_quarter",
+        "one_third",
+        "two_fifths",
+        "one_half",
+        "three_fifths",
+        "two_thirds",
+        "three_quarters"
+      ]
+    },
+    "titleBlock": {
+      "allOf": [
+        { "$ref": "#/definitions/blockBase" },
+        {
+          "properties": {
+            "type": { "const": "title" },
+            "version": { "const": 1 },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["text", "level"],
+              "properties": {
+                "text": { "type": "string", "maxLength": 500 },
+                "level": { "type": "integer", "minimum": 1, "maximum": 6 }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "textBlock": {
+      "allOf": [
+        { "$ref": "#/definitions/blockBase" },
+        {
+          "properties": {
+            "type": { "const": "text" },
+            "version": { "const": 1 },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["body"],
+              "properties": {
+                "title": { "$ref": "#/definitions/localBlockTitle" },
+                "body": { "$ref": "common.schema.json#/definitions/richText" }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "imageBlock": {
+      "allOf": [
+        { "$ref": "#/definitions/blockBase" },
+        {
+          "properties": {
+            "type": { "const": "image" },
+            "version": { "const": 1 },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["image", "caption", "link"],
+              "properties": {
+                "title": { "$ref": "#/definitions/localBlockTitle" },
+                "image": { "oneOf": [{ "$ref": "#/definitions/blockImageReference" }, { "type": "null" }] },
+                "caption": { "type": ["string", "null"], "maxLength": 2000 },
+                "link": { "$ref": "#/definitions/blockLink" }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "textImageBlock": {
+      "allOf": [
+        { "$ref": "#/definitions/blockBase" },
+        {
+          "properties": {
+            "type": { "const": "text_image" },
+            "version": { "const": 1 },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["body", "image", "position", "width"],
+              "properties": {
+                "title": { "$ref": "#/definitions/localBlockTitle" },
+                "body": { "$ref": "common.schema.json#/definitions/richText" },
+                "image": { "oneOf": [{ "$ref": "#/definitions/blockImageReference" }, { "type": "null" }] },
+                "position": { "type": "string", "enum": ["left", "right"] },
+                "width": { "$ref": "#/definitions/fractionalWidth" }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "galleryItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["image", "caption", "link"],
+      "properties": {
+        "image": { "oneOf": [{ "$ref": "#/definitions/blockImageReference" }, { "type": "null" }] },
+        "caption": { "type": ["string", "null"], "maxLength": 2000 },
+        "overlay_text": { "type": ["string", "null"], "maxLength": 2000 },
+        "link": { "$ref": "#/definitions/blockLink" }
+      }
+    },
+    "galleryBlock": {
+      "allOf": [
+        { "$ref": "#/definitions/blockBase" },
+        {
+          "properties": {
+            "type": { "const": "gallery" },
+            "version": { "const": 1 },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["items", "per_page", "pagination", "autoplay", "lightbox"],
+              "properties": {
+                "title": { "$ref": "#/definitions/localBlockTitle" },
+                "items": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 100,
+                  "items": { "$ref": "#/definitions/galleryItem" }
+                },
+                "per_page": { "type": "integer", "minimum": 1, "maximum": 4 },
+                "pagination": { "type": "boolean" },
+                "autoplay": { "type": "boolean" },
+                "lightbox": { "type": "boolean" }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "column": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["width", "blocks"],
+      "properties": {
+        "width": { "enum": ["one_quarter", "one_third", "one_half", "two_thirds", "three_quarters"] },
+        "blocks": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "allOf": [
+              { "$ref": "#/definitions/block" },
+              { "not": { "properties": { "type": { "const": "columns" } } } },
+              { "not": { "properties": { "type": { "const": "member_continuation" } } } }
+            ]
+          }
+        }
+      }
+    },
+    "columnsBlock": {
+      "allOf": [
+        { "$ref": "#/definitions/blockBase" },
+        {
+          "properties": {
+            "type": { "const": "columns" },
+            "version": { "const": 1 },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["columns"],
+              "properties": {
+                "title": { "$ref": "#/definitions/localBlockTitle" },
+                "columns": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 3,
+                  "items": { "$ref": "#/definitions/column" }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "rawHtmlBlock": {
+      "allOf": [
+        { "$ref": "#/definitions/blockBase" },
+        {
+          "properties": {
+            "type": { "const": "raw_html" },
+            "version": { "const": 1 },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["html"],
+              "properties": {
+                "title": { "$ref": "#/definitions/localBlockTitle" },
+                "html": { "type": "string", "maxLength": 200000 }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "downloadItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "file"],
+      "properties": {
+        "label": { "type": "string", "maxLength": 255 },
+        "file": { "oneOf": [{ "$ref": "#/definitions/blockFileReference" }, { "type": "null" }] }
+      }
+    },
+    "downloadsBlock": {
+      "allOf": [
+        { "$ref": "#/definitions/blockBase" },
+        {
+          "properties": {
+            "type": { "const": "downloads" },
+            "version": { "const": 1 },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["title", "items"],
+              "properties": {
+                "title": { "type": ["string", "null"], "maxLength": 500 },
+                "items": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 100,
+                  "items": { "$ref": "#/definitions/downloadItem" }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "agendaItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["time", "title", "text", "highlight", "link", "file"],
+      "properties": {
+        "time": { "type": ["string", "null"], "maxLength": 100 },
+        "title": { "type": "string", "maxLength": 500 },
+        "text": { "$ref": "common.schema.json#/definitions/nullableRichText" },
+        "highlight": { "type": "boolean" },
+        "link": { "$ref": "#/definitions/blockLink" },
+        "file": {
+          "oneOf": [
+            { "$ref": "#/definitions/blockFileReference" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "agendaBlock": {
+      "allOf": [
+        { "$ref": "#/definitions/blockBase" },
+        {
+          "properties": {
+            "type": { "const": "agenda" },
+            "version": { "const": 1 },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["title", "intro", "items"],
+              "properties": {
+                "title": { "type": ["string", "null"], "maxLength": 500 },
+                "intro": { "$ref": "common.schema.json#/definitions/nullableRichText" },
+                "items": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 100,
+                  "items": { "$ref": "#/definitions/agendaItem" }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "logoItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["image", "link"],
+      "properties": {
+        "image": { "oneOf": [{ "$ref": "#/definitions/blockImageReference" }, { "type": "null" }] },
+        "link": { "$ref": "#/definitions/blockLink" }
+      }
+    },
+    "logoCloudBlock": {
+      "allOf": [
+        { "$ref": "#/definitions/blockBase" },
+        {
+          "properties": {
+            "type": { "const": "logo_cloud" },
+            "version": { "const": 1 },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["title", "items"],
+              "properties": {
+                "title": { "type": ["string", "null"], "maxLength": 500 },
+                "items": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 100,
+                  "items": { "$ref": "#/definitions/logoItem" }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "videoBlock": {
+      "allOf": [
+        { "$ref": "#/definitions/blockBase" },
+        {
+          "properties": {
+            "type": { "const": "video" },
+            "version": { "const": 1 },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["video", "poster", "caption"],
+              "properties": {
+                "title": { "$ref": "#/definitions/localBlockTitle" },
+                "video": { "oneOf": [{ "$ref": "#/definitions/blockFileReference" }, { "type": "null" }] },
+                "poster": {
+                  "oneOf": [
+                    { "$ref": "#/definitions/blockImageReference" },
+                    { "type": "null" }
+                  ]
+                },
+                "caption": { "type": ["string", "null"], "maxLength": 2000 }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "testimonialItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "name"],
+      "properties": {
+        "text": { "$ref": "common.schema.json#/definitions/richText" },
+        "name": { "type": "string", "maxLength": 255 },
+        "description": { "type": ["string", "null"], "maxLength": 500 }
+      }
+    },
+    "testimonialsBlock": {
+      "allOf": [
+        { "$ref": "#/definitions/blockBase" },
+        {
+          "properties": {
+            "type": { "const": "testimonials" },
+            "version": { "const": 1 },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["title", "per_page", "autoplay", "items"],
+              "properties": {
+                "title": { "type": ["string", "null"], "maxLength": 500 },
+                "per_page": { "type": "integer", "minimum": 1, "maximum": 3 },
+                "autoplay": { "type": "boolean" },
+                "items": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 50,
+                  "items": { "$ref": "#/definitions/testimonialItem" }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "postCategoryBlock": {
+      "allOf": [
+        { "$ref": "#/definitions/blockBase" },
+        {
+          "properties": {
+            "type": { "const": "post_category" },
+            "version": { "const": 1 },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["category_uuid", "limit", "order", "include_teaser"],
+              "properties": {
+                "category_uuid": { "oneOf": [{ "$ref": "#/definitions/blockUuid" }, { "const": "" }, { "type": "null" }] },
+                "limit": { "type": "integer", "minimum": 1, "maximum": 100 },
+                "order": {
+                  "type": "string",
+                  "enum": ["published_at_desc", "published_at_asc"]
+                },
+                "include_teaser": { "type": "boolean" }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "contactTopic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "label"],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 100,
+          "pattern": "^(?:[a-z][a-z0-9_-]*)?$"
+        },
+        "label": { "type": "string", "maxLength": 255 }
+      }
+    },
+    "contactFormBlock": {
+      "allOf": [
+        { "$ref": "#/definitions/blockBase" },
+        {
+          "properties": {
+            "type": { "const": "contact_form" },
+            "version": { "const": 1 },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["form_uuid"],
+              "properties": {
+                "form_uuid": { "oneOf": [{ "$ref": "#/definitions/blockUuid" }, { "type": "null" }] }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "anchorNavigationBlock": {
+      "allOf": [
+        { "$ref": "#/definitions/blockBase" },
+        {
+          "properties": {
+            "type": { "const": "anchor_navigation" },
+            "version": { "const": 1 },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "scope": {
+                  "type": "string",
+                  "enum": ["page", "following"],
+                  "default": "page"
+                },
+                "levels": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 6,
+                  "uniqueItems": true,
+                  "items": { "type": "integer", "minimum": 1, "maximum": 6 }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "tableBlock": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/blockBase"
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "table"
+            },
+            "version": {
+              "const": 1
+            },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "headers",
+                "rows"
+              ],
+              "properties": {
+                "title": {
+                  "$ref": "#/definitions/localBlockTitle"
+                },
+                "headers": {
+                  "type": "array",
+                  "maxItems": 12,
+                  "items": {
+                    "type": "string",
+                    "maxLength": 2000
+                  }
+                },
+                "rows": {
+                  "type": "array",
+                  "maxItems": 101,
+                  "items": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 12,
+                    "items": {
+                      "type": "string",
+                      "maxLength": 2000
+                    }
+                  }
+                },
+                "has_header": {
+                  "type": "boolean",
+                  "readOnly": true,
+                  "description": "Output-only, derived from the nonempty headers array; rejected on writes."
+                }
+              },
+              "oneOf": [
+                {
+                  "properties": {
+                    "headers": {
+                      "maxItems": 0
+                    },
+                    "rows": {
+                      "minItems": 1,
+                      "maxItems": 101,
+                      "items": {
+                        "minItems": 1,
+                        "maxItems": 1
+                      }
+                    },
+                    "has_header": {
+                      "const": false
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "minItems": 1,
+                      "maxItems": 1
+                    },
+                    "rows": {
+                      "minItems": 0,
+                      "maxItems": 100,
+                      "items": {
+                        "minItems": 1,
+                        "maxItems": 1
+                      }
+                    },
+                    "has_header": {
+                      "const": true
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "maxItems": 0
+                    },
+                    "rows": {
+                      "minItems": 1,
+                      "maxItems": 101,
+                      "items": {
+                        "minItems": 2,
+                        "maxItems": 2
+                      }
+                    },
+                    "has_header": {
+                      "const": false
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "minItems": 2,
+                      "maxItems": 2
+                    },
+                    "rows": {
+                      "minItems": 0,
+                      "maxItems": 100,
+                      "items": {
+                        "minItems": 2,
+                        "maxItems": 2
+                      }
+                    },
+                    "has_header": {
+                      "const": true
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "maxItems": 0
+                    },
+                    "rows": {
+                      "minItems": 1,
+                      "maxItems": 101,
+                      "items": {
+                        "minItems": 3,
+                        "maxItems": 3
+                      }
+                    },
+                    "has_header": {
+                      "const": false
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "minItems": 3,
+                      "maxItems": 3
+                    },
+                    "rows": {
+                      "minItems": 0,
+                      "maxItems": 100,
+                      "items": {
+                        "minItems": 3,
+                        "maxItems": 3
+                      }
+                    },
+                    "has_header": {
+                      "const": true
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "maxItems": 0
+                    },
+                    "rows": {
+                      "minItems": 1,
+                      "maxItems": 101,
+                      "items": {
+                        "minItems": 4,
+                        "maxItems": 4
+                      }
+                    },
+                    "has_header": {
+                      "const": false
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "minItems": 4,
+                      "maxItems": 4
+                    },
+                    "rows": {
+                      "minItems": 0,
+                      "maxItems": 100,
+                      "items": {
+                        "minItems": 4,
+                        "maxItems": 4
+                      }
+                    },
+                    "has_header": {
+                      "const": true
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "maxItems": 0
+                    },
+                    "rows": {
+                      "minItems": 1,
+                      "maxItems": 101,
+                      "items": {
+                        "minItems": 5,
+                        "maxItems": 5
+                      }
+                    },
+                    "has_header": {
+                      "const": false
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "minItems": 5,
+                      "maxItems": 5
+                    },
+                    "rows": {
+                      "minItems": 0,
+                      "maxItems": 100,
+                      "items": {
+                        "minItems": 5,
+                        "maxItems": 5
+                      }
+                    },
+                    "has_header": {
+                      "const": true
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "maxItems": 0
+                    },
+                    "rows": {
+                      "minItems": 1,
+                      "maxItems": 101,
+                      "items": {
+                        "minItems": 6,
+                        "maxItems": 6
+                      }
+                    },
+                    "has_header": {
+                      "const": false
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "minItems": 6,
+                      "maxItems": 6
+                    },
+                    "rows": {
+                      "minItems": 0,
+                      "maxItems": 100,
+                      "items": {
+                        "minItems": 6,
+                        "maxItems": 6
+                      }
+                    },
+                    "has_header": {
+                      "const": true
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "maxItems": 0
+                    },
+                    "rows": {
+                      "minItems": 1,
+                      "maxItems": 101,
+                      "items": {
+                        "minItems": 7,
+                        "maxItems": 7
+                      }
+                    },
+                    "has_header": {
+                      "const": false
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "minItems": 7,
+                      "maxItems": 7
+                    },
+                    "rows": {
+                      "minItems": 0,
+                      "maxItems": 100,
+                      "items": {
+                        "minItems": 7,
+                        "maxItems": 7
+                      }
+                    },
+                    "has_header": {
+                      "const": true
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "maxItems": 0
+                    },
+                    "rows": {
+                      "minItems": 1,
+                      "maxItems": 101,
+                      "items": {
+                        "minItems": 8,
+                        "maxItems": 8
+                      }
+                    },
+                    "has_header": {
+                      "const": false
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "minItems": 8,
+                      "maxItems": 8
+                    },
+                    "rows": {
+                      "minItems": 0,
+                      "maxItems": 100,
+                      "items": {
+                        "minItems": 8,
+                        "maxItems": 8
+                      }
+                    },
+                    "has_header": {
+                      "const": true
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "maxItems": 0
+                    },
+                    "rows": {
+                      "minItems": 1,
+                      "maxItems": 101,
+                      "items": {
+                        "minItems": 9,
+                        "maxItems": 9
+                      }
+                    },
+                    "has_header": {
+                      "const": false
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "minItems": 9,
+                      "maxItems": 9
+                    },
+                    "rows": {
+                      "minItems": 0,
+                      "maxItems": 100,
+                      "items": {
+                        "minItems": 9,
+                        "maxItems": 9
+                      }
+                    },
+                    "has_header": {
+                      "const": true
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "maxItems": 0
+                    },
+                    "rows": {
+                      "minItems": 1,
+                      "maxItems": 101,
+                      "items": {
+                        "minItems": 10,
+                        "maxItems": 10
+                      }
+                    },
+                    "has_header": {
+                      "const": false
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "minItems": 10,
+                      "maxItems": 10
+                    },
+                    "rows": {
+                      "minItems": 0,
+                      "maxItems": 100,
+                      "items": {
+                        "minItems": 10,
+                        "maxItems": 10
+                      }
+                    },
+                    "has_header": {
+                      "const": true
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "maxItems": 0
+                    },
+                    "rows": {
+                      "minItems": 1,
+                      "maxItems": 101,
+                      "items": {
+                        "minItems": 11,
+                        "maxItems": 11
+                      }
+                    },
+                    "has_header": {
+                      "const": false
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "minItems": 11,
+                      "maxItems": 11
+                    },
+                    "rows": {
+                      "minItems": 0,
+                      "maxItems": 100,
+                      "items": {
+                        "minItems": 11,
+                        "maxItems": 11
+                      }
+                    },
+                    "has_header": {
+                      "const": true
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "maxItems": 0
+                    },
+                    "rows": {
+                      "minItems": 1,
+                      "maxItems": 101,
+                      "items": {
+                        "minItems": 12,
+                        "maxItems": 12
+                      }
+                    },
+                    "has_header": {
+                      "const": false
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "headers": {
+                      "minItems": 12,
+                      "maxItems": 12
+                    },
+                    "rows": {
+                      "minItems": 0,
+                      "maxItems": 100,
+                      "items": {
+                        "minItems": 12,
+                        "maxItems": 12
+                      }
+                    },
+                    "has_header": {
+                      "const": true
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "memberContinuationBlock": {
+      "allOf": [
+        { "$ref": "#/definitions/blockBase" },
+        {
+          "properties": {
+            "type": { "const": "member_continuation" },
+            "version": { "const": 1 },
+            "data": {
+              "type": "object",
+              "additionalProperties": false,
+              "maxProperties": 0
+            },
+            "settings": {
+              "type": "object",
+              "additionalProperties": false,
+              "maxProperties": 0
+            }
+          }
+        }
+      ]
+    }
+  }
+}

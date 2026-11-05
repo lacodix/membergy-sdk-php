@@ -22,9 +22,11 @@ use Lacodix\MembergySdk\DataObjects\Blocks\ImageBlock;
 use Lacodix\MembergySdk\DataObjects\Blocks\Link;
 use Lacodix\MembergySdk\DataObjects\Blocks\LogoCloudBlock;
 use Lacodix\MembergySdk\DataObjects\Blocks\LogoItem;
+use Lacodix\MembergySdk\DataObjects\Blocks\MemberContinuationBlock;
 use Lacodix\MembergySdk\DataObjects\Blocks\PostCategoryBlock;
 use Lacodix\MembergySdk\DataObjects\Blocks\RawHtmlBlock;
 use Lacodix\MembergySdk\DataObjects\Blocks\RichText;
+use Lacodix\MembergySdk\DataObjects\Blocks\TableBlock;
 use Lacodix\MembergySdk\DataObjects\Blocks\TestimonialItem;
 use Lacodix\MembergySdk\DataObjects\Blocks\TestimonialsBlock;
 use Lacodix\MembergySdk\DataObjects\Blocks\TextBlock;
@@ -58,6 +60,8 @@ final class BlockFactory
             'post_category' => 1,
             'contact_form' => 1,
             'anchor_navigation' => 1,
+            'table' => 1,
+            'member_continuation' => 1,
         ];
     }
 
@@ -75,7 +79,13 @@ final class BlockFactory
             return new UnknownBlock($id, $type, $version, $settings, $data, $payload, $extra);
         }
 
+        if ($type === 'contact_form' && ! array_key_exists('form_handle', $data)) {
+            Data::value($data, 'form_uuid');
+        }
+
         return match ($type) {
+            'member_continuation' => new MemberContinuationBlock($id, $version, $settings, $data, $extra),
+            'table' => TableBlock::fromData($id, $version, $settings, $data, $extra),
             'title' => new TitleBlock(
                 $id,
                 $version,
@@ -101,7 +111,7 @@ final class BlockFactory
                 $settings,
                 Data::nullableString($data, 'title'),
                 RichText::fromArray(Data::object($data, 'body')),
-                BlockMediaReference::fromArray(Data::object($data, 'image')),
+                BlockMediaReference::fromNullableArray(Data::nullableObject($data, 'image')),
                 Data::string($data, 'position'),
                 Data::string($data, 'width'),
                 Data::extra($data, ['title', 'body', 'image', 'position', 'width']),
@@ -173,7 +183,7 @@ final class BlockFactory
                 $id,
                 $version,
                 $settings,
-                Data::string($data, 'category_uuid'),
+                Data::nullableString($data, 'category_uuid'),
                 Data::int($data, 'limit'),
                 Data::string($data, 'order'),
                 Data::bool($data, 'include_teaser'),
@@ -197,9 +207,10 @@ final class BlockFactory
                 $id,
                 $version,
                 $settings,
-                Data::intList($data, 'levels'),
-                Data::extra($data, ['levels']),
+                array_key_exists('levels', $data) ? Data::intList($data, 'levels') : null,
+                Data::extra($data, ['levels', 'scope']),
                 $extra,
+                array_key_exists('scope', $data) ? Data::string($data, 'scope') : 'page',
             ),
             default => new UnknownBlock($id, $type, $version, $settings, $data, $payload, $extra),
         };
@@ -223,7 +234,7 @@ final class BlockFactory
             $version,
             $settings,
             Data::nullableString($data, 'title'),
-            BlockMediaReference::fromArray(Data::object($data, 'image')),
+            BlockMediaReference::fromNullableArray(Data::nullableObject($data, 'image')),
             Data::nullableString($data, 'caption'),
             $link === null ? null : Link::fromArray($link),
             Data::extra($data, ['title', 'image', 'caption', 'link']),
@@ -284,7 +295,7 @@ final class BlockFactory
             $version,
             $settings,
             Data::nullableString($data, 'title'),
-            UuidReference::fromArray(Data::object($data, 'video')),
+            UuidReference::fromNullableArray(Data::nullableObject($data, 'video')),
             $poster === null ? null : BlockMediaReference::fromArray($poster),
             Data::nullableString($data, 'caption'),
             Data::extra($data, ['title', 'video', 'poster', 'caption']),

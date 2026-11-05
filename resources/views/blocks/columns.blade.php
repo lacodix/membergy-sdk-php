@@ -1,7 +1,7 @@
 <div class="membergy-columns">
     @foreach ($block->columns as $column)
         <div class="membergy-column membergy-column--{{ $column->width }}">
-            {!! $renderer->renderBlocks($column->blocks, $included, $anchors) !!}
+            {!! $renderer->renderBlocks($column->blocks, $included, $anchors, $navigationAnchors ?? null) !!}
         </div>
     @endforeach
 </div>

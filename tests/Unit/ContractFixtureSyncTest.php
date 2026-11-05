@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Lacodix\MembergySdk\Tests\Support\ContractFixtureSync;
 use PHPUnit\Framework\AssertionFailedError;
 
-it('keeps all 58 SDK response fixtures and the separate BlockRegistry byte-identical to the backend source of truth', function () {
+it('keeps all 64 SDK CMS fixtures and the separate BlockRegistry byte-identical to the backend source of truth', function () {
     $backendRoot = getenv('MEMBERGY_BACKEND_ROOT');
 
     if (! is_string($backendRoot) || $backendRoot === '') {
@@ -80,11 +80,27 @@ it('rejects contract fixture drift in either repository', function (string $drif
     'missing SDK response' => ['sdk missing', 'no missing or extra files'],
     'additional SDK response' => ['sdk extra', 'no missing or extra files'],
     'same count but different SDK paths' => ['sdk renamed', 'no missing or extra files'],
-    'missing backend response' => ['backend missing', '58 response fixtures'],
-    'additional backend response' => ['backend extra', '58 response fixtures'],
+    'missing backend response' => ['backend missing', '64 CMS fixtures'],
+    'additional backend response' => ['backend extra', '64 CMS fixtures'],
     'changed response bytes' => ['response bytes', "Response fixture 'pages/show.json' must be byte-identical"],
     'changed registry bytes' => ['registry bytes', 'BlockRegistry must be byte-identical'],
     'missing SDK registry' => ['sdk registry missing', 'no missing or extra files'],
     'missing backend registry' => ['backend registry missing', 'backend BlockRegistry must exist'],
     'missing backend checkout' => ['backend directory missing', 'contract fixture directory must exist'],
 ]);
+
+it('keeps the complete current CMS schema family byte-identical to the backend', function () {
+    $backendRoot = getenv('MEMBERGY_BACKEND_ROOT');
+    if (! is_string($backendRoot) || $backendRoot === '') {
+        throw new RuntimeException('Set MEMBERGY_BACKEND_ROOT to the authoritative backend checkout; the schema gate cannot be skipped.');
+    }
+    $sdk = dirname(__DIR__).'/Fixtures/Contracts/AnchorNavigation/v1';
+    $backend = rtrim($backendRoot, '/').'/docs/features/website-cms/contracts/v1/schemas';
+    $paths = glob($backend.'/*.schema.json');
+    expect($paths)->not->toBeFalse();
+    expect($paths)->toHaveCount(19);
+    expect(array_map('basename', glob($sdk.'/*.schema.json') ?: []))->toBe(array_map('basename', $paths));
+    foreach ($paths as $path) {
+        expect(file_get_contents($sdk.'/'.basename($path)))->toBe(file_get_contents($path), basename($path).' must be byte-identical.');
+    }
+})->group('backend-fixture-sync');

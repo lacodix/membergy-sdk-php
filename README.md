@@ -441,6 +441,90 @@ The SDK provides semantic `membergy-*` classes but deliberately no fixed theme.
 Renderer views trust only the backend-sanitized rich-text/raw-HTML contract; unknown raw
 payloads are never rendered.
 
+Each `anchor_navigation` v1 block can set `data.scope` to `page` (all supported
+blocks with a nonblank common `settings.anchor`, except this marker) or `following`
+(strictly after this marker until strictly before the next navigation marker, or
+document end). Omitted scope defaults to `page`. Every marker ends the preceding
+following range, irrespective of scope. Ordering is container-first, left-to-right,
+depth-first through columns, including the columns container itself. Other markers'
+anchors are eligible in page scope. Original anchor identities and duplicates are
+preserved; rich-text HTML IDs are not collected. Optional supplied `levels` remain
+typed inert metadata; absence does not manufacture levels. Empty ranges render an
+empty menu. Labels use existing plain heading/title text when nonblank, otherwise
+the anchor; Blade escapes labels and anchor attributes. No entries/count wire API
+is introduced. `AnchorNavigationBlock::dataToArray()` exports scope, supplied levels
+and additive data fields.
+
+`render(document)` supplies the full document context. Existing three-argument
+`renderBlocks()` / `renderBlock()` calls remain supported: page menus use the
+caller-supplied anchors; `renderBlocks()` derives following ranges from its supplied
+block list. A standalone `renderBlock()` cannot infer surrounding document order,
+so its supplied anchors are treated as the caller's selected range. The supplied renderer carries an immutable navigation context through recursive
+columns, including older overrides using three arguments. The optional fourth
+navigation-range map can still select an explicit context. Use
+`render(document)` for whole-document selection and own-marker exclusion.
+
+`contact_form` v1 carries `data.form_uuid` (UUID string or explicit `null`).
+`ContactFormBlock` retains main's original `formHandle`/`topics` constructor positions
+and legacy hydration, alongside native `formUuid`, `definitionVersion`, `submitLabel`
+and `title`. Invalid supplied UUIDs still fail hydration. The default view is an inert
+UUID hook; applications can fetch native definitions and submit through
+`$client->content()->forms()` as described in [contact forms](docs/contact-forms.md).
+Published application views may render their own native forms.
+
+`table` v1 exposes `title`, plain-text `headers`, rectangular `rows`, and `hasHeader`.
+The optional wire `has_header` must agree with the headers; older responses derive it.
+The default view escapes every cell, preserves empty cells/rows, and emits column
+headers only when present. Tables accept at most 12 columns, 101 logical rows including
+the header, and 2000 characters per cell.
+
+Page/Post, their summaries and search hits expose `hasMemberContinuation` (also retained in `extra['has_member_continuation']` for existing consumers; false when absent on
+older responses). The backend supplies guest/member projections and removes editorial
+`member_continuation` markers. The SDK never fetches or reconstructs private continuation
+content. Markers hydrate to an inert DTO and produce neither markup nor navigation links.
+
+Testimonials retain `items[].name` and expose optional `description:string|null`,
+escaped separately from the backend-sanitized rich text. Missing media/file
+selections in unfinished blocks hydrate as `null`; views omit missing media and
+file links. Unselected post categories retain `null` or the empty string.
+
+The current CMS registry has 17 v1 block types. The fixtures and schema mirrors
+are synchronized with the current backend public contract; unknown block versions/types
+and additive fields retain their existing fallback behavior. This source compatibility
+does not establish a released or deployed consumer integration.
+
+Upgrading an application with published/custom Blade views requires manual
+reconciliation: files under `resources/views/vendor/membergy/blocks/` override the
+package's `vendor/lacodix/membergy-sdk-php/resources/views/blocks/` files, so a Composer
+upgrade alone leaves old overrides active. Back up/version your overrides, compare
+each affected file with the new package view, then merge the following changes into
+your custom markup:
+
+- `anchor-navigation.blade.php`: consume the renderer-selected `$anchors` directly;
+  remove the old `levels` filter and keep escaped link labels/attributes.
+- `columns.blade.php`: existing three-argument `$renderer->renderBlocks()` calls retain
+  whole-document context automatically when invoked through the supplied renderer.
+  Explicit fourth-argument navigation maps remain supported.
+- `contact-form.blade.php`: use nullable `formUuid` for native forms. Existing
+  `formHandle`/`topics` integrations remain available. Keep browser forms behind the
+  application's own CSRF and server-side native SDK gateway; see the contact guide.
+- `image.blade.php`, `text-image.blade.php`, `gallery.blade.php`,
+  `logo-cloud.blade.php`, `video.blade.php`, `downloads.blade.php`: guard nullable
+  image/video/file references before accessing their UUID or building URLs; retain
+  text independently where applicable. In image/gallery/logo-cloud and
+  `agenda.blade.php`, guard nullable/empty link URLs before rendering an anchor.
+- `testimonials.blade.php`: retain `name` and sanitized quote output, and render the
+  optional description with escaped Blade output only when nonnull.
+
+For an uncustomized override, compare it first and deliberately replace that one
+file with the matching package view. Publishing with `--tag=membergy-views` without
+`--force` can add missing files but does not upgrade existing overrides. Do not
+blindly force-republish the directory or overwrite custom views. After merging,
+clear compiled views with `php artisan view:clear` in the consumer's normal deployment
+workflow. Smoke-test page/following menus across columns, empty media selections,
+Form UUID/null hooks and testimonial escaping in that consumer. These instructions
+do not claim execution against any published/custom consumer installation.
+
 See [the compatibility matrix](docs/compatibility.md) for the supported API and contract
 versions.
 
@@ -456,11 +540,13 @@ Unit tests run locally. Integration tests use Saloon's `MockClient`
 to simulate HTTP responses — no running Membergy instance required. Both source
 checkouts are required for the separate fixture gates.
 
-The copied API fixtures under `tests/Fixtures/Contracts/Cms/v1` contain exactly 58
-backend response fixtures plus the separate `block-registry.json`. The cross-repo
-gate requires `MEMBERGY_BACKEND_ROOT` to point to the authoritative backend checkout;
-a missing checkout fails the gate and is never skipped. It checks missing and extra
-files in both repositories and byte-identical responses and BlockRegistry.
+The fixtures under `tests/Fixtures/Contracts/Cms/v1` contain all 64 current backend
+CMS JSON fixtures (responses and document examples), plus `block-registry.json`.
+The gate requires the real `MEMBERGY_BACKEND_ROOT` checkout and compares complete
+path sets and every fixture byte. The schema family is mirrored under the existing
+`tests/Fixtures/Contracts/AnchorNavigation/v1` destination and checked independently
+against backend schema bytes. Local synthetic anchor examples remain distinct from
+backend HTTP captures. Registration fixtures and drift remain independently gated.
 
 Registration fixtures live separately under `tests/Fixtures/Contracts/Registration/v1`:
 43 captured backend responses (including the exact PDF bytes), their request/status/header
@@ -522,7 +608,7 @@ enters Membergy through its own login and permission checks.
 `expiresAt`. Its URL and payload parameters are SensitiveParameter and its __debugInfo redacts
 the URL. The request uses self-service-v1; 403/401/429 map to the existing forbidden/auth/rate
 exceptions. This method needs the additive backend management-login route and ticket migration.
-58 CMS response fixtures plus the BlockRegistry and the independent registration provenance
+64 CMS fixtures plus the BlockRegistry and the independent registration provenance
 are synced byte-for-byte. Capture and canonicalization remain backend-owned.
 
 The server enforces a 60-second single-use ticket bound to user, club and issuing website token.

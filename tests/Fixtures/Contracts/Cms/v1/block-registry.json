@@ -71,7 +71,6 @@
         "image",
         "text_image",
         "gallery",
-        "columns",
         "raw_html",
         "downloads",
         "agenda",
@@ -80,7 +79,8 @@
         "testimonials",
         "post_category",
         "contact_form",
-        "anchor_navigation"
+        "anchor_navigation",
+        "table"
       ],
       "schema": "schemas/block-document.schema.json#/definitions/columnsBlock"
     },
@@ -157,6 +157,22 @@
       "dynamic": true,
       "children": false,
       "schema": "schemas/block-document.schema.json#/definitions/anchorNavigationBlock"
+    },
+    {
+      "type": "table",
+      "version": 1,
+      "phase": "hhv",
+      "dynamic": false,
+      "children": false,
+      "schema": "schemas/block-document.schema.json#/definitions/tableBlock"
+    },
+    {
+      "type": "member_continuation",
+      "version": 1,
+      "phase": "post",
+      "dynamic": false,
+      "children": false,
+      "schema": "schemas/block-document.schema.json#/definitions/memberContinuationBlock"
     }
   ]
 }

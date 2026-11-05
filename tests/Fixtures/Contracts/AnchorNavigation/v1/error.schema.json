@@ -1,0 +1,6 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://membergy.app/schemas/cms/v1/error.schema.json",
+  "title": "Membergy public CMS error response v1",
+  "$ref": "https://membergy.app/schemas/cms/v1/common.schema.json#/definitions/errorResponse"
+}

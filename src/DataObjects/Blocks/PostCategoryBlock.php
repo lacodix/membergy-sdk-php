@@ -14,7 +14,7 @@ final readonly class PostCategoryBlock extends AbstractBlock
         string $id,
         int $version,
         BlockSettings $settings,
-        public string $categoryUuid,
+        public ?string $categoryUuid,
         public int $limit,
         public string $order,
         public bool $includeTeaser,

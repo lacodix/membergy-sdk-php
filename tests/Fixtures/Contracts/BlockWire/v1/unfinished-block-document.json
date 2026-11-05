@@ -1,0 +1,221 @@
+{
+  "schema_version": 1,
+  "blocks": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "type": "title",
+      "version": 1,
+      "data": {
+        "text": "",
+        "level": 2
+      },
+      "settings": {}
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "type": "text",
+      "version": 1,
+      "data": {
+        "title": null,
+        "body": {
+          "format": "html",
+          "value": ""
+        }
+      },
+      "settings": {}
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "type": "image",
+      "version": 1,
+      "data": {
+        "title": null,
+        "image": null,
+        "caption": null,
+        "link": null
+      },
+      "settings": {}
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000004",
+      "type": "text_image",
+      "version": 1,
+      "data": {
+        "title": null,
+        "body": {
+          "format": "html",
+          "value": ""
+        },
+        "image": null,
+        "position": "right",
+        "width": "one_third"
+      },
+      "settings": {}
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000005",
+      "type": "gallery",
+      "version": 1,
+      "data": {
+        "title": null,
+        "items": [
+          {
+            "image": null,
+            "caption": null,
+            "overlay_text": null,
+            "link": null
+          }
+        ],
+        "per_page": 3,
+        "pagination": true,
+        "autoplay": false,
+        "lightbox": true
+      },
+      "settings": {}
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000006",
+      "type": "columns",
+      "version": 1,
+      "data": {
+        "title": null,
+        "columns": [
+          {
+            "width": "one_half",
+            "blocks": []
+          },
+          {
+            "width": "one_half",
+            "blocks": []
+          }
+        ]
+      },
+      "settings": {}
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000007",
+      "type": "raw_html",
+      "version": 1,
+      "data": {
+        "title": null,
+        "html": ""
+      },
+      "settings": {}
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000008",
+      "type": "downloads",
+      "version": 1,
+      "data": {
+        "title": null,
+        "items": [
+          {
+            "label": "",
+            "file": null
+          }
+        ]
+      },
+      "settings": {}
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000009",
+      "type": "agenda",
+      "version": 1,
+      "data": {
+        "title": null,
+        "intro": null,
+        "items": [
+          {
+            "time": null,
+            "title": "",
+            "text": null,
+            "highlight": false,
+            "link": null,
+            "file": null
+          }
+        ]
+      },
+      "settings": {}
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000010",
+      "type": "logo_cloud",
+      "version": 1,
+      "data": {
+        "title": null,
+        "items": [
+          {
+            "image": null,
+            "link": null
+          }
+        ]
+      },
+      "settings": {}
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000011",
+      "type": "video",
+      "version": 1,
+      "data": {
+        "title": null,
+        "video": null,
+        "poster": null,
+        "caption": null
+      },
+      "settings": {}
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000012",
+      "type": "testimonials",
+      "version": 1,
+      "data": {
+        "title": null,
+        "per_page": 1,
+        "autoplay": false,
+        "items": [
+          {
+            "text": {
+              "format": "html",
+              "value": ""
+            },
+            "name": ""
+          }
+        ]
+      },
+      "settings": {}
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000013",
+      "type": "post_category",
+      "version": 1,
+      "data": {
+        "category_uuid": "",
+        "limit": 6,
+        "order": "published_at_desc",
+        "include_teaser": true
+      },
+      "settings": {}
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000014",
+      "type": "contact_form",
+      "version": 1,
+      "data": {
+        "form_uuid": null
+      },
+      "settings": {}
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000015",
+      "type": "anchor_navigation",
+      "version": 1,
+      "data": {
+        "levels": [
+          2,
+          3
+        ]
+      },
+      "settings": {}
+    }
+  ]
+}

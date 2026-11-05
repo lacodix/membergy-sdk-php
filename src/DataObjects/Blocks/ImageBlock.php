@@ -15,7 +15,7 @@ final readonly class ImageBlock extends AbstractBlock
         int $version,
         BlockSettings $settings,
         public ?string $title,
-        public BlockMediaReference $image,
+        public ?BlockMediaReference $image,
         public ?string $caption,
         public ?Link $link,
         public array $dataExtra = [],

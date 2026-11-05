@@ -60,6 +60,21 @@ final class LaravelIntegrationTest extends TestCase
         $mock->assertSentCount(1);
     }
 
+    public function test_legacy_contact_form_renders_its_handle_and_escaped_topics_without_a_native_uuid(): void
+    {
+        $document = BlockDocument::fromArray(['schema_version' => 1, 'blocks' => [[
+            'id' => 'legacy-contact', 'type' => 'contact_form', 'version' => 1,
+            'data' => ['form_handle' => 'legacy-contact', 'topics' => [
+                ['key' => 'general', 'label' => 'General <Sachsen> & "friends"'],
+            ]], 'settings' => [],
+        ]]]);
+        $html = $this->app->make(ContentRenderer::class)->render($document);
+
+        self::assertStringContainsString('data-membergy-form="legacy-contact"', $html);
+        self::assertStringContainsString('<li data-topic="general">General &lt;Sachsen&gt; &amp; &quot;friends&quot;</li>', $html);
+        self::assertStringNotContainsString('data-membergy-form-uuid', $html);
+    }
+
     public function test_contact_form_rendering_is_an_inert_overridable_uuid_placeholder(): void
     {
         $mock = new MockClient;
@@ -283,8 +298,7 @@ final class LaravelIntegrationTest extends TestCase
                     'type' => 'contact_form',
                     'version' => 1,
                     'data' => [
-                        'form_handle' => 'contact',
-                        'topics' => [['key' => 'general', 'label' => 'General']],
+                        'form_uuid' => '11111111-1111-4111-8111-111111111111',
                     ],
                     'settings' => [],
                 ],
@@ -308,15 +322,16 @@ final class LaravelIntegrationTest extends TestCase
             DynamicIncludes::fromArray($includedPayload),
         );
 
+        self::assertStringContainsString('<div class="membergy-raw-html"><p>Sanitized raw HTML</p></div>', $html);
+
         foreach ([
-            'Sanitized raw HTML',
             'Programme',
             'Doors',
             'Partners',
             'Concert film',
             'Excellent.',
             'Erfolg beim Wertungsspiel',
-            'General',
+            'data-membergy-form-uuid="11111111-1111-4111-8111-111111111111"',
             'href="#linked-section"',
         ] as $expected) {
             self::assertStringContainsString($expected, $html);

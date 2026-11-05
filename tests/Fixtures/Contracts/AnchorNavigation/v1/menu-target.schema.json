@@ -1,0 +1,157 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://membergy.app/schemas/cms/v1/menu-target.schema.json",
+  "title": "Membergy menu target v1",
+  "$ref": "#/definitions/target",
+  "definitions": {
+    "internalTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "uuid",
+        "slug",
+        "title"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "page",
+            "post",
+            "post_category"
+          ]
+        },
+        "uuid": {
+          "$ref": "common.schema.json#/definitions/uuid"
+        },
+        "slug": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        }
+      }
+    },
+    "customLinkTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "url"
+      ],
+      "properties": {
+        "type": {
+          "const": "custom_link"
+        },
+        "url": {
+          "$ref": "common.schema.json#/definitions/safeUrl"
+        }
+      }
+    },
+    "unknownTarget": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "not": {
+            "enum": [
+              "page",
+              "post",
+              "post_category",
+              "custom_link"
+            ]
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "target": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/internalTarget"
+        },
+        {
+          "$ref": "#/definitions/customLinkTarget"
+        },
+        {
+          "$ref": "#/definitions/unknownTarget"
+        }
+      ]
+    },
+    "nullableTarget": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/target"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "menuItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "target",
+        "open_in_new_tab",
+        "rel",
+        "meta",
+        "children"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/definitions/uuid"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "target": {
+          "$ref": "#/definitions/nullableTarget"
+        },
+        "open_in_new_tab": {
+          "type": "boolean"
+        },
+        "rel": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "noopener",
+              "noreferrer",
+              "nofollow",
+              "sponsored",
+              "ugc"
+            ]
+          }
+        },
+        "meta": {
+          "type": "object",
+          "maxProperties": 20,
+          "additionalProperties": true
+        },
+        "children": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/definitions/menuItem"
+          }
+        }
+      }
+    }
+  }
+}

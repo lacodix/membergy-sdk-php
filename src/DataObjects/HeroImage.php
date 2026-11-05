@@ -22,6 +22,9 @@ final readonly class HeroImage
     public static function fromArray(array $data): self
     {
         $link = Data::nullableObject($data, 'link');
+        if ($link !== null) {
+            Data::string($link, 'url');
+        }
 
         return new self(
             media: MediaReference::fromArray(Data::object($data, 'media')),

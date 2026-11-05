@@ -8,7 +8,8 @@
           "title": "Jahresbericht 2026",
           "slug": "jahresbericht-2026",
           "excerpt": "Der Jahresbericht fasst unsere wichtigsten Projekte zusammen.",
-          "visibility": "public"
+          "visibility": "public",
+          "has_member_continuation": false
         }
       ],
       "meta": {
@@ -27,6 +28,7 @@
           "slug": "unser-jahresrueckblick",
           "excerpt": "Der Jahresrückblick zeigt die Höhepunkte des Vereinslebens.",
           "visibility": "public",
+          "has_member_continuation": false,
           "published_at": "2026-08-08T10:00:00+00:00"
         }
       ],

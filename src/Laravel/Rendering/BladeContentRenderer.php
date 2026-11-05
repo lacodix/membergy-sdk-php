@@ -7,8 +7,10 @@ namespace Lacodix\MembergySdk\Laravel\Rendering;
 use Illuminate\Contracts\View\Factory;
 use Lacodix\MembergySdk\Contracts\ContentRenderer;
 use Lacodix\MembergySdk\DataObjects\BlockDocument;
+use Lacodix\MembergySdk\DataObjects\Blocks\AnchorNavigationBlock;
 use Lacodix\MembergySdk\DataObjects\Blocks\Block;
 use Lacodix\MembergySdk\DataObjects\Blocks\ColumnsBlock;
+use Lacodix\MembergySdk\DataObjects\Blocks\MemberContinuationBlock;
 use Lacodix\MembergySdk\DataObjects\Blocks\TitleBlock;
 use Lacodix\MembergySdk\DataObjects\Blocks\UnknownBlock;
 use Lacodix\MembergySdk\DataObjects\DynamicIncludes;
@@ -29,15 +31,18 @@ final readonly class BladeContentRenderer implements ContentRenderer
         'post_category' => 'membergy::blocks.post-category',
         'raw_html' => 'membergy::blocks.raw-html',
         'testimonials' => 'membergy::blocks.testimonials',
+        'table' => 'membergy::blocks.table',
         'text' => 'membergy::blocks.text',
         'text_image' => 'membergy::blocks.text-image',
         'title' => 'membergy::blocks.title',
         'video' => 'membergy::blocks.video',
     ];
 
+    /** @param array<string, list<array{id: string, title: string, level?: int}>>|null $navigationContext */
     public function __construct(
         private Factory $views,
         private MediaUrlFactory $mediaUrls,
+        private ?array $navigationContext = null,
     ) {}
 
     public function render(BlockDocument $document, ?DynamicIncludes $included = null): string
@@ -45,33 +50,45 @@ final readonly class BladeContentRenderer implements ContentRenderer
         return $this->renderBlocks(
             $document->blocks,
             $included,
-            $this->anchors($document->blocks),
+            [],
+            $this->navigationAnchors($document->blocks, includePage: true),
         );
     }
 
     /**
      * @param  list<Block>  $blocks
-     * @param  list<array{id: string, title: string, level: int}>  $anchors
+     * @param  list<array{id: string, title: string, level?: int}>  $anchors
+     * @param  array<string, list<array{id: string, title: string, level?: int}>>|null  $navigationAnchors
      */
     public function renderBlocks(
         array $blocks,
         ?DynamicIncludes $included = null,
         array $anchors = [],
+        ?array $navigationAnchors = null,
     ): string {
+        $navigationAnchors ??= $this->navigationContext ?? $this->navigationAnchors($blocks);
+        // An immutable renderer for this render tree keeps published three-argument
+        // column overrides working without request state on the shared service.
+        $renderer = new self($this->views, $this->mediaUrls, $navigationAnchors);
+
         return implode('', array_map(
-            fn (Block $block): string => $this->renderBlock($block, $included, $anchors),
+            fn (Block $block): string => $renderer->renderBlock($block, $included, $anchors, $navigationAnchors),
             $blocks,
         ));
     }
 
     /**
-     * @param  list<array{id: string, title: string, level: int}>  $anchors
+     * @param  list<array{id: string, title: string, level?: int}>  $anchors
+     * @param  array<string, list<array{id: string, title: string, level?: int}>>|null  $navigationAnchors
      */
     public function renderBlock(
         Block $block,
         ?DynamicIncludes $included = null,
         array $anchors = [],
+        ?array $navigationAnchors = null,
     ): string {
+        $navigationAnchors ??= $this->navigationContext;
+
         if ($block instanceof UnknownBlock) {
             return '';
         }
@@ -86,11 +103,14 @@ final readonly class BladeContentRenderer implements ContentRenderer
             'renderer' => $this,
             'dynamic' => $this->dynamicInclude($block, $included),
             'included' => $included,
-            'anchors' => $anchors,
+            'anchors' => $block instanceof AnchorNavigationBlock
+                ? ($navigationAnchors[$block->id()] ?? $anchors)
+                : $anchors,
+            'navigationAnchors' => $navigationAnchors,
             'mediaUrls' => $this->mediaUrls,
         ])->render();
 
-        if ($content === '') {
+        if ($content === '' && $this->anchor($block) === null) {
             return '';
         }
 
@@ -142,35 +162,69 @@ final readonly class BladeContentRenderer implements ContentRenderer
         return $classes;
     }
 
+    /** @return array{id: string, title: string, level?: int}|null */
+    private function anchor(Block $block): ?array
+    {
+        if ($block instanceof UnknownBlock || $block instanceof MemberContinuationBlock || ! property_exists($block, 'settings')) {
+            return null;
+        }
+        $anchor = $block->settings->anchor;
+        if (! is_string($anchor) || trim($anchor) === '') {
+            return null;
+        }
+        $title = $block instanceof TitleBlock ? $block->text
+            : (property_exists($block, 'title') ? $block->title : null);
+
+        return ['id' => $anchor, 'title' => is_string($title) && trim($title) !== '' ? $title : $anchor];
+    }
+
     /**
      * @param  list<Block>  $blocks
-     * @return list<array{id: string, title: string, level: int}>
+     * @return array<string, list<array{id: string, title: string, level?: int}>>
      */
-    private function anchors(array $blocks): array
+    private function navigationAnchors(array $blocks, bool $includePage = false): array
     {
-        $anchors = [];
-        foreach ($blocks as $block) {
-            if (
-                $block instanceof TitleBlock
-                && is_string($block->settings->anchor)
-                && $block->settings->anchor !== ''
-            ) {
-                $anchors[] = [
-                    'id' => $block->settings->anchor,
-                    'title' => $block->text,
-                    'level' => $block->level,
-                ];
+        $stream = iterator_to_array($this->flatten($blocks), preserve_keys: false);
+        $candidates = [];
+        foreach ($stream as $index => $block) {
+            $anchor = $this->anchor($block);
+            if ($anchor !== null) {
+                $candidates[$index] = $anchor;
             }
-
-            if (! $block instanceof ColumnsBlock) {
-                continue;
-            }
-
-            foreach ($block->columns as $column) {
-                $anchors = [...$anchors, ...$this->anchors($column->blocks)];
+        }
+        $ranges = [];
+        $active = null;
+        foreach ($stream as $index => $block) {
+            if ($block instanceof AnchorNavigationBlock) {
+                $active = $block->scope === 'following' ? $block->id() : null;
+                if ($active !== null) {
+                    $ranges[$active] = [];
+                } elseif ($includePage) {
+                    $page = $candidates;
+                    unset($page[$index]);
+                    $ranges[$block->id()] = array_values($page);
+                }
+            } elseif ($active !== null && isset($candidates[$index])) {
+                $ranges[$active][] = $candidates[$index];
             }
         }
 
-        return $anchors;
+        return $ranges;
+    }
+
+    /**
+     * @param  list<Block>  $blocks
+     * @return \Generator<int, Block>
+     */
+    private function flatten(array $blocks): \Generator
+    {
+        foreach ($blocks as $block) {
+            yield $block;
+            if ($block instanceof ColumnsBlock) {
+                foreach ($block->columns as $column) {
+                    yield from $this->flatten($column->blocks);
+                }
+            }
+        }
     }
 }

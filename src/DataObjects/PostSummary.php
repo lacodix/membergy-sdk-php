@@ -21,6 +21,7 @@ final readonly class PostSummary
         public ?DateTimeImmutable $publishedAt,
         public DateTimeImmutable $updatedAt,
         public array $extra = [],
+        public bool $hasMemberContinuation = false,
     ) {}
 
     /** @param array<string, mixed> $data */
@@ -39,6 +40,7 @@ final readonly class PostSummary
             visibility: Data::string($data, 'visibility'),
             publishedAt: Data::nullableDate($data, 'published_at'),
             updatedAt: Data::date($data, 'updated_at'),
+            hasMemberContinuation: array_key_exists('has_member_continuation', $data) ? Data::bool($data, 'has_member_continuation') : false,
             extra: Data::extra($data, [
                 'uuid', 'title', 'slug', 'teaser', 'category', 'featured_media',
                 'visibility', 'published_at', 'updated_at',

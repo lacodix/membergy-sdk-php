@@ -1,0 +1,31 @@
+{
+  "data": {
+    "uuid": "30000000-0000-4000-8000-000000000099",
+    "title": "Mitgliederfortsetzung im Herbstbericht",
+    "slug": "mitgliederfortsetzung-im-herbstbericht",
+    "teaser": "Ein öffentlicher Einstieg mit Fortsetzung für Mitglieder.",
+    "category": null,
+    "featured_media": null,
+    "visibility": "public_with_member_continuation",
+    "has_member_continuation": true,
+    "content": {
+      "schema_version": 1,
+      "blocks": [
+        {
+          "id": "cccccccc-cccc-4ccc-8ccc-cccccccccc91",
+          "type": "text",
+          "version": 1,
+          "data": {
+            "body": {
+              "format": "html",
+              "value": "<p>Dieser Einstieg ist öffentlich sichtbar.</p>"
+            }
+          },
+          "settings": {}
+        }
+      ]
+    },
+    "published_at": "2026-10-20T09:00:00+00:00",
+    "updated_at": "2026-10-21T14:30:00+00:00"
+  }
+}
