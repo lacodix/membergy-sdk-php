@@ -1,9 +1,10 @@
 # Provisional registration-v1
 
-This implementation follows the current backend OpenAPI, JSON schema and 43 captured
-HTTP/binary response files. The backend's independent review and exclusive serial test
-gate are pending. Contract changes from those gates must be incorporated before this
-contract can be considered integrated or guaranteed for consumers. Early `0.x`
+This provisional implementation is based on versioned OpenAPI, JSON schema and 43
+captured HTTP/binary response fixtures. Compatibility and canonical fixture parity
+with the current Membergy backend are not yet green (see Fixture gates below).
+The registration contract requires a separate adaptation before combined release.
+Early `0.x`
 package releases may include this provisional implementation; package publication
 does not establish backend acceptance. The existing compatibility matrix and the
 removal of `forms/register` remain unchanged.
@@ -129,10 +130,22 @@ Local validation before HTTP can raise `InvalidArgumentException`, for example f
 malformed landing token, slug, identifier or submission shape. Consumers processing
 browser input must handle it alongside `RegistrationException`.
 
-Tenant password-reset routing is outside this provisional contract. Existing
-`auth()` reset methods are unchanged; this package adds no tenant reset API.
+Password recovery remains in the separate global `auth()` contract, not in an
+applicant/resume credential. `requestPasswordResetLink($email, $tenant)` optionally forwards
+an explicit club; omission/null preserves the old body. Only the backend's new validated
+website_password_reset_url opt-in and exclusive account affiliation permit a token-only
+website destination. Global/cross-club accounts stay central; reset completion still uses
+`auth()->resetPassword()` and the existing broker. Do not reuse registration tokens here.
 
 ## Fixture gates
+
+The current backend includes `request.payment.payment_method_id` in registration
+wire metadata, while the SDK's `RegistrationSubmission` deliberately rejects
+`payment`. Current-backend response drift also includes `offer-account-follow-up.json`.
+Payment transport and complete canonical response/schema/wire parity therefore
+remain an open registration contract integration, separate from password recovery.
+Copying metadata alone cannot establish compatibility; the strict input and parity
+assertions remain required.
 
 The CMS gate keeps its original source and 64 CMS fixtures plus BlockRegistry. The
 registration gate independently checks all 43 real response files, exact binary

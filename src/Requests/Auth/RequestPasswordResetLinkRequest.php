@@ -14,7 +14,7 @@ final class RequestPasswordResetLinkRequest extends AbstractAuthRequest implemen
 
     protected Method $method = Method::POST;
 
-    public function __construct(private string $email) {}
+    public function __construct(private string $email, private ?string $tenant = null) {}
 
     public function resolveEndpoint(): string
     {
@@ -24,6 +24,6 @@ final class RequestPasswordResetLinkRequest extends AbstractAuthRequest implemen
     /** @return array<string, string> */
     public function defaultBody(): array
     {
-        return ['email' => $this->email];
+        return ['email' => $this->email, ...($this->tenant === null ? [] : ['tenant' => $this->tenant])];
     }
 }

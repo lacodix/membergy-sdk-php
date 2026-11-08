@@ -16,6 +16,7 @@ use Lacodix\MembergySdk\Requests\Auth\CreateTokenRequest;
 use Lacodix\MembergySdk\Requests\Auth\RequestPasswordResetLinkRequest;
 use Lacodix\MembergySdk\Requests\Auth\ResetPasswordRequest;
 use Lacodix\MembergySdk\Requests\Auth\RevokeCurrentTokenRequest;
+use PHPUnit\Framework\Assert;
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
 use Saloon\Http\Request;
@@ -117,6 +118,48 @@ it('requests a reset link and submits the complete password reset body', functio
             'password' => 'New-Password1#',
             'password_confirmation' => 'New-Password1#',
         ]);
+});
+
+it('forwards only an explicitly supplied reset tenant without using the connector tenant by default', function (
+    ?string $tenant,
+) {
+    $mock = new MockClient([
+        RequestPasswordResetLinkRequest::class => MockResponse::make(contractFixture('auth/reset-link-requested.json')),
+    ]);
+    $client = authClient($mock, 'stale-visitor-token');
+
+    $result = $client->auth()->requestPasswordResetLink('member@example.test', $tenant);
+
+    expect($result)->toBeInstanceOf(AuthResult::class)
+        ->and($result->status)->toBe('reset_link_requested')->and($result->extra)->toBe([]);
+    $mock->assertSent(function (Request $request, Response $response) use ($tenant): bool {
+        return $request instanceof RequestPasswordResetLinkRequest
+            && $request->body()->all() === ['email' => 'member@example.test', ...($tenant === null ? [] : ['tenant' => $tenant])]
+            && $response->getPendingRequest()->headers()->get('Authorization') === null
+            && $response->getPendingRequest()->headers()->get('Accept') === AbstractAuthRequest::MEDIA_TYPE;
+    });
+    $mock->assertSentCount(1);
+})->with(['explicit tenant' => ['explicit-club'], 'explicit null preserves old body' => [null]]);
+
+it('keeps reset credentials out of validation exception diagnostics while preserving the auth errors', function () {
+    $token = 'synthetic-reset-credential';
+    $mock = new MockClient([
+        ResetPasswordRequest::class => MockResponse::make(contractFixture('auth/validation.json'), 422),
+    ]);
+    try {
+        authClient($mock, 'must-not-leak')->auth()->resetPassword(
+            $token, 'member@example.test', 'New-Synthetic-Password-48!', 'New-Synthetic-Password-48!',
+        );
+        Assert::fail('Expected the existing reset validation contract.');
+    } catch (RequestValidationException $exception) {
+        expect($exception->errors)->toBe(['token' => ['Invalid password reset token.']])
+            ->and($exception->getMessage())->not->toContain($token, 'New-Synthetic-Password-48!');
+    }
+    $mock->assertSent(function (Request $request, Response $response) use ($token): bool {
+        return $request instanceof ResetPasswordRequest && $request->body()->get('token') === $token
+            && $response->getPendingRequest()->headers()->get('Authorization') === null;
+    });
+    $mock->assertSentCount(1);
 });
 
 it('maps invalid credentials to the dedicated SDK exception', function () {

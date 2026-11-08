@@ -45,10 +45,10 @@ final class AuthResource extends AbstractResource
         return AuthResult::fromArray(Payload::data(Payload::fromResponse($response)));
     }
 
-    public function requestPasswordResetLink(string $email): AuthResult
+    public function requestPasswordResetLink(string $email, ?string $tenant = null): AuthResult
     {
         $resource = $this->withoutUserToken();
-        $response = $resource->send(new RequestPasswordResetLinkRequest($email));
+        $response = $resource->send(new RequestPasswordResetLinkRequest($email, $tenant));
 
         return AuthResult::fromArray(Payload::data(Payload::fromResponse($response)));
     }
