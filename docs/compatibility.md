@@ -213,8 +213,26 @@ exceptions. This method needs the additive backend management-login route and ti
 are synced byte-for-byte. Capture and canonicalization remain backend-owned.
 
 The server enforces a 60-second single-use ticket bound to user, club and issuing website token.
+Global landlords retain website login, but cannot issue/redeem the management bridge and
+receive no management_url capability. Ordinary permitted club managers remain eligible.
 Real management rights, token lifetime and confirmed 2FA activation are checked again on redeem.
 The new web session inherits the token confirmation time, preserving the three-hour password
 gate. It replaces any existing Membergy session, including impersonation, and has one fixed club
 management target. Website and Membergy logouts stay independent. Treat the URL as a credential;
 never print it or enable raw response debugging. Configure upstream access logs to mask ticket paths.
+
+## Optional tenant password-reset presentation
+
+`auth()->requestPasswordResetLink($email, $tenant)` adds an explicit tenant slug. Omitted
+or null sends exactly the previous email-only body; the connector tenant is never inferred.
+Request and completion return the existing `AuthResult` and keep the anonymous auth-v1
+contract, including bearer stripping and sensitive payload diagnostics. No response/schema
+fixture is regenerated for this additive request argument.
+
+The backend's new `website_password_reset_url` opt-in requires exclusive account affiliation
+with that explicit club. Ordinary exclusive managers qualify; landlords and global/foreign
+affiliations fall back centrally. The old setting remains inert. Website URLs contain token
+only. The global broker still owns expiry, one-use validation and native reset events;
+successful central/API resets now revoke website-scoped user tokens, retaining integrations.
+Newsletter DOI version 2 likewise binds the exact pending subscription generation; old v1
+links need reissuing and cannot authorize a later resubscription.

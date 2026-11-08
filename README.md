@@ -248,6 +248,8 @@ Password reset reuses Membergy's existing Fortify password policy and notificati
 
 ```php
 $client->auth()->requestPasswordResetLink('member@example.org');
+// Explicit opt-in context; omission or null preserves the email-only request body.
+$client->auth()->requestPasswordResetLink('member@example.org', 'my-club');
 $client->auth()->resetPassword(
     $resetToken,
     'member@example.org',
@@ -255,6 +257,16 @@ $client->auth()->resetPassword(
     $newPassword,
 );
 ```
+
+The SDK never defaults this argument to its connector tenant. Membergy uses a configured
+`website_password_reset_url` only for an account affiliated exclusively with the requested
+club, including its people/managed-person, role and direct-permission affiliations.
+Ordinary exclusive club managers qualify; global landlords and cross-club identities use
+the central link. Legacy `password_reset_url` values remain inert. The custom URL carries
+only `token`, so a website form asks for the account email separately. Targets are immutable
+per notification; no request-supplied redirect URL is accepted. Successful central/API
+resets revoke that user's website tokens while preserving integration tokens and other users.
+Authenticated password changes retain their separate existing semantics.
 
 The backend retains its pre-existing raw-string `application/json` token response for old
 consumers. The SDK always opts into the structured auth-v1 vendor media type.
@@ -612,6 +624,8 @@ exceptions. This method needs the additive backend management-login route and ti
 are synced byte-for-byte. Capture and canonicalization remain backend-owned.
 
 The server enforces a 60-second single-use ticket bound to user, club and issuing website token.
+Landlord website login remains allowed, but landlords cannot issue or redeem this bridge
+and receive no management URL; becoming a landlord invalidates an outstanding ticket.
 Real management rights, token lifetime and confirmed 2FA activation are checked again on redeem.
 The new web session inherits the token confirmation time, preserving the three-hour password
 gate. It replaces any existing Membergy session, including impersonation, and has one fixed club
