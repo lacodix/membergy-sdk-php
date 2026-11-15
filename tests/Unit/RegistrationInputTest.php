@@ -9,6 +9,19 @@ use Lacodix\MembergySdk\Requests\Registrations\ShowRegistrationVerificationReque
 use Lacodix\MembergySdk\Support\Data;
 use Lacodix\MembergySdk\Tests\Support\RegistrationFixtures as Fixtures;
 
+it('preserves the optional native privacy boolean without admitting other person attributes', function (mixed $value) {
+    // Synthetic consumer variations; the captured native true case is tested separately.
+    $input = Data::object(Fixtures::wire('submitted-adult'), 'request');
+    $input['people'][0]['attributes']['privacy_enabled'] = $value;
+    expect(RegistrationSubmission::fromArray($input)->toArray()['people'][0]['attributes']['privacy_enabled'])->toBe($value);
+})->with([true, false, 0, 1, '0', '1', null]);
+
+it('rejects malformed privacy values with the same closed person input contract', function (mixed $value) {
+    $input = Data::object(Fixtures::wire('submitted-adult'), 'request');
+    $input['people'][0]['attributes']['privacy_enabled'] = $value;
+    expect(fn () => RegistrationSubmission::fromArray($input))->toThrow(InvalidArgumentException::class, 'Invalid registration submission input.');
+})->with(['affirmative string' => ['true'], 'array' => [[true]], 'other number' => [2]]);
+
 it('rejects invalid submission transport fields without exposing the caller payload', function (string $change) {
     $values = Data::object(Fixtures::wire('submitted-adult'), 'request');
     switch ($change) {
@@ -52,7 +65,7 @@ it('rejects invalid submission transport fields without exposing the caller payl
             break;
         case 'proof hash': $values['proofs'][0]['shown_content_hash'] = str_repeat('x', 65);
             break;
-        case 'payment': $values['payment'] = ['iban' => 'not-a-contract-field'];
+        case 'payment': $values['payment'] = ['bank_account' => ['iban' => 'not-a-contract-field']];
             break;
         default: throw new LogicException('Unknown input mutation.');
     }

@@ -1,9 +1,10 @@
 # Provisional registration-v1
 
-This provisional implementation is based on versioned OpenAPI, JSON schema and 43
-captured HTTP/binary response fixtures. Compatibility and canonical fixture parity
-with the current Membergy backend are not yet green (see Fixture gates below).
-The registration contract requires a separate adaptation before combined release.
+This provisional implementation is based on versioned OpenAPI, JSON schema and 51
+captured HTTP/binary response fixtures. The fixture gates check canonical recorded
+response/schema/wire parity independently of integrated browser compatibility.
+SEPA captures exercise the native private backend; integrated browser acceptance
+remains required before combined release.
 Early `0.x`
 package releases may include this provisional implementation; package publication
 does not establish backend acceptance. The existing compatibility matrix and the
@@ -47,9 +48,76 @@ published offer rules, relationship checks, locked prefill or consent validation
 `value`; each proof has `participant_index`, `requirement_id` and
 `shown_content_hash` from the displayed requirement. `email`, `remark`, `website`,
 `proofs`, contacts and option IDs keep the schema's optional-field semantics.
-Unsupported fields, including payment data, are rejected. A deliberate retry must
+Unsupported fields are rejected. A deliberate retry must
 retain the same UUID and identical submission body; a `409` requires the consumer
 to reload and reconcile the offer. The SDK never retries a POST automatically.
+
+### Payment and SEPA
+
+`$offer->payment` exposes `requiredIfBillable`, the offered `methods` (ID, title,
+`RegistrationPaymentMethodType::DirectDebit` / `BankTransfer`), and nullable
+`mandateText` / `mandateTextVersion`. Display the actual offered text, escaped as
+plain text, and bind its version to the displayed form on the server. Do not take
+a mandate version or timestamp from browser input.
+
+Use `registrationOffers()->find($slug, includePaymentSchedule: true)` to request
+the versioned representation with each method's optional
+`collectionIntervalMonths`. Show quarterly collection wording only when the
+selected direct-debit method supplies `3`; an absent interval has no implied
+cadence. The default JSON offer representation remains compatible.
+
+For a billable selection, include the existing backend's flat `payment` object:
+
+```php
+'payment' => [
+    'payment_method_id' => $selectedOfferedMethodId,
+    // New direct-debit declaration only:
+    'account_holder' => $accountHolder,
+    'bank_name' => $bankName, // optional, encrypted by the backend
+    'iban' => $iban,
+    'bic' => $bic,
+    'consent' => true,
+    'shown_mandate_text_version' => $serverBoundMandateTextVersion,
+],
+```
+
+Transfer and an explicit attempt to reuse an existing mandate send only the
+method ID. Omit payment for free selections. Fixed options and the fees for each
+participating person's primary/guardian audience determine billability; null
+amounts are billable and numeric zero amounts are free. The backend remains
+authoritative for fees, ownership, adulthood, payer restrictions, mandate reuse,
+bank validation and consent. The public offer does not currently expose the
+internal resolver's reuse or declaration-permission flags.
+
+The transport accepts optional/nullable `account_holder` and `bank_name` (255 characters each), `iban`
+(50), `bic` (11), and `shown_mandate_text_version` (190). `payment_method_id` is an
+optional positive integer or null; `consent` is an optional boolean or null.
+The SDK deliberately requires actual booleans rather than strings. These transport
+permissions do not make a new declaration valid: the current resolver requires
+account holder, a valid IBAN, BIC, affirmative consent and its current text reference.
+Missing consent is left to that resolver because existing mandate reuse may not
+need a new declaration. Nested `bank_account` / `sepa_confirmation` objects are not
+supported by the current backend and are rejected by the SDK.
+
+Never flash or retain banking input or consent in old input, sessions, browser
+drafts, URLs or diagnostics. Clear these fields on errors and require a fresh
+confirmation after changes. Request/submission debug output is redacted, and
+validation exceptions expose only allowlisted payment paths, never backend values.
+
+The payment recordings and schemas are synchronized byte for byte from the native
+backend worktree based on `c23587b571a8583af6e38087dd629b64762eba04`. Its existing
+HTTP capture workflow adds a required-debit offer, accepted guest payment, and
+missing-consent/stale-text refusals. Two further native recordings cover a complete
+offer with tenant job/subgroup choices, quarterly collection metadata, native
+contacts and an accepted guest submission including encrypted bank name.
+The typed flat input schema leaves conditional
+consent, bank, billability and payer checks in the native resolver. SDK tests consume
+these actual recorded inputs and responses; synthetic consumer variations remain
+separately labeled. Local consumer browser acceptance has been exercised with
+source overlays; integration with a released SDK installation remains required.
+This source candidate requires an actual SDK release and installation
+before a consuming website can use it; an installed `0.5.0` artifact alone does
+not provide these DTOs. Local source overlays are development evidence only.
 
 Existing verified accounts use `auth()->tokenFromCredentials()` and the immutable
 `withUserToken($token->accessToken)` client. Account offer/submit calls carry that User
@@ -139,16 +207,15 @@ website destination. Global/cross-club accounts stay central; reset completion s
 
 ## Fixture gates
 
-The current backend includes `request.payment.payment_method_id` in registration
-wire metadata, while the SDK's `RegistrationSubmission` deliberately rejects
-`payment`. Current-backend response drift also includes `offer-account-follow-up.json`.
-Payment transport and complete canonical response/schema/wire parity therefore
-remain an open registration contract integration, separate from password recovery.
-Copying metadata alone cannot establish compatibility; the strict input and parity
-assertions remain required.
+The SDK transports the payment choice present in the backend's recorded wire
+metadata. The synchronized registration schema covers typed flat transfer and
+SEPA declarations. Real private-backend captures prove guest acceptance, encrypted
+bank storage and authoritative consent text, with no User or SepaMandate created
+before the existing onboarding/admission process. Copying metadata alone cannot
+establish integrated browser compatibility, which remains separately required.
 
 The CMS gate keeps its original source and 64 CMS fixtures plus BlockRegistry. The
-registration gate independently checks all 43 real response files, exact binary
+registration gate independently checks all 51 real response files, exact binary
 bytes, request/status/header metadata, schema, OpenAPI and provenance. Both gates
 fail when their checkout is missing. They run separately from secretless package CI
 and do not gate package releases:

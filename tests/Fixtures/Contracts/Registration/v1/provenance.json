@@ -1,5 +1,73 @@
 {
   "backend_base": "988c25afedc5cfb64571b753de07ebac87031d74",
+  "privacy_opt_in_20261114": {
+    "backend_base": "c23587b571a8583af6e38087dd629b64762eba04",
+    "worktree": "membergy-registration-sepa-sdk-20261111",
+    "private_database": "testing_wt_registration_sepa_sdk_20261111",
+    "capture_command": "./worktree-lifecycle.sh run-tests registration-sepa-sdk-20261111 -- tests/Feature/Api/RegistrationContractTest.php --update-snapshots --compact --stop-on-failure",
+    "capture_exit": 0,
+    "capture_result": "11 passed, 878 assertions",
+    "verification_command": "./worktree-lifecycle.sh run-tests registration-sepa-sdk-20261111 -- tests/Feature/Api/RegistrationContractTest.php tests/Unit/Contracts/RegistrationContractFixturesTest.php tests/Unit/Contracts/CombinedWebsiteFixtureInventoryTest.php tests/Feature/Registrations/RegistrationPrivacyTest.php tests/Feature/Registrations/RegistrationJobFieldsTest.php tests/Feature/Registrations/RegistrationAdmissionTest.php tests/Feature/RegistrationOffers/OfferFormSchemaTest.php tests/Feature/Resources/People/PersonPrivacyModeTest.php tests/Feature/Api/Resources/People/PersonPrivacyModeTest.php --compact --stop-on-failure",
+    "verification_exit": 0,
+    "verification_result": "202 passed, 2379 assertions, 1 pre-existing skipped legacy own-person Resource API test; no snapshot update",
+    "final_note_contract_check": {
+      "command": "./worktree-lifecycle.sh run-tests registration-sepa-sdk-20261111 -- tests/Feature/Api/RegistrationContractTest.php tests/Feature/Registrations/RegistrationPrivacyTest.php tests/Feature/RegistrationOffers/OfferFormSchemaTest.php --compact --stop-on-failure",
+      "exit": 0,
+      "result": "46 passed, 961 assertions; no snapshot update after moving the privacy default note into its public field catalogue to satisfy the unchanged complexity gate"
+    },
+    "response_count": 51,
+    "new_http_captures": ["offer-privacy-sepa.json", "submitted-privacy-sepa.json"],
+    "origin": "Existing registrationContractCapture and native getJson/postJson, factories and publication action. The new bounded draft variant adds only the optional native privacy_enabled boolean before publication; the real guest wire supplies true. Submission asserts the stored native answer. Separate native admission and session tests prove new-person persistence, child/guardian separation and authoritative existing-person locks; permissions and policies remain unchanged.",
+    "inventory": "All prior 49 response/wire pairs remain byte-identical (98 frozen-file checks). Only the native capture function appended the two response hashes. The generated field-catalogue capability metadata adds privacy_enabled boolean. An initial unaccepted new offer was generated before its privacy assertion failed because name() excludes dataset labels. Only that incomplete new recording and its new inventory entry were removed; failed bytes were preserved in scratch. The fixture now selects its pre-publication variant via native dataName() and asserts privacy before recording. No accepted old response/hash was changed.",
+    "schema": "Explicit optional privacy_enabled native boolean person attribute and published/prefill field-name allowlists. Authoring requires subgroups enabled; published type survives a later feature toggle. Existing-person prefill/locks win; only newly created people receive the opt-in. No access grants, model/schema migration or job-info dependency for this flag.",
+    "canonicalization": "Unchanged registrationContractCanonical policy; only existing opaque credentials/tickets/public UUID placeholders. Public labels, notes, boolean type, mandate/proof references and the accepted synthetic true input are actual captured native HTTP bytes."
+  },
+  "complete_registration_20261114": {
+    "backend_base": "c23587b571a8583af6e38087dd629b64762eba04",
+    "worktree": "membergy-registration-sepa-sdk-20261111",
+    "private_database": "testing_wt_registration_sepa_sdk_20261111",
+    "capture_command": "./worktree-lifecycle.sh run-tests registration-sepa-sdk-20261111 -- tests/Feature/Api/RegistrationContractTest.php --filter='complete month SEPA' --update-snapshots --compact --stop-on-failure",
+    "capture_exit": 0,
+    "capture_result": "1 passed, 41 assertions",
+    "verification_command": "./worktree-lifecycle.sh run-tests registration-sepa-sdk-20261111 -- tests/Feature/Api/RegistrationContractTest.php tests/Unit/Contracts/RegistrationContractFixturesTest.php tests/Unit/Contracts/CombinedWebsiteFixtureInventoryTest.php tests/Feature/Migrations/RegistrationPaymentBankNameSqliteTest.php tests/Feature/Registrations/RegistrationPaymentTest.php tests/Feature/Registrations/RegistrationJobFieldsTest.php tests/Feature/RegistrationOffers/RegistrationOfferPublishTest.php --compact --stop-on-failure",
+    "verification_exit": 0,
+    "verification_result": "229 passed, 2597 assertions; no snapshot update",
+    "final_admission_regression": {
+      "command": "./worktree-lifecycle.sh run-tests registration-sepa-sdk-20261111 -- tests/Feature/Registrations/RegistrationPaymentTest.php --filter='intervening digital mandate' --compact --stop-on-failure",
+      "exit": 0,
+      "result": "3 passed, 19 assertions",
+      "proof": "Existing null-name and different-account cases remain intact. An intervening mandate cannot silently discard a different submitted bank_name; the new native admission refusal was first demonstrated failing without the guard."
+    },
+    "response_count": 49,
+    "new_http_captures": ["offer-complete-sepa.json", "submitted-complete-sepa.json"],
+    "origin": "Native getJson/postJson and existing registrationContractCapture. A bounded draft fixture configures native job fields, tenant-owned subgroup/service/salary options, tenant parttime labels, month joining mode and a three-month direct debit before PublishRegistrationOfferVersion. The versioned Accept representation includes actual PaymentMethod.number_of_months. The guest input includes native contact types and bank_name; the resolver stores the name encrypted outside registration_people attributes.",
+    "inventory": "The pre-existing 47 response/wire recordings stay byte-frozen. A failed draft fixture attempt recorded one incomplete new offer before its submission was refused (address_supplement is not a native field). Only that unaccepted, newly generated offer and its newly added inventory entry were removed; this successful native capture regenerated the complete offer using address_addition and initial German core labels. No old response hash was rewritten.",
+    "canonicalization": "Unchanged existing registrationContractCanonical policy; only opaque credential/ticket and public UUID placeholders. Synthetic personal/bank input, native document requirements/proof hashes, current mandate text/reference and configured cadence are real captured bytes.",
+    "schema": "Additive optional nullable bank_name maxLength 255 in the strict flat payment input; encrypted nullable detail column and native admission carry to existing encrypted Person.bank_name. Optional collection_interval_months is available only on the requested versioned offer representation; default JSON stays unchanged."
+  },
+  "sepa_registration_20261112": {
+    "backend_base": "c23587b571a8583af6e38087dd629b64762eba04",
+    "worktree": "membergy-registration-sepa-sdk-20261111",
+    "private_database": "testing_wt_registration_sepa_sdk_20261111",
+    "capture_command": "./worktree-lifecycle.sh run-tests registration-sepa-sdk-20261111 -- tests/Feature/Api/RegistrationContractTest.php --filter='required SEPA contract' --update-snapshots --compact --stop-on-failure",
+    "capture_exit": 0,
+    "capture_result": "1 passed, 80 assertions",
+    "verification_command": "./worktree-lifecycle.sh run-tests registration-sepa-sdk-20261111 -- tests/Feature/Api/RegistrationContractTest.php tests/Unit/Contracts/RegistrationContractFixturesTest.php tests/Unit/Contracts/CombinedWebsiteFixtureInventoryTest.php tests/Feature/Registrations/RegistrationPaymentTest.php --compact --stop-on-failure",
+    "verification_exit": 0,
+    "verification_result": "184 passed, 2136 assertions; no snapshot update",
+    "response_count": 47,
+    "new_http_captures": [
+      "offer-sepa-required.json",
+      "submitted-sepa-guest.json",
+      "validation-sepa-consent.json",
+      "validation-sepa-version.json"
+    ],
+    "origin": "Real getJson/postJson through the native API and existing registrationContractCapture, using native factories and PublishRegistrationOfferVersion before publication. The required-debit variant has method 70002, immutable old/current text rows 70001/70002, deterministic creditor/address/additional terms, and seeded native BIC input. Current text body/reference come from SepaMandateTextVersion, never a hand-authored response.",
+    "proof": "Guest acceptance stores encrypted account holder, IBAN and BIC plus exact authoritative statement/reference and declared_at, with no new User, Person or SepaMandate. Missing consent and an actual older text reference receive 422 without additional application/payment-detail records. Mail/Queue/Storage fakes; no provider/network or admission action.",
+    "canonicalization": "Unchanged registrationContractCanonical policy: only opaque ticket/context and public UUID placeholders. All mandate text, text references, method IDs, error paths/messages and synthetic bank input remain actual bytes.",
+    "inventory": "Only new response hashes are appended by registrationContractCapture during --update-snapshots. Existing entries must already match actual bytes before any update; no old response hash is rewritten. The prior 43 response/wire captures remain unchanged.",
+    "contract_boundary": "PaymentInput mirrors the typed JSON flat resolver keys and optional/null properties. Form-compatible string/integer coercions are excluded from this typed JSON mirror, as in the SDK. Conditional billability, current text, consent, bank, payer and reuse rules remain native backend authority; no API flags or product logic added."
+  },
   "source_commit": "44aa60b61a3e66e06e79ce4aeceebedfc6e48a6b",
   "source_blobs": {
     "app/Models/Traits/HasPublicSlug.php": "edf87e1aafc9b5b1548f1790da797d15b5cedb25",

@@ -14,10 +14,10 @@ use SensitiveParameter;
 
 final class RegistrationOffersResource extends AbstractRegistrationResource
 {
-    public function find(string $slug, #[SensitiveParameter] ?RegistrationResume $resume = null): RegistrationOffer
+    public function find(string $slug, #[SensitiveParameter] ?RegistrationResume $resume = null, bool $includePaymentSchedule = false): RegistrationOffer
     {
         return $this->hydrate($this->send(new ShowRegistrationOfferRequest(
-            $this->connector->tenant(), $slug, $resume,
+            $this->connector->tenant(), $slug, $resume, $includePaymentSchedule,
         )), RegistrationOffer::fromArray(...));
     }
 

@@ -7,6 +7,7 @@ namespace Lacodix\MembergySdk\DataObjects;
 use Lacodix\MembergySdk\DataObjects\Registrations\RegistrationApplicant;
 use Lacodix\MembergySdk\DataObjects\Registrations\RegistrationField;
 use Lacodix\MembergySdk\DataObjects\Registrations\RegistrationOption;
+use Lacodix\MembergySdk\DataObjects\Registrations\RegistrationPayment;
 use Lacodix\MembergySdk\DataObjects\Registrations\RegistrationPrefill;
 use Lacodix\MembergySdk\DataObjects\Registrations\RegistrationRequirement;
 use Lacodix\MembergySdk\DataObjects\Registrations\RegistrationVersion;
@@ -30,6 +31,7 @@ final readonly class RegistrationOffer
         public array $requirements,
         public ?RegistrationApplicant $applicant,
         public ?RegistrationPrefill $prefill,
+        public RegistrationPayment $payment,
     ) {}
 
     /** @param array<string, mixed> $data */
@@ -51,6 +53,7 @@ final readonly class RegistrationOffer
             array_map(RegistrationRequirement::fromArray(...), Data::objectList($data, 'requirements')),
             $applicant === null ? null : RegistrationApplicant::fromArray($applicant),
             $prefill === null ? null : RegistrationPrefill::fromArray($prefill),
+            RegistrationPayment::fromArray(Data::object($data, 'payment')),
         );
     }
 

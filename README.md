@@ -306,6 +306,11 @@ Registration resources bypass SDK caching entirely, including private offers,
 prefill, token landings and document bytes. Resume credentials are supplied to each
 offer/submit request explicitly and never stored on the client or shared connector.
 
+An offer may include the optional boolean person attribute `privacy_enabled`.
+Its native local-group privacy preference applies to newly admitted people;
+existing-person values remain authoritative and locked. This flag grants no access
+and does not replace Membergy's own-person, manager or central permission rules.
+
 GET/HEAD requests retry transient network failures, 429 and 5xx with bounded exponential
 backoff. Writes are never replayed. Exhausted 429 responses become
 `RateLimitException` with an optional `retryAfterSeconds` value.
@@ -561,7 +566,7 @@ against backend schema bytes. Local synthetic anchor examples remain distinct fr
 backend HTTP captures. Registration fixtures and drift remain independently gated.
 
 Registration fixtures live separately under `tests/Fixtures/Contracts/Registration/v1`:
-43 captured backend responses (including the exact PDF bytes), their request/status/header
+51 captured backend responses (including the exact PDF bytes), their request/status/header
 metadata, OpenAPI, JSON schema and provenance. `MEMBERGY_REGISTRATION_BACKEND_ROOT`
 selects that source checkout. Its independent gate rejects missing or extra SDK files
 and any byte difference; it never skips or changes the CMS gate's source.

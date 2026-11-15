@@ -13,7 +13,7 @@ final class ShowRegistrationOfferRequest extends AbstractRegistrationRequest
 {
     protected Method $method = Method::GET;
 
-    public function __construct(private readonly string $tenant, private readonly string $slug, #[SensitiveParameter] ?RegistrationResume $resume = null)
+    public function __construct(private readonly string $tenant, private readonly string $slug, #[SensitiveParameter] ?RegistrationResume $resume = null, private readonly bool $includePaymentSchedule = false)
     {
         RegistrationInput::tenant($tenant);
         RegistrationInput::slug($slug);
@@ -24,5 +24,12 @@ final class ShowRegistrationOfferRequest extends AbstractRegistrationRequest
     public function resolveEndpoint(): string
     {
         return '/tenant/'.rawurlencode($this->tenant).'/registration-offers/'.rawurlencode($this->slug);
+    }
+
+    /** @return array<string, mixed> */
+    protected function defaultHeaders(): array
+    {
+        return array_replace(parent::defaultHeaders(), $this->includePaymentSchedule
+            ? ['Accept' => self::MEDIA_TYPE] : []);
     }
 }

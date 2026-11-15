@@ -1,0 +1,92 @@
+{
+    "method": "POST",
+    "path": "\/api\/v1\/tenant\/contract-club\/registration-offers\/membership\/applications",
+    "request": {
+        "submission_key": "10000000-0000-4000-8000-000000000001",
+        "submission_ticket": "synthetic-opaque-submission-ticket",
+        "offer_version_id": 70001,
+        "email": "complete.qa@example.test",
+        "people": [
+            {
+                "attributes": {
+                    "firstname": "Anna-Qa",
+                    "lastname": "Synthetic-Qa",
+                    "date_of_birth": "1990-04-05",
+                    "salutation": "mrs",
+                    "title": "Dr.",
+                    "address_street": "Synthetic Street 1",
+                    "address_addition": "Synthetic addition",
+                    "address_zip": "01067",
+                    "address_city": "Dresden",
+                    "department": "Synthetic department",
+                    "service_class_id": 70001,
+                    "salary_bracket_id": 70001,
+                    "trainee": true,
+                    "parttime": "parttime-1",
+                    "privacy_enabled": true
+                },
+                "contacts": [
+                    {
+                        "type": "private_phone",
+                        "value": "0351000000"
+                    },
+                    {
+                        "type": "private_mobilephone",
+                        "value": "01510000000"
+                    },
+                    {
+                        "type": "private_fax",
+                        "value": "0351000001"
+                    }
+                ]
+            }
+        ],
+        "participants": [
+            {
+                "person_index": 0,
+                "option_ids": [
+                    70001,
+                    70002
+                ]
+            }
+        ],
+        "proofs": [
+            {
+                "participant_index": 0,
+                "requirement_id": 70001,
+                "shown_content_hash": "be9ae0f2435f8262cd72f19a1a97cc99f81a8d50cd3de41f3761b57323d512a3"
+            },
+            {
+                "participant_index": 0,
+                "requirement_id": 70002,
+                "shown_content_hash": "843b8e6693b162295ad1509aa5228475028405f00aabd56ff3564aebb0f56c37"
+            }
+        ],
+        "website": "",
+        "remark": "Synthetic applicant remark.",
+        "payment": {
+            "payment_method_id": 70002,
+            "account_holder": "Anna-Qa Synthetic-Qa",
+            "bank_name": "Synthetic applicant bank",
+            "iban": "DE89370400440532013000",
+            "bic": "COBADEFFXXX",
+            "consent": true,
+            "shown_mandate_text_version": "club:70002"
+        },
+        "desired_joining_date": "2026-10-01"
+    },
+    "request_headers": {
+        "Accept": "application\/json",
+        "Content-Type": "application\/json"
+    },
+    "request_schema": "SubmissionRequest",
+    "request_valid": true,
+    "status": 201,
+    "response_schema": "SubmissionResponse",
+    "response_headers": {
+        "Content-Type": "application\/json",
+        "Cache-Control": "no-store, private",
+        "Referrer-Policy": "no-referrer",
+        "X-Content-Type-Options": "nosniff"
+    }
+}

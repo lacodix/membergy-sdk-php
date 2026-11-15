@@ -51,7 +51,10 @@
             }
         ],
         "website": "",
-        "remark": "Synthetic applicant remark."
+        "remark": "Synthetic applicant remark.",
+        "payment": {
+            "payment_method_id": 70001
+        }
     },
     "request_headers": {
         "Accept": "application\/json",
