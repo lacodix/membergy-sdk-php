@@ -52,6 +52,9 @@
         ],
         "website": "",
         "remark": "Synthetic applicant remark.",
+        "payment": {
+            "payment_method_id": 70001
+        },
         "desired_joining_date": "2026-09-01"
     },
     "request_headers": {

@@ -11,14 +11,14 @@ class RegistrationException extends MembergyException
 {
     private const INPUT_FIELDS = [
         'submission_key', 'offer_version_id', 'submission_ticket', 'website', 'email',
-        'remark', 'desired_joining_date', 'people', 'participants', 'proofs', 'token', 'public_id',
+        'remark', 'desired_joining_date', 'people', 'participants', 'proofs', 'token', 'public_id', 'payment',
     ];
 
     private const PERSON_ATTRIBUTES = [
         'firstname', 'lastname', 'date_of_birth', 'name_at_birth', 'date_of_wedding',
         'salutation', 'title', 'gender', 'address_addition', 'address_street', 'address_zip',
         'address_city', 'country', 'department', 'service_class_id', 'salary_bracket_id',
-        'trainee', 'retired', 'parttime',
+        'trainee', 'retired', 'parttime', 'privacy_enabled',
     ];
 
     public function __construct(string $message, public readonly ?int $status = null)
@@ -74,6 +74,9 @@ class RegistrationException extends MembergyException
         $index = $parts[1];
 
         return match ($parts[0]) {
+            'payment' => count($parts) === 2 && in_array($parts[1], [
+                'payment_method_id', 'account_holder', 'bank_name', 'iban', 'bic', 'consent', 'shown_mandate_text_version',
+            ], true),
             'people' => self::isIndex($index, 1) && (
                 (count($parts) === 3 && in_array($parts[2], ['attributes', 'contacts'], true))
                 || (count($parts) === 4 && $parts[2] === 'attributes' && in_array($parts[3], self::PERSON_ATTRIBUTES, true))

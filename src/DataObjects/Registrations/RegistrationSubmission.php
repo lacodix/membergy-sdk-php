@@ -14,7 +14,7 @@ final readonly class RegistrationSubmission
 {
     private const FIELDS = [
         'submission_key', 'offer_version_id', 'submission_ticket', 'website', 'email',
-        'remark', 'desired_joining_date', 'people', 'participants', 'proofs',
+        'remark', 'desired_joining_date', 'people', 'participants', 'proofs', 'payment',
     ];
 
     private const STRING_ATTRIBUTES = [
@@ -62,6 +62,10 @@ final readonly class RegistrationSubmission
 
         RegistrationInput::joiningDate(Data::nullableString($values, 'desired_joining_date'));
 
+        if (array_key_exists('payment', $values)) {
+            self::validatePayment(Data::object($values, 'payment'));
+        }
+
         $people = Data::objectList($values, 'people');
         $participants = Data::objectList($values, 'participants');
         if (count($people) < 1 || count($people) > 2 || count($participants) < 1 || count($participants) > 2) {
@@ -70,14 +74,14 @@ final readonly class RegistrationSubmission
         foreach ($people as $person) {
             RegistrationInput::keys($person, ['attributes', 'contacts']);
             $attributes = Data::object($person, 'attributes');
-            RegistrationInput::keys($attributes, [...self::STRING_ATTRIBUTES, 'service_class_id', 'salary_bracket_id', 'trainee', 'retired']);
+            RegistrationInput::keys($attributes, [...self::STRING_ATTRIBUTES, 'service_class_id', 'salary_bracket_id', 'trainee', 'retired', 'privacy_enabled']);
             foreach ($attributes as $field => $value) {
                 if ($value === null) {
                     continue;
                 }
                 $valid = match ($field) {
                     'service_class_id', 'salary_bracket_id' => is_int($value) && $value > 0,
-                    'trainee', 'retired' => in_array($value, [true, false, 0, 1, '0', '1'], true),
+                    'trainee', 'retired', 'privacy_enabled' => in_array($value, [true, false, 0, 1, '0', '1'], true),
                     'salutation' => in_array($value, ['mr', 'mrs', 'company', 'family'], true),
                     'gender' => in_array($value, ['male', 'female', 'divers'], true),
                     'parttime' => in_array($value, ['fulltime', 'parttime-1', 'parttime-2', 'parttime-3'], true),
@@ -123,6 +127,29 @@ final readonly class RegistrationSubmission
         return new self($key, $version, $values);
     }
 
+    /** The resolver owns billability, mandate reuse and whether a new declaration is required.
+     * @param  array<string, mixed>  $payment
+     */
+    private static function validatePayment(#[SensitiveParameter] array $payment): void
+    {
+        RegistrationInput::keys($payment, [
+            'payment_method_id', 'account_holder', 'bank_name', 'iban', 'bic', 'consent', 'shown_mandate_text_version',
+        ]);
+        $method = Data::nullableInt($payment, 'payment_method_id');
+        if ($method !== null && $method < 1) {
+            throw new InvalidArgumentException('Invalid registration payment method.');
+        }
+        foreach (['account_holder' => 255, 'bank_name' => 255, 'iban' => 50, 'bic' => 11, 'shown_mandate_text_version' => 190] as $field => $maximum) {
+            $value = Data::nullableString($payment, $field);
+            if ($value !== null && RegistrationInput::length($value) > $maximum) {
+                throw new InvalidArgumentException('Invalid registration payment input.');
+            }
+        }
+        if (($payment['consent'] ?? null) !== null) {
+            Data::bool($payment, 'consent');
+        }
+    }
+
     /** @return array<string, mixed> */
     public function toArray(): array
     {
@@ -136,6 +163,9 @@ final readonly class RegistrationSubmission
         }
         unset($person);
         $values['people'] = $people;
+        if (array_key_exists('payment', $values) && $values['payment'] === []) {
+            $values['payment'] = (object) [];
+        }
 
         return $values;
     }

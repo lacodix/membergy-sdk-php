@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://membergy.app/schemas/registration/v1/registration.schema.json",
   "title": "Membergy registration-v1 executable wire contract",
-  "description": "Current backend registration routes only, including existing payment presentation and the bank-transfer fixture choice. Tenant numeric IDs are not generated website keys. Debit declarations, payment implementation, Auth-v1/reset, CMS and SDK/DSTG are excluded from this mirror alignment.",
+  "description": "Current backend registration routes, payment presentation and typed flat transfer/debit transport. Conditional account, consent, billability and payer rules remain in the native resolver. Tenant numeric IDs are not generated website keys. Auth-v1/reset and CMS are excluded.",
   "definitions": {
     "TenantSlug": {
       "type": "string",
@@ -164,6 +164,10 @@
             null
           ]
         },
+        "privacy_enabled": {
+          "enum": [true, false, 0, 1, "0", "1", null],
+          "description": "Optional published native privacy preference for new people. Authoritative existing-person values remain locked; this never grants access or edits existing protection."
+        },
         "parttime": {
           "enum": [
             "fulltime",
@@ -275,6 +279,7 @@
               "salary_bracket_id",
               "trainee",
               "retired",
+              "privacy_enabled",
               "parttime"
             ]
           },
@@ -370,7 +375,8 @@
         },
         "sepa_mode": {
           "enum": [
-            "off"
+            "off",
+            "required"
           ]
         },
         "subtenant_mode": {
@@ -461,6 +467,7 @@
             "salary_bracket_id",
             "trainee",
             "retired",
+            "privacy_enabled",
             "parttime"
           ]
         },
@@ -732,6 +739,11 @@
     "PresentedPaymentMethod": {
       "type": "object",
       "properties": {
+        "collection_interval_months": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Configured collection interval, included when requesting application/vnd.membergy.registration-v1+json."
+        },
         "id": {
           "type": "integer",
           "minimum": 1
@@ -787,19 +799,39 @@
       "additionalProperties": false,
       "description": "Existing HTTP controller projection only: payment is required for billable selections, available method identities and nullable mandate-text metadata. Internal resolver flags, bank accounts and stored mandate data are not exposed."
     },
-    "BankTransferChoice": {
+    "PaymentInput": {
       "type": "object",
       "properties": {
         "payment_method_id": {
-          "type": "integer",
+          "type": ["integer", "null"],
           "minimum": 1
+        },
+        "account_holder": {
+          "type": ["string", "null"],
+          "maxLength": 255
+        },
+        "bank_name": {
+          "type": ["string", "null"],
+          "maxLength": 255
+        },
+        "iban": {
+          "type": ["string", "null"],
+          "maxLength": 50
+        },
+        "bic": {
+          "type": ["string", "null"],
+          "maxLength": 11
+        },
+        "consent": {
+          "type": ["boolean", "null"]
+        },
+        "shown_mandate_text_version": {
+          "type": ["string", "null"],
+          "maxLength": 190
         }
       },
-      "required": [
-        "payment_method_id"
-      ],
       "additionalProperties": false,
-      "description": "Existing bank-transfer choice used by the billable synthetic lifecycle. The server checks tenant ownership and selectability. Debit declaration inputs remain outside this mirror."
+      "description": "Typed JSON transport for the existing flat RegistrationPaymentResolver input. All properties may be omitted or null; payment itself is optional but cannot be null. Free selections refuse payment values. Billable selections require a tenant-owned selectable method. A new directdebit declaration requires account holder, valid IBAN, valid known BIC, affirmative consent and the authoritative shown text reference; existing-mandate reuse may require no new declaration. These conditional rules remain server-side. Form-compatible integer/string coercions are not part of this typed JSON mirror."
     },
     "OfferResponse": {
       "type": "object",
@@ -1320,7 +1352,7 @@
           "description": "Only when joining_date is offered. Must be an offered date; same wish stored on every participant. Null/empty/omitted selects submission-time current period. Off rejects even null."
       },
       "payment": {
-        "$ref": "#/definitions/BankTransferChoice"
+        "$ref": "#/definitions/PaymentInput"
         }
       },
       "required": [
@@ -1331,7 +1363,7 @@
         "participants"
       ],
       "additionalProperties": false,
-      "description": "Public validated fields only. Guest email is required by identity validation. Required person fields, choices, role rules and proofs derive from the current published offer. Verified account core values override client values. The existing billable fixture supplies only its selected bank-transfer payment_method_id; debit declarations are not modeled here."
+      "description": "Public typed fields only. Guest email is required by identity validation. Required person fields, choices, role rules and proofs derive from the current published offer. Verified account core values override client values. Payment carries the existing flat transfer/debit input; conditional mandate and payer rules stay in the shared backend resolver."
     },
     "JoiningDate": {
       "type": [
