@@ -52,7 +52,10 @@ it('hydrates and serializes the native captured required-debit offer and accepte
         ->and($offer->payment->mandateText)->toContain('Contract Club', 'Gläubiger ID: DE98ZZZ09999999999')
         ->and($offer->payment->mandateTextVersion)->toBe($payment['shown_mandate_text_version']);
     $mock = new MockClient([function (PendingRequest $pending) use ($input): MockResponse {
-        expect(json_decode((string) $pending->body(), true, flags: JSON_THROW_ON_ERROR))->toBe($input);
+        $body = $pending->body();
+        assert($body instanceof Stringable);
+
+        expect(json_decode((string) $body, true, flags: JSON_THROW_ON_ERROR))->toBe($input);
 
         return Fixtures::response('submitted-sepa-guest');
     }]);
@@ -76,7 +79,10 @@ it('hydrates the complete native offer schedule and serializes its captured bank
             return Fixtures::response($offerFixture);
         },
         function (PendingRequest $pending) use ($input, $submissionFixture): MockResponse {
-            expect(json_decode((string) $pending->body(), true, flags: JSON_THROW_ON_ERROR))->toBe($input);
+            $body = $pending->body();
+            assert($body instanceof Stringable);
+
+            expect(json_decode((string) $body, true, flags: JSON_THROW_ON_ERROR))->toBe($input);
 
             return Fixtures::response($submissionFixture);
         },
@@ -153,7 +159,10 @@ it('serializes synthetic payment transport through the real request without norm
     $input['payment'] = $payment;
     $submission = RegistrationSubmission::fromArray($input);
     $mock = new MockClient([function (PendingRequest $pending) use ($input): MockResponse {
-        expect(json_decode((string) $pending->body(), true, flags: JSON_THROW_ON_ERROR))->toBe($input)
+        $body = $pending->body();
+        assert($body instanceof Stringable);
+
+        expect(json_decode((string) $body, true, flags: JSON_THROW_ON_ERROR))->toBe($input)
             ->and($pending->query()->all())->toBe([]);
 
         return Fixtures::response('submitted-adult');
