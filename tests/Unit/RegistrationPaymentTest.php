@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Lacodix\MembergySdk\Connectors\MembergyConnector;
 use Lacodix\MembergySdk\DataObjects\RegistrationOffer;
+use Lacodix\MembergySdk\DataObjects\Registrations\RegistrationFeeTerm;
 use Lacodix\MembergySdk\DataObjects\Registrations\RegistrationPayment;
 use Lacodix\MembergySdk\DataObjects\Registrations\RegistrationSubmission;
 use Lacodix\MembergySdk\Enums\RegistrationPaymentMethodType;
@@ -16,6 +17,49 @@ use Lacodix\MembergySdk\Tests\Support\RegistrationFixtures as Fixtures;
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
 use Saloon\Http\PendingRequest;
+
+it('transports the canonical deferred fee terms and submits payment without inventing fees', function () {
+    $input = Data::object(Fixtures::wire('submitted-deferred-sepa'), 'request');
+    $mock = new MockClient([
+        Fixtures::response('offer-deferred-sepa'),
+        function (PendingRequest $pending) use ($input): MockResponse {
+            $body = $pending->body();
+            assert($body instanceof Stringable);
+
+            expect(json_decode((string) $body, true, flags: JSON_THROW_ON_ERROR))->toBe($input);
+
+            return Fixtures::response('submitted-deferred-sepa');
+        },
+    ]);
+    $connector = new MembergyConnector('https://sdk.membergy.test', 'contract-club', cmsToken: testCmsToken());
+    $connector->withMockClient($mock);
+    $client = MembergyClient::fromConnector($connector);
+    $option = $client->registrationOffers()->find('membership')->options[0];
+    assert($option->feeTerms !== null);
+
+    expect($option->fees->primary)->toBe([])
+        ->and($option->feeTerms->primary->mode)->toBe('deferred')
+        ->and($option->feeTerms->primary->requiresPayment)->toBeTrue()
+        ->and($option->feeTerms->primary->note)->toBe('Synthetic option')
+        ->and($option->feeTerms->guardian->mode)->toBe('free')
+        ->and($option->feeTerms->guardian->requiresPayment)->toBeFalse();
+    $application = $client->registrationApplications()->submit('membership', Fixtures::submission('submitted-deferred-sepa'));
+    expect($application->status)->toBe('submitted');
+    $mock->assertSentCount(2);
+});
+
+it('retains canonical fee mode and payment decisions without recalculating amounts', function (string $mode, bool $payment) {
+    $term = RegistrationFeeTerm::fromArray(['mode' => $mode, 'note' => null, 'requires_payment' => $payment]);
+    expect($term->mode)->toBe($mode)->and($term->requiresPayment)->toBe($payment);
+})->with([['free', false], ['specified', false], ['specified', true], ['deferred', true]]);
+
+it('rejects incomplete and unknown fee terms', function (array $terms) {
+    expect(fn () => RegistrationFeeTerm::fromArray($terms))->toThrow(HydrationException::class);
+})->with([
+    [['mode' => 'unknown', 'requires_payment' => true]],
+    [['mode' => 'deferred']],
+    [['mode' => 'deferred', 'requires_payment' => 'true']],
+]);
 
 it('hydrates the public payment presentation including nullable mandate metadata', function () {
     // Synthetic consumer inputs following RegistrationOfferController; not captured responses.

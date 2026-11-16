@@ -16,7 +16,10 @@
       "result": "46 passed, 961 assertions; no snapshot update after moving the privacy default note into its public field catalogue to satisfy the unchanged complexity gate"
     },
     "response_count": 51,
-    "new_http_captures": ["offer-privacy-sepa.json", "submitted-privacy-sepa.json"],
+    "new_http_captures": [
+      "offer-privacy-sepa.json",
+      "submitted-privacy-sepa.json"
+    ],
     "origin": "Existing registrationContractCapture and native getJson/postJson, factories and publication action. The new bounded draft variant adds only the optional native privacy_enabled boolean before publication; the real guest wire supplies true. Submission asserts the stored native answer. Separate native admission and session tests prove new-person persistence, child/guardian separation and authoritative existing-person locks; permissions and policies remain unchanged.",
     "inventory": "All prior 49 response/wire pairs remain byte-identical (98 frozen-file checks). Only the native capture function appended the two response hashes. The generated field-catalogue capability metadata adds privacy_enabled boolean. An initial unaccepted new offer was generated before its privacy assertion failed because name() excludes dataset labels. Only that incomplete new recording and its new inventory entry were removed; failed bytes were preserved in scratch. The fixture now selects its pre-publication variant via native dataName() and asserts privacy before recording. No accepted old response/hash was changed.",
     "schema": "Explicit optional privacy_enabled native boolean person attribute and published/prefill field-name allowlists. Authoring requires subgroups enabled; published type survives a later feature toggle. Existing-person prefill/locks win; only newly created people receive the opt-in. No access grants, model/schema migration or job-info dependency for this flag.",
@@ -39,7 +42,10 @@
       "proof": "Existing null-name and different-account cases remain intact. An intervening mandate cannot silently discard a different submitted bank_name; the new native admission refusal was first demonstrated failing without the guard."
     },
     "response_count": 49,
-    "new_http_captures": ["offer-complete-sepa.json", "submitted-complete-sepa.json"],
+    "new_http_captures": [
+      "offer-complete-sepa.json",
+      "submitted-complete-sepa.json"
+    ],
     "origin": "Native getJson/postJson and existing registrationContractCapture. A bounded draft fixture configures native job fields, tenant-owned subgroup/service/salary options, tenant parttime labels, month joining mode and a three-month direct debit before PublishRegistrationOfferVersion. The versioned Accept representation includes actual PaymentMethod.number_of_months. The guest input includes native contact types and bank_name; the resolver stores the name encrypted outside registration_people attributes.",
     "inventory": "The pre-existing 47 response/wire recordings stay byte-frozen. A failed draft fixture attempt recorded one incomplete new offer before its submission was refused (address_supplement is not a native field). Only that unaccepted, newly generated offer and its newly added inventory entry were removed; this successful native capture regenerated the complete offer using address_addition and initial German core labels. No old response hash was rewritten.",
     "canonicalization": "Unchanged existing registrationContractCanonical policy; only opaque credential/ticket and public UUID placeholders. Synthetic personal/bank input, native document requirements/proof hashes, current mandate text/reference and configured cadence are real captured bytes.",
@@ -1325,5 +1331,21 @@
     "new_http_captures": [
       "me/management-login.json"
     ]
+  },
+  "deferred_contributions_20261116": {
+    "backend_base": "c23587b571a8583af6e38087dd629b64762eba04",
+    "sdk_base": "c4e80f2ee8b116f7826410f51fb09413c17d981c",
+    "private_database": "testing_wt_registration_sepa_sdk_20261111",
+    "capture_command": "./worktree-lifecycle.sh run-tests registration-sepa-sdk-20261111 -- --compact tests/Feature/Api/RegistrationContractTest.php --filter='deferred SEPA' --update-snapshots",
+    "capture_exit": 0,
+    "capture_result": "1 passed, 37 assertions",
+    "new_http_captures": [
+      "offer-deferred-sepa.json",
+      "submitted-deferred-sepa.json"
+    ],
+    "response_count": 53,
+    "origin": "Synthetic native publication and real HTTP getJson/postJson through unchanged registrationContractCapture. No Fee row exists. Required SEPA uses the current text, accepted payment is encrypted, participant terms record deferred liability independently from fee_snapshot. No admission, real data, provider or bank access in captures.",
+    "compatibility": "All previous 51 response/wire pairs and their inventory hashes are unchanged. Explicitly configured fee modes expose fee_terms for both roles; old immutable options keep the legacy fee-list shape. New modes do not reinterpret old offers or old submission snapshots. Schema adds optional but structurally strict fee_terms; exact capture and inventory gates are unchanged.",
+    "canonicalization": "Unchanged registrationContractCanonical: only existing opaque credentials/tickets/public UUID placeholders. No additional canonicalization."
   }
 }

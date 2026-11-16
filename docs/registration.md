@@ -1,6 +1,6 @@
 # Provisional registration-v1
 
-This provisional implementation is based on versioned OpenAPI, JSON schema and 51
+This provisional implementation is based on versioned OpenAPI, JSON schema and 53
 captured HTTP/binary response fixtures. The fixture gates check canonical recorded
 response/schema/wire parity independently of integrated browser compatibility.
 SEPA captures exercise the native private backend; integrated browser acceptance
@@ -215,7 +215,7 @@ before the existing onboarding/admission process. Copying metadata alone cannot
 establish integrated browser compatibility, which remains separately required.
 
 The CMS gate keeps its original source and 64 CMS fixtures plus BlockRegistry. The
-registration gate independently checks all 51 real response files, exact binary
+registration gate independently checks all 53 real response files, exact binary
 bytes, request/status/header metadata, schema, OpenAPI and provenance. Both gates
 fail when their checkout is missing. They run separately from secretless package CI
 and do not gate package releases:
@@ -240,3 +240,26 @@ $client->registrationApplications()->submit('membership', $submission);
 Store the originally shown choices with the opaque form ticket when refetching an offer on
 submission: calendar changes do not change the immutable version. A choice from the valid
 24-hour ticket's issue-time window stays acceptable across a month/year boundary.
+
+
+## Contributions determined later
+
+After the backend deployment, explicitly configured options expose
+`$option->feeTerms->primary` and `$option->feeTerms->guardian`. Each term contains
+`mode` (`free`, `specified`, `deferred`), `note`, and the canonical boolean
+`requiresPayment`. `feeTerms` is null for the real legacy offer shape retained by
+older immutable versions. Republishing through the updated offer editor records
+explicit terms; this SDK does not infer liability or calculate it from amounts.
+
+Use primary terms for children and adults registering themselves, guardian terms
+only for a guardian who also joins. Include every selected and fixed option.
+Collect an offered payment method if any participating role's term requires it.
+A guardian who does not join may still be the child's payer, without acquiring
+contribution liability of their own.
+
+In deferred mode, `$option->fees` contains no invented fee or amount. Render the
+server's term note and follow the offered payment methods, current mandate text,
+version and consent requirements. Submit the existing `payment` input unchanged;
+do not send a fee ID, amount, fee mode, or fee terms from the browser. The backend
+records the presented terms and handles admission and payer authorization.
+The SDK performs no salary, work-time, or future automation calculations.
