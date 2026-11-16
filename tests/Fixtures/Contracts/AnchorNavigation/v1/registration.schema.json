@@ -165,7 +165,15 @@
           ]
         },
         "privacy_enabled": {
-          "enum": [true, false, 0, 1, "0", "1", null],
+          "enum": [
+            true,
+            false,
+            0,
+            1,
+            "0",
+            "1",
+            null
+          ],
           "description": "Optional published native privacy preference for new people. Authoritative existing-person values remain locked; this never grants access or edits existing protection."
         },
         "parttime": {
@@ -612,6 +620,23 @@
             "guardian"
           ],
           "additionalProperties": false
+        },
+        "fee_terms": {
+          "type": "object",
+          "properties": {
+            "primary": {
+              "$ref": "#/definitions/FeeTerms"
+            },
+            "guardian": {
+              "$ref": "#/definitions/FeeTerms"
+            }
+          },
+          "required": [
+            "primary",
+            "guardian"
+          ],
+          "additionalProperties": false,
+          "description": "Present for explicitly configured contribution terms. Older immutable options retain the legacy fee-list representation. Newly configured options always provide both role decisions."
         }
       },
       "required": [
@@ -803,30 +828,51 @@
       "type": "object",
       "properties": {
         "payment_method_id": {
-          "type": ["integer", "null"],
+          "type": [
+            "integer",
+            "null"
+          ],
           "minimum": 1
         },
         "account_holder": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "maxLength": 255
         },
         "bank_name": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "maxLength": 255
         },
         "iban": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "maxLength": 50
         },
         "bic": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "maxLength": 11
         },
         "consent": {
-          "type": ["boolean", "null"]
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "shown_mandate_text_version": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "maxLength": 190
         }
       },
@@ -1350,9 +1396,9 @@
           ],
           "pattern": "^$|^[0-9]{4}-[0-9]{2}-01$",
           "description": "Only when joining_date is offered. Must be an offered date; same wish stored on every participant. Null/empty/omitted selects submission-time current period. Off rejects even null."
-      },
-      "payment": {
-        "$ref": "#/definitions/PaymentInput"
+        },
+        "payment": {
+          "$ref": "#/definitions/PaymentInput"
         }
       },
       "required": [
@@ -1413,6 +1459,34 @@
       ],
       "additionalProperties": false,
       "description": "Server calendar choices: 13 months (-1..+11) or three years (-1..+1). One date for all participants; optional; omitted/null/empty enabled selection uses current submission-time period. Off is null and refuses any submitted key. Valid ticket issue-time choices remain valid for its 24-hour lifetime."
+    },
+    "FeeTerms": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "enum": [
+            "free",
+            "specified",
+            "deferred"
+          ]
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "requires_payment": {
+          "type": "boolean",
+          "description": "Canonical role-specific payment requirement. Deferred always requires payment; specified respects current real amounts including numeric zero."
+        }
+      },
+      "required": [
+        "mode",
+        "note",
+        "requires_payment"
+      ],
+      "additionalProperties": false
     }
   },
   "oneOf": [

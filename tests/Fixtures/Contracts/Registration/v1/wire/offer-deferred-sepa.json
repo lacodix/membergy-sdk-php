@@ -1,0 +1,18 @@
+{
+    "method": "GET",
+    "path": "\/api\/v1\/tenant\/contract-club\/registration-offers\/membership",
+    "request": [],
+    "request_headers": {
+        "Accept": "application\/json"
+    },
+    "request_schema": null,
+    "request_valid": true,
+    "status": 200,
+    "response_schema": "OfferResponse",
+    "response_headers": {
+        "Content-Type": "application\/json",
+        "Cache-Control": "no-store, private",
+        "Referrer-Policy": "no-referrer",
+        "X-Content-Type-Options": "nosniff"
+    }
+}

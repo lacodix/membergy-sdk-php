@@ -18,6 +18,7 @@ final readonly class RegistrationOption
         public bool $preselected,
         public int $position,
         public RegistrationFees $fees,
+        public ?RegistrationFeeTerms $feeTerms = null,
     ) {}
 
     /** @param array<string, mixed> $data */
@@ -28,6 +29,8 @@ final readonly class RegistrationOption
             Data::nullableString($data, 'note'), Data::bool($data, 'selectable'),
             Data::bool($data, 'preselected'), Data::int($data, 'position'),
             RegistrationFees::fromArray(Data::object($data, 'fees')),
+            array_key_exists('fee_terms', $data)
+                ? RegistrationFeeTerms::fromArray(Data::object($data, 'fee_terms')) : null,
         );
     }
 }
